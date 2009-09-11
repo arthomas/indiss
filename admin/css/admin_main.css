@@ -1,0 +1,262 @@
+/**
+ * @version     2009-09-10
+ * @author      Patrick Lehner
+ * @copyright   Copyright (C) 2009 Patrick Lehner
+ *
+ * @license     This program is free software: you can redistribute it and/or modify
+ *              it under the terms of the GNU General Public License as published by
+ *              the Free Software Foundation, either version 3 of the License, or
+ *              (at your option) any later version.
+ *
+ *              This program is distributed in the hope that it will be useful,
+ *              but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *              GNU General Public License for more details.
+ *
+ *              You should have received a copy of the GNU General Public License
+ *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+body {
+    background: white;
+    color: black;
+    font-family: Arial, Verdana, Helvetica, sans-serif;
+    font-size: 11pt;
+    padding-top: 30px;
+}
+
+div.floatCleaner {
+    clear: both;
+    height: 1px;
+    max-height: 1px;
+    border: 0 none;
+    background: transparent;
+    font-size: 0 !important;
+}
+
+div.buttonBar {
+    padding: 10px;
+    text-align: right;
+}
+
+
+div#topBar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    font-size: 9pt;
+    background: white;
+}
+
+div#topBarInner {
+    margin: 0 10px;
+    border: 1px solid black;
+    border-top: 0 none;
+    padding: 0 5px;
+}
+
+div#topBarInner div {
+    padding: 5px 0 4px;
+}
+
+div#topBarInner div.topBarLeft {
+    float: left;
+    padding: 5px 6px 4px;
+    border-right: 1px solid black;
+}
+
+div.topBarRight {
+    float: right;
+    margin-left: 20px;
+}
+
+div#topBarInner div#topBarLang {
+    padding: 2px 0 2px;;
+}
+    
+
+div#main {
+
+}
+
+div#content {
+    padding: 10px 20px;
+}
+
+div#messageBar {
+	border: 1px solid black;
+	width: 80%;
+	padding: 10px 20px;
+	margin: 0 auto 20px;
+	text-align: center;
+}
+
+div.mainColumn {
+    width: 49%;
+    /* border: 1px solid red; */
+}
+div.mainColumn#rr {
+    float: right;
+}
+div.mainColumn#ll {
+    float:left;
+}
+
+fieldset.option {
+    border: 1px solid black;
+}
+
+
+form#loginForm {
+    margin: 0 auto;
+    width: 300px;
+}
+form#loginForm > fieldset {
+	border: 1px solid black;
+    padding: 10px 20px;
+}
+form#loginForm table {
+	width: 100%;
+}
+form#loginForm table td:first-child *:last-child {
+	margin-right: 10px;
+}
+form#loginForm input.text {
+    width: 100%;
+    margin: 5px 0;
+}
+form#loginForm input.submit {
+	float: right;
+}
+
+fieldset {
+    margin-top: 20px;
+    border: 1px solid black;
+    padding: 10px;
+}
+
+
+div#footer {
+    clear: both;
+    font-size: 80%;
+    text-align: center;
+    margin-top: 30px;
+}
+
+
+/*Ticker manager*/
+
+div#tickerman div#tickermanNav {
+    text-align: right;
+}
+
+div#tickerman div#tickersDiv {
+    width: 1130px;
+    height: 200px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+div#tickerman table#tickersHead th {
+    padding: 1px;
+}
+
+div#tickerman table#tickers,
+div#tickerman table#tickersHead {
+    border-collapse: collapse;
+    width: 1100px;
+    max-width: 1100px;
+    min-width: 1100px;
+    margin-left: 1px;
+}
+div#tickerman table#tickers th {
+    vertical-align: top;
+}
+div#tickerman table#tickers tr > *,
+div#tickerman table#tickersHead tr > * {
+    border: 1px solid black;
+}
+
+div#tickerman table#tickers tr.none td {
+    color: gray;
+    font-style: italic;
+    text-indent: 40px;
+}
+
+div#tickerman table#tickers tr.category {
+    font-style: italic;
+    text-indent: 20px;
+    font-weight: bold;
+}
+
+div#tickerman table#tickers tr.past td {
+    color: darkgray;
+    font-style: italic;
+}
+div#tickerman table#tickers tr.future td {
+    color: darkblue;
+    font-style: italic;
+}
+
+div#tickerman table#tickers td.tName,
+div#tickerman table#tickersHead th.tName {
+    width: 130px;
+    padding: 0 10px;
+    overflow: hidden;
+}
+div#tickerman table#tickers td.tContent,
+div#tickerman table#tickersHead th.tContent {
+    
+}
+div#tickerman table#tickers td.tFrom,
+div#tickerman table#tickersHead th.tFrom {
+    width: 150px;
+    text-align: center;
+}
+div#tickerman table#tickers td.tUntil,
+div#tickerman table#tickersHead th.tUntil {
+    width: 150px;
+    text-align: center;
+}
+div#tickerman table#tickers td.tEdit,
+div#tickerman table#tickersHead th.tEdit {
+    width: 15px;
+    text-align: center;
+}
+div#tickerman table#tickers td.tDelete,
+div#tickerman table#tickersHead th.tDelete {
+    width: 15px;
+    text-align: center;
+}
+div#tickerman table#tickers td.tRestore,
+div#tickerman table#tickersHead th.tRestore {
+    width: 15px;
+    text-align: center;
+}
+div#tickerman table#tickers td.tCheck,
+div#tickerman table#tickersHead th.tCheck {
+    width: 20px;
+    text-align: center;
+}
+div#tickerman div#tickerListButtons {
+    text-align: right;
+    padding-right: 50px;
+}
+
+div#tickerman div#tickerCreateTop {
+    padding-top: 5px;
+}
+div#tickerman form#tickerCreateRestartForm {
+    float: right;
+}
+div#tickerman form#tickerCreateForm {
+    clear: both;
+}
+
+div#tickerman div#tickerDeleteTop {
+    padding-top: 5px;
+}
+div#tickerman div#tickerDeleteButtonBar {
+    float: right;
+}
