@@ -67,11 +67,11 @@
         
         foreach ($table as $date => $thisDate) {
             if ( $date == $today ) {
-                $summary[] = "<span class=\"today\">Heute, " . date("d.m.", strtotime($date)) . ": %d</span>";
+                $summary[] = "<span class=\"today%%s\">Heute, " . date("d.m.", strtotime($date)) . ": %d</span>";
             } else if ( $date == date("Y-m-d", strtotime("+1day")) ) {
-                $summary[] = "<span class=\"tomorrow\">Morgen, " . date("d.m.", strtotime($date)) . ": %d</span>";
+                $summary[] = "<span class=\"tomorrow%%s\">Morgen, " . date("d.m.", strtotime($date)) . ": %d</span>";
             } else {
-                $summary[] = "<span class=\"other\">" . date("l, d.m.", strtotime($date)) . ": %d</span>";
+                $summary[] = "<span class=\"other%%s\">" . strftime("%A, %d.%m.", strtotime($date)) . ": %d</span>";
             }
         }
     
@@ -108,6 +108,7 @@
         $head .= '<head>' . "\n";
         $head .= '    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />' . "\n";
         $head .= '    <meta name="author" content="Patrick Lehner" />' . "\n";
+        $head .= '    <meta http-equiv="refresh" content="10; URL=%s" />' . "\n";
         $head .= '    <style type="text/css">' . "\n";
         $head .= '    <!--' . "\n";
         $head .= '        table#main { border-collapse: collapse; }' . "\n";
@@ -118,6 +119,7 @@
         $head .= '        span.today { background-color: #FFD; }' . "\n";
         $head .= '        span.tomorrow { background-color: #DFD; }' . "\n";
         $head .= '        span.other { background-color: #DDF; }' . "\n";
+        $head .= '        span.current { font-weight: bold; }' . "\n";
         $head .= '    -->' . "\n";
         $head .= '    </style>' . "\n";
         $head .= '    <title>Vertretungsplan</title>' . "\n";
@@ -132,7 +134,7 @@
         $thead .= '    <table id="main" border="0" cellspacing="0" cellpadding="0">' . "\n";
         $thead .= '        <tbody>' . "\n";
         //$thead .= '            <tr><td style="padding-bottom: 10px; text-align: center;" colspan="10"><span style="margin: 0 20px; background-color: white;">Heute: 4</span> <span style="margin: 0 20px; background-color: #FFD; color: gray; font-style: italic;">(Morgen: 0)</span> <span style="margin: 0 20px; background-color: #DFD;">Montag: 2</span></td></tr>' . "\n";
-        $thead .= '            <tr><td colspan="10"><table id="summary" border="0" cellpadding="0" cellspacing="0"><tbody><tr><td style="text-align: left;">%%s</td><td style="text-align: right;">%s, Seite %d/%%d</td></tr></tbody></table></td></tr>' . "\n";
+        $thead .= '            <tr><td colspan="10"><table id="summary" border="0" cellpadding="0" cellspacing="0"><tbody><tr><td style="text-align: left;">%%s</td><td style="text-align: right;"><span style="font-weight: bold;">%s</span>, Seite %d/%%d</td></tr></tbody></table></td></tr>' . "\n";
         $thead .= '            <tr><th rowspan="2">Kl</th><th rowspan="2">Std.</th><th colspan="3">Planm&auml;&szlig;ig</th><th colspan="5">Vertretung</th></tr>' . "\n";
         $thead .= '            <tr><td>Fach</td><td>Lehrer</td><td>Raum</td><td>Fach</td><td>Lehrer</td><td>Raum</td><td>Art</td><td>Grund</td></tr>' . "\n";
         
@@ -203,8 +205,14 @@
         }
         
         for ($j = 0; $j < count( $_output ); $j++) 
+            for ($i = 0; $i < ( $count = count( $_output[$j] ) ); $i++)
+                $filenames[] = sprintf("Day%d_%d.html", $j, $i);
+        $filenames[] = $filenames[0];
+        
+        $c = 0;
+        for ($j = 0; $j < count( $_output ); $j++) 
             for ($i = 0; $i < ( $count = count( $_output[$j] ) ); $i++) {
-                file_put_contents( sprintf("Day%d_%d.html", $j, $i), sprintf( $_output[$j][$i], $summary, $count ) );   //ATTENTION!!!! watch out for any %'s you used in the HTML!!
+                file_put_contents( $filenames[$c++], sprintf( $_output[$j][$i], $filenames[$c], sprintf($summary, ($j==0)?" current":"", ($j==1)?" current":""), $count ) );   //ATTENTION!!!! watch out for any %'s you used in the HTML!!
             }
     
     
