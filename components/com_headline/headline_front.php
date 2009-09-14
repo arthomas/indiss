@@ -116,9 +116,8 @@
 </head>
 <body>
     <div id="rightbox">
-        <span id="schoolname">Theodor-Heuss-Gymnasium N&ouml;rdlingen</span>
         <span id="datetime"><?php echo date("d.m.Y H:i:s");?></span>
     </div>
-    <div id="main"><span id="greeting">Guten Tag!</span></div>
+    <div id="main"><span id="greeting">Theodor-Heuss-Gymnasium N&ouml;rdlingen</span></div>
 </body>
 </html>

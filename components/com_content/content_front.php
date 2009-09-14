@@ -161,9 +161,10 @@ else if ( $type == "iframe" ) { ?>
             <iframe src="<?php echo $current->url; ?>" scrolling="no" frameborder="0" width="100%" height="<?php echo getValueByNameD("com_content_options", "iframe_height", 1020); ?>"></iframe>
 <?php } 
 else if ( $type == "image" ) { 
-    $size = getimagesize($current->url);
+    $size = getimagesize(getcwd() . "/../.." . $current->url);  //TODO: find more general way to determine root file path etc
     if ( $size === false ) { ?>
-            Beim holen der Bilddatei <pre><?php echo $current->url; ?></pre> ist ein Fehler aufgetreten. Bitte benachrichtigen Sie den Systembetreuer und/oder Entwickler.
+            Beim holen der Bilddatei <pre><?php echo $current->url; ?></pre> ist ein Fehler aufgetreten. Bitte benachrichtigen Sie den Systembetreuer und/oder Entwickler.<br />
+            <?php echo getcwd();?>
 <?php }
     else {
         $maxwidth = getValueByNameD("com_content_options", "img_max_width", 1100);

@@ -24,7 +24,7 @@
     $topsrc = "modules/top.php";
     $bottomsrc = "modules/bottom.php";
     $leftsrc = "modules/left.php";
-    $rightsrc = "modules/right.php";
+    $rightsrc = "cli_scripts/Day0_0.html";
     
 ?>
 <iframe id="top" name="top" src="<?php echo $topsrc;?>"></iframe>

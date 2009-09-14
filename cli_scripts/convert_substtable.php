@@ -18,13 +18,18 @@
  *              You should have received a copy of the GNU General Public License
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+    //TODO: convert script: comment code more
+    //TODO: convert script: include database and use it
     
     echo "\nAnalyzing and converting substitution table...\n";
         
-    setlocale(LC_TIME, 'de_DE@euro', 'de_DE', 'deu_deu');
+    setlocale(LC_TIME, 'de_DE', 'de_DE', 'deu_deu', 'de', 'ge');
 
     //read the input file into an array
-    $subst_file = file("c:/xampp/htdocs/infoscreen/upload/substitution.txt");
+    $subst_file = file($argv[1]);
+    
+    if ( $subst_file === false )
+        exit( "Error: Input file not found. " );
     
     //extract all headers
     $heading = explode("\t", rtrim($subst_file[0], "\r\n\0"));
@@ -41,7 +46,7 @@
             if ( $entry == "'---" )
                 $line[$key] = "";
         if (!in_array($line_["Art"], array("Freisetzung", "Sondereins.", "Pausenaufsicht")))        //remove some items we dont want to display
-            $table[$line_["Datum"]][$line_["(Klasse(n))"]][$line_["Stunde"]][] = $line;     //create out actual multi-dimensional array
+            $table[$line_["Datum"]][$line_["Klasse(n)"]][$line_["Stunde"]][] = $line;     //create out actual multi-dimensional array
     }
     
     
@@ -64,17 +69,6 @@
     } else {
         
         $table = $_table;
-        
-        foreach ($table as $date => $thisDate) {
-            if ( $date == $today ) {
-                $summary[] = "<span class=\"today%%s\">Heute, " . date("d.m.", strtotime($date)) . ": %d</span>";
-            } else if ( $date == date("Y-m-d", strtotime("+1day")) ) {
-                $summary[] = "<span class=\"tomorrow%%s\">Morgen, " . date("d.m.", strtotime($date)) . ": %d</span>";
-            } else {
-                $summary[] = "<span class=\"other%%s\">" . strftime("%A, %d.%m.", strtotime($date)) . ": %d</span>";
-            }
-        }
-    
     
     
         //function used to sort the classes in ascending order: 5-9, 10-11, K12, K13, Wahlf
@@ -108,23 +102,20 @@
         $head .= '<head>' . "\n";
         $head .= '    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />' . "\n";
         $head .= '    <meta name="author" content="Patrick Lehner" />' . "\n";
-        $head .= '    <meta http-equiv="refresh" content="10; URL=%s" />' . "\n";
+        $head .= '    <meta http-equiv="refresh" content="20; URL=%%s" />' . "\n";
         $head .= '    <style type="text/css">' . "\n";
         $head .= '    <!--' . "\n";
+        $head .= '        body { font-family: Arial, Verdana, sans-serif; }' . "\n";
+        $head .= '        body.today td, body.today th { background: #FFD; }' . "\n";
+        $head .= '        body.tomorrow td, body.tomorrow th { background: #DFD; }' . "\n";
+        $head .= '        body.other td, body.other th { background: #DEF; }' . "\n";
         $head .= '        table#main { border-collapse: collapse; }' . "\n";
-        $head .= '        table#summary { width: 100%%; }' . "\n";
         $head .= '        td, th { border: 1px solid black; padding: 2px 4px; }' . "\n";
-        $head .= '        table#summary td, table#summary th { border: 0 none; padding: 0; }' . "\n";
-        $head .= '        table#summary span + span { margin-left: 20px; }' . "\n";
-        $head .= '        span.today { background-color: #FFD; }' . "\n";
-        $head .= '        span.tomorrow { background-color: #DFD; }' . "\n";
-        $head .= '        span.other { background-color: #DDF; }' . "\n";
-        $head .= '        span.current { font-weight: bold; }' . "\n";
         $head .= '    -->' . "\n";
         $head .= '    </style>' . "\n";
         $head .= '    <title>Vertretungsplan</title>' . "\n";
         $head .= '</head>' . "\n";
-        $head .= '<body>' . "\n";
+        $head .= '<body class="%s">' . "\n";
         
         $foot = "";
         $foot .= '</body>' . "\n";
@@ -134,7 +125,7 @@
         $thead .= '    <table id="main" border="0" cellspacing="0" cellpadding="0">' . "\n";
         $thead .= '        <tbody>' . "\n";
         //$thead .= '            <tr><td style="padding-bottom: 10px; text-align: center;" colspan="10"><span style="margin: 0 20px; background-color: white;">Heute: 4</span> <span style="margin: 0 20px; background-color: #FFD; color: gray; font-style: italic;">(Morgen: 0)</span> <span style="margin: 0 20px; background-color: #DFD;">Montag: 2</span></td></tr>' . "\n";
-        $thead .= '            <tr><td colspan="10"><table id="summary" border="0" cellpadding="0" cellspacing="0"><tbody><tr><td style="text-align: left;">%%s</td><td style="text-align: right;"><span style="font-weight: bold;">%s</span>, Seite %d/%%d</td></tr></tbody></table></td></tr>' . "\n";
+        $thead .= '            <tr><td colspan="10" style="text-align: center;"><span style="font-weight: bold;">%s</span>, Seite %d/%%d</td></tr>' . "\n";
         $thead .= '            <tr><th rowspan="2">Kl</th><th rowspan="2">Std.</th><th colspan="3">Planm&auml;&szlig;ig</th><th colspan="5">Vertretung</th></tr>' . "\n";
         $thead .= '            <tr><td>Fach</td><td>Lehrer</td><td>Raum</td><td>Fach</td><td>Lehrer</td><td>Raum</td><td>Art</td><td>Grund</td></tr>' . "\n";
         
@@ -143,14 +134,24 @@
         $tfoot .= '    </table>' . "\n";
     
         
-        $startlines = 3;
+        $startlines = 3;                //TODO: convert script: move parameters to database
         $maxlines = 40;
         $lines = 0;
         $pages = 0;
         
         $output[0] = "";
         foreach ($table as $date => $thisDate) {
-            $internaldate = strtotime(str_replace(".", "-", $date) . date("Y"));
+            //$internaldate = strtotime(str_replace(".", "-", $date) . date("Y"));
+            if ( $date == $today ) {
+                $dateText = "Heute, " . date("d.m.", strtotime($date));
+                $bodyClass = "today";
+            } else if ( $date == date("Y-m-d", strtotime("+1day")) ) {
+                $dateText = "Morgen, " . date("d.m.", strtotime($date));
+                $bodyClass = "tomorrow";
+            } else {
+                $dateText = strftime("%A, %d.%m.", strtotime($date));
+                $bodyClass = "other";
+            }
             if ( !empty( $output[$pages] ) ) {
                 $output[$pages] .= $tfoot . $foot;
                 $_output[] = $output;
@@ -158,7 +159,7 @@
                 $output[0] = "";
             }
             if ( empty( $output[$pages] ) ) {
-                $output[$pages] = $head . sprintf($thead, strftime("%A, %d.%m.", $internaldate), $pages + 1);
+                $output[$pages] = sprintf($head, $bodyClass) . sprintf($thead, $dateText, $pages + 1);
                 $lines = $startlines;
             }
             foreach ($thisDate as $class => $thisClass) {
@@ -183,7 +184,7 @@
                 if (($lines + $templines) >= $maxlines) {
                     $output[$pages] .= $tfoot . $foot;
                     $pages++;
-                    $output[$pages] = $head . sprintf($thead, strftime("%A, %d.%m.", $internaldate), $pages + 1);
+                    $output[$pages] = sprintf($head, $bodyClass) . sprintf($thead, $dateText, $pages + 1);
                     $lines = $startlines;
                 }
                 $output[$pages] .= $tempout;
@@ -193,17 +194,6 @@
         $output[$pages] .= $tfoot . $foot;
         $_output[] = $output;
         
-        switch ( count ( $summary ) ) {
-            case 0:
-                break;
-            case 1:
-                $summary = sprintf ( $summary[0], count( $_output[0] ) );
-                break;
-            case 2:
-            default:
-                $summary = sprintf ( $summary[0], count( $_output[0] ) ) . " " . sprintf ( $summary[1], count( $_output[1] ) );
-        }
-        
         for ($j = 0; $j < count( $_output ); $j++) 
             for ($i = 0; $i < ( $count = count( $_output[$j] ) ); $i++)
                 $filenames[] = sprintf("Day%d_%d.html", $j, $i);
@@ -212,8 +202,8 @@
         $c = 0;
         for ($j = 0; $j < count( $_output ); $j++) 
             for ($i = 0; $i < ( $count = count( $_output[$j] ) ); $i++) {
-                file_put_contents( $filenames[$c++], sprintf( $_output[$j][$i], $filenames[$c], sprintf($summary, ($j==0)?" current":"", ($j==1)?" current":""), $count ) );   //ATTENTION!!!! watch out for any %'s you used in the HTML!!
-            }
+                file_put_contents( dirname($argv[0]) . "/" . $filenames[$c++], sprintf( $_output[$j][$i], $filenames[$c], $count ) );   //ATTENTION!!!! watch out for any %'s you used in the HTML!!
+            }                                                                                                           //TODO: convert script: move template to file
     
     
         echo "Done.\n";

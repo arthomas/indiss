@@ -28,7 +28,7 @@
 	/*Database config*/
 	$dbhost        = "localhost";
 	$dbuser        = "root";
-	$dbpass        = "";
+	$dbpass        = "Ux67bbz4yjvKkmyk";
 	$dbname        = "infoscreen";
 	$datefmt       = "Y-m-d H:i:s";
 	

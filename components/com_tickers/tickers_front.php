@@ -78,7 +78,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
-    <!--<meta http-equiv="refresh" content="30; URL=." />-->
+    <meta http-equiv="refresh" content="300; URL=./bottom.php" /><?php //TODO: ticker: make refresh time customizable ?>
     <meta name="author" content="Patrick Lehner" />
 
     <!-- <link rel="stylesheet" type="text/css" href="ticker.css" /> -->
