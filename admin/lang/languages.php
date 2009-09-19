@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-09-10
+ * @version     2009-09-19
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * 
@@ -19,5 +19,5 @@
  */
 
     $languages["en"]="English";
-    //$languages["de"]="Deutsch";
+    $languages["de"]="Deutsch";
 ?>

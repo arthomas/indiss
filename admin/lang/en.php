@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-09-10
+ * @version     2009-09-19
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * 
@@ -132,6 +132,7 @@
     $_LANG["conTypeLocalImage"]             = "Local image";
     $_LANG["conTypeExternalImage"]          = "External image";
     $_LANG["conTypeLocalOther"]             = "Other local file";
+    $_LANG["conTypeExternalOther"]          = "Other external file";
     $_LANG["conTypeUnknown"]                = "Unknown";
     
     $_LANG["conPastPages"]                  = "Previous pages";
@@ -152,10 +153,10 @@
     $_LANG["conRestoreSelected"]            = "Restore selected";
     $_LANG["conSelectMultiple"]             = "Select multiple";
     
-    $_LANG["conCreatePage"]                 = "Add new page(s)";
+    $_LANG["conCreatePage"]                 = "Add new content";
     $_LANG["conReloadCreate1"]              = "Reload with";        //A drop-down menu to select the number will be displayed between these two strings.
-    $_LANG["conReloadCreate2"]              = "new pages.";         //no need to include spaces at the edges
-    $_LANG["conEmptyURLNotice"]             = "Pages with empty URL will be ignored (names are optional).";
+    $_LANG["conReloadCreate2"]              = "new content items.";         //no need to include spaces at the edges
+    $_LANG["conEmptyURLNotice"]             = "Items with empty URL will be ignored (names are optional).";
     
     $_LANG["conYesReallyDelete"]            = "Yes, really delete";
     $_LANG["conNoDontDelete"]               = "No, don't delete";
@@ -163,7 +164,7 @@
     $_LANG["conDeletePermanently?"]         = "Do you really want to delete all pages listed below permanently? (This cannot be undone!)";
     $_LANG["conPagesToDelete"]              = "Pages to be deleted";
     
-    $_LANG["conTrashBin"]                   = "Deleted pages - Trash bin";
+    $_LANG["conTrashBin"]                   = "Deleted content items - Trash bin";
     
     $_LANG["conEditPage"]                   = "Edit page";
     $_LANG["conDeleted"]                    = "Deleted";

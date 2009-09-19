@@ -275,7 +275,7 @@
                 $output .= "<tr class=\"$list\">" .
                     "<td class=\"tName\">$value->name</td>" .
                     "<td class=\"tURL\">$value->url</td>" .
-                    "<td class=\"tType\">" . lang("conType" . $value->type) . "</td>" .
+                    "<td class=\"tType\">" . lang("conType" . ( (empty($value->type)) ? "Unknown": $value->type ) ) . "</td>" .
                     "<td class=\"tDispTime\">$value->displaytime s</td>" .
                     "<td class=\"tFrom\">$value->start</td>" .
                     "<td class=\"tUntil\">$value->end</td>";
@@ -449,13 +449,23 @@ else if ($view == "create") {
                     <input type="hidden" name="new_pages" value="<?php echo $new_pages; ?>" />
                     <table id="contentCreateContainerTable" summary="" border="0" cellpadding="2" cellspacing="0">
                         <tbody>
-<?php for ($i = 0; $i < $new_pages; $i++) {       //TODO: content admin: make it possible to upload files!!!  TODO: content admin: include CKEditor?>
+<?php for ($i = 0; $i < $new_pages; $i++) {      //TODO: content admin: include CKEditor?>
                             <tr><td>
                                 <fieldset class="contentCreateBox"><legend><?php lang_echo("conCreatePage");?> <span class="createBoxTypeInfo" id="info<?php echo $i; ?>">This entry will be ignored: empty URL.</span></legend>
                                     <!-- <input type="hidden" id="type<?php echo $i;?>" name="type<?php echo $i; ?>" value="ignore" />-->
                                     <table class="contentCreateTable" summary="" border="0" cellpadding="2" cellspacing="0">
                                         <tbody>
-                                            <tr><td><label for="name<?php echo $i;?>"><?php lang_echo("conName");?>:</label></td><td><div class="FileButtons"><input type="button" value="Browse server..." /><input type="button" value="Upload file..." /><input type="button" value="Create file..." /></div><input type="text" class="nameInput" name="name<?php echo $i;?>" /></td></tr>
+                                            <tr>
+                                                <td><label for="name<?php echo $i;?>"><?php lang_echo("conName");?>:</label></td>
+                                                <td>
+                                                    <div class="FileButtons">
+                                                        <input type="button" value="Browse server..." disabled="disabled"/>
+                                                        <input type="button" value="Upload file..." onclick="window.open('/InfoScreen/components/com_content/popup_upload_file.php?index=<?php echo $i; ?>', 'Upload File', 'menubar=no,location=no,height=200,width=500,toolbar=no,status=yes,dependent=yes');" />
+                                                        <input type="button" value="Create file..." disabled="disabled" />
+                                                    </div>
+                                                    <input type="text" class="nameInput" name="name<?php echo $i;?>" />
+                                                </td>
+                                            </tr>
                                             <tr><td><label for="URL<?php echo $i;?>"><?php lang_echo("conURL");?>:</label></td><td><input type="text" class="URLInput" name="URL<?php echo $i;?>" id="URL<?php echo $i;?>" onchange="determineType(this, <?php echo $i; ?>);" /></td></tr>
                                             <tr><td><label for="disptime<?php echo $i;?>"><?php lang_echo("conDispTime");?>:</label></td><td><input type="text" class="timeInput" name="disptime<?php echo $i;?>" onchange="checkDispTime(this, <?php echo $i; ?>);" value="<?php echo (($time = getValueByName("com_content_options", "default_display_time")) === false) ? "120" : $time; ?>" />s</td></tr>
                                             <tr>
@@ -464,46 +474,46 @@ else if ($view == "create") {
                                                     <table class="contentDateTable" summary="" border="0" cellpadding="0" cellspacing="0">
                                                         <tbody>
                                                             <tr>
-                                                                <th>Date:</th>
-                                                                <td><input type="radio" name="start<?php echo $i;?>date" value="<?php echo date("Y-m-d"); ?>" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" />Today</td>
-                                                                <td><input type="radio" name="start<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+1day")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" />Tomorrow</td>
-                                                                <td><input type="radio" name="start<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+2days")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" />In 2 days</td>
-                                                                <td><input type="radio" name="start<?php echo $i;?>date" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" /><label for="start<?php echo $i;?>date">Custom:</label></td>
+                                                                <th>Datum:</th>
+                                                                <td><input type="radio" name="start<?php echo $i;?>date" value="<?php echo date("Y-m-d"); ?>" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" />Heute</td>
+                                                                <td><input type="radio" name="start<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+1day")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" />Morgen</td>
+                                                                <td><input type="radio" name="start<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+2days")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" />&Uuml;bermorgen</td>
+                                                                <td><input type="radio" name="start<?php echo $i;?>date" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" /><label for="start<?php echo $i;?>date">Anderes Datum:</label></td>
                                                                 <td>
                                                                     <input type="text" name="start<?php echo $i;?>datecustom" value="<?php echo date("Y-m-d"); ?>" id="start<?php echo $i;?>datecustom" disabled="disabled" onchange="updateResultDateCustom(this, '<?php echo $i;?>', 'start');" />
                                                                     <input type="hidden" name="start<?php echo $i;?>dateval" value="<?php echo date("Y-m-d"); ?>" id="start<?php echo $i;?>dateval" />
                                                                 </td>
-                                                                <td rowspan="2">Resulting time stamp: <input type="text" name="start<?php echo $i;?>result" value="<?php echo date("Y-m-d H:i:s", strtotime("today 06:00")); ?>" readonly="readonly" id="start<?php echo $i;?>result" /></td>
+                                                                <td rowspan="2">Erzeugter Zeitstempel: <input type="text" name="start<?php echo $i;?>result" value="<?php echo date("Y-m-d H:i:s", strtotime("today 06:00")); ?>" readonly="readonly" id="start<?php echo $i;?>result" /></td>
                                                             </tr>
                                                             <tr>
-                                                                <th>Time:</th>
-                                                                <td><input type="radio" name="start<?php echo $i;?>time" value="06:00:00" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" />Morning</td>
-                                                                <td><input type="radio" name="start<?php echo $i;?>time" value="09:30:00" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" />Morning break</td>
-                                                                <td><input type="radio" name="start<?php echo $i;?>time" value="12:00:00" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" />Noon</td>
-                                                                <td><input type="radio" name="start<?php echo $i;?>time" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" />Custom:</td>
+                                                                <th>Zeit:</th>
+                                                                <td><input type="radio" name="start<?php echo $i;?>time" value="06:00:00" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" />Morgens</td>
+                                                                <td><input type="radio" name="start<?php echo $i;?>time" value="09:30:00" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" />Gro&szlig;e Pause</td>
+                                                                <td><input type="radio" name="start<?php echo $i;?>time" value="12:00:00" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" />Mittags</td>
+                                                                <td><input type="radio" name="start<?php echo $i;?>time" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" />Anderer Zeitpunkt:</td>
                                                                 <td>
                                                                     <input type="text" name="start<?php echo $i;?>timecustom" value="<?php echo date("H:i:s", strtotime("today 06:00")); ?>" id="start<?php echo $i;?>timecustom" disabled="disabled" onchange="updateResultTimeCustom(this, '<?php echo $i;?>', 'start');" />
                                                                     <input type="hidden" name="start<?php echo $i;?>timeval" value="<?php echo date("H:i:s", strtotime("today 06:00")); ?>" id="start<?php echo $i;?>timeval" />
                                                                 </td>
                                                             </tr>
                                                             <tr>
-                                                                <th>Date:</th>
-                                                                <td><input type="radio" name="end<?php echo $i;?>date" value="<?php echo date("Y-m-d"); ?>" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" />Same day</td>
-                                                                <td><input type="radio" name="end<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+1day")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" />Next day</td>
-                                                                <td><input type="radio" name="end<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+2days")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" />2 days after</td>
-                                                                <td><input type="radio" name="end<?php echo $i;?>date" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" />Custom:</td>
+                                                                <th>Datum:</th>
+                                                                <td><input type="radio" name="end<?php echo $i;?>date" value="<?php echo date("Y-m-d"); ?>" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" />Heute</td>
+                                                                <td><input type="radio" name="end<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+1day")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" />Morgen</td>
+                                                                <td><input type="radio" name="end<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+2days")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" />&Uuml;bermorgen</td>
+                                                                <td><input type="radio" name="end<?php echo $i;?>date" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" />Anderes Datum:</td>
                                                                 <td>
                                                                     <input type="text" name="end<?php echo $i;?>datecustom" value="<?php echo date("Y-m-d"); ?>" id="end<?php echo $i;?>datecustom" disabled="disabled" onchange="updateResultDateCustom(this, '<?php echo $i;?>', 'end');" />
                                                                     <input type="hidden" name="end<?php echo $i;?>dateval" value="<?php echo date("Y-m-d"); ?>" id="end<?php echo $i;?>dateval" />
                                                                 </td>
-                                                                <td rowspan="2">Resulting time stamp: <input type="text" name="end<?php echo $i;?>result" value="<?php echo date("Y-m-d H:i:s", strtotime("today 18:00")); ?>" readonly="readonly" id="end<?php echo $i;?>result" /></td>
+                                                                <td rowspan="2">Erzeugter Zeitstempel: <input type="text" name="end<?php echo $i;?>result" value="<?php echo date("Y-m-d H:i:s", strtotime("today 18:00")); ?>" readonly="readonly" id="end<?php echo $i;?>result" /></td>
                                                             </tr>
                                                             <tr>
-                                                                <th>Time:</th>
-                                                                <td><input type="radio" name="end<?php echo $i;?>time" value="09:30:00" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" />Morning break</td>
-                                                                <td><input type="radio" name="end<?php echo $i;?>time" value="12:00:00" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" />Noon</td>
-                                                                <td><input type="radio" name="end<?php echo $i;?>time" value="18:00:00" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" />Evening</td>
-                                                                <td><input type="radio" name="end<?php echo $i;?>time" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" />Custom:</td>
+                                                                <th>Zeit:</th>
+                                                                <td><input type="radio" name="end<?php echo $i;?>time" value="09:30:00" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" />Gro&szlig;e Pause</td>
+                                                                <td><input type="radio" name="end<?php echo $i;?>time" value="12:00:00" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" />Mittags</td>
+                                                                <td><input type="radio" name="end<?php echo $i;?>time" value="18:00:00" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" />Abends</td>
+                                                                <td><input type="radio" name="end<?php echo $i;?>time" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" />Anderer Zeitpunkt:</td>
                                                                 <td>
                                                                     <input type="text" name="end<?php echo $i;?>timecustom" value="<?php echo date("H:i:s", strtotime("today 18:00")); ?>" id="end<?php echo $i;?>timecustom" disabled="disabled" onchange="updateResultTimeCustom(this, '<?php echo $i;?>', 'end');" />
                                                                     <input type="hidden" name="end<?php echo $i;?>timeval" value="<?php echo date("H:i:s", strtotime("today 18:00")); ?>" id="end<?php echo $i;?>timeval" />

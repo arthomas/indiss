@@ -23,12 +23,12 @@
     /*General config*/
     $basepath      = "/InfoScreen";
 	$sitename      = "THG InfoScreen";
-	$defaultlang   = "en";
+	$defaultlang   = "de";
 	
 	/*Database config*/
 	$dbhost        = "localhost";
 	$dbuser        = "root";
-	$dbpass        = "Ux67bbz4yjvKkmyk";
+	$dbpass        = "";
 	$dbname        = "infoscreen";
 	$datefmt       = "Y-m-d H:i:s";
 	
