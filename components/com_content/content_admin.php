@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-09-10
+ * @version     2009-09-19
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      content_admin -- HTML page manager (backend)
@@ -107,9 +107,7 @@
                     //determine the link type
                     
                     $URL = $_POST["URL$i"];
-                    /*$test = preg_match('/^http:\/\/[a-zA-Z0-9\.-]+\.[a-zA-Z]{2,5}/i', $URL);
-                    var_dump ($URL, $test);*/
-                    if ( preg_match('/^http:\/\/[a-zA-Z0-9\.-]+\.[a-zA-Z]{2,5}/i', $URL) ) {            //TODO: content admin: make the regex for link type regocnition work!!
+                    if ( preg_match('/^http:\/\/[a-zA-Z0-9\.-]+\.[a-zA-Z]{2,5}/i', $URL) ) {
                         if ( preg_match('/\.(?:bmp|gif|png|jpg|jpeg|svg)$/', $URL) ) {
                             $type = "ExternalImage";
                         } else if ( preg_match('/\.(?:html|html|php|shtml)$/', $URL) ) {
@@ -128,16 +126,16 @@
                             $type = "LocalOther";
                         }
                     }
-                    //var_dump($type);
                     
                     if ( $type != "ignore" ) {
                         if ( $c > 0 )
                             $query .= ",";
-                        $query .= "('" . $_POST["name$i"] . "', '" . $_POST["URL$i"] . "', '" . $_POST["disptime$i"] . "', '" . $_POST["start".$i."result"] . "', '" . $_POST["end".$i."result"] . "', '" . $_POST["type$i"] . "', FALSE)";
+                        $query .= "('" . $_POST["name$i"] . "', '" . $_POST["URL$i"] . "', '" . $_POST["disptime$i"] . "', '" . $_POST["start".$i."result"] . "', '" . $_POST["end".$i."result"] . "', '" . $type . "', FALSE)";
                         $c++;
                     }
                 }
             }
+            
             $result = mysql_query($query);
             if (!$result) {
                 $message .= sprintf(lang("errDBError") . "<br />\n", mysql_error());      //  <<-----  $_LANG
@@ -454,7 +452,7 @@ else if ($view == "create") {
 <?php for ($i = 0; $i < $new_pages; $i++) {       //TODO: content admin: make it possible to upload files!!!  TODO: content admin: include CKEditor?>
                             <tr><td>
                                 <fieldset class="contentCreateBox"><legend><?php lang_echo("conCreatePage");?> <span class="createBoxTypeInfo" id="info<?php echo $i; ?>">This entry will be ignored: empty URL.</span></legend>
-                                    <input type="hidden" id="type<?php echo $i;?>" name="type<?php echo $i; ?>" value="ignore" />
+                                    <!-- <input type="hidden" id="type<?php echo $i;?>" name="type<?php echo $i; ?>" value="ignore" />-->
                                     <table class="contentCreateTable" summary="" border="0" cellpadding="2" cellspacing="0">
                                         <tbody>
                                             <tr><td><label for="name<?php echo $i;?>"><?php lang_echo("conName");?>:</label></td><td><div class="FileButtons"><input type="button" value="Browse server..." /><input type="button" value="Upload file..." /><input type="button" value="Create file..." /></div><input type="text" class="nameInput" name="name<?php echo $i;?>" /></td></tr>
