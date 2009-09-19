@@ -109,7 +109,7 @@
                     $URL = $_POST["URL$i"];
                     /*$test = preg_match('/^http:\/\/[a-zA-Z0-9\.-]+\.[a-zA-Z]{2,5}/i', $URL);
                     var_dump ($URL, $test);*/
-                    if ( preg_match('/^http:\/\/[a-zA-Z0-9\.-]+\.[a-zA-Z]{2,5}/i', $URL) ) {
+                    if ( preg_match('/^http:\/\/[a-zA-Z0-9\.-]+\.[a-zA-Z]{2,5}/i', $URL) ) {            //TODO: content admin: make the regex for link type regocnition work!!
                         if ( preg_match('/\.(?:bmp|gif|png|jpg|jpeg|svg)$/', $URL) ) {
                             $type = "ExternalImage";
                         } else if ( preg_match('/\.(?:html|html|php|shtml)$/', $URL) ) {
@@ -451,7 +451,7 @@ else if ($view == "create") {
                     <input type="hidden" name="new_pages" value="<?php echo $new_pages; ?>" />
                     <table id="contentCreateContainerTable" summary="" border="0" cellpadding="2" cellspacing="0">
                         <tbody>
-<?php for ($i = 0; $i < $new_pages; $i++) {?>
+<?php for ($i = 0; $i < $new_pages; $i++) {       //TODO: content admin: make it possible to upload files!!!  TODO: content admin: include CKEditor?>
                             <tr><td>
                                 <fieldset class="contentCreateBox"><legend><?php lang_echo("conCreatePage");?> <span class="createBoxTypeInfo" id="info<?php echo $i; ?>">This entry will be ignored: empty URL.</span></legend>
                                     <input type="hidden" id="type<?php echo $i;?>" name="type<?php echo $i; ?>" value="ignore" />
