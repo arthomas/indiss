@@ -163,8 +163,14 @@
             foreach ($line as $key => $entry)           //remove the place-holder string placed in empty cells
                 if ( $entry == "'---" )
                     $line[$key] = "";
-            if ( !check_if_ignore( $line_ ) )        //remove some items we dont want to display
-                $table[$line_["Datum"]][strtoupper($line_["Klasse(n)"])][$line_["Stunde"]][] = $line;     //create our actual multi-dimensional array
+            if ( !check_if_ignore( $line_ ) )        //remove some items we dont want to display (actually, add only those we want)
+                if ( strpos($line_["Klasse(n)"], ",") !== false ) {
+                    $classes = explode(", ", $line_["Klasse(n)"]);
+                    foreach ($classes as $class)
+                        $table[$line_["Datum"]][strtoupper($class)][$line_["Stunde"]][] = $line;
+                } else {
+                    $table[$line_["Datum"]][strtoupper($line_["Klasse(n)"])][$line_["Stunde"]][] = $line;     //create our actual multi-dimensional array
+                }
         }
         
         
@@ -249,7 +255,7 @@
     $head .= '        body.tomorrow tr.odd                                                      { background: #beffbe; }' . "\n";
     $head .= '        body.other    tr.even, body.other    td.class, body.other    td.lesson    { background: #DDEEFF; }' . "\n";
     $head .= '        body.other    tr.odd                                                      { background: #D4E5F6; }' . "\n";
-    $head .= '        table#main { border-collapse: collapse; }' . "\n";
+    $head .= '        table#main { border-collapse: collapse; width: 100%%%%; }' . "\n";
     $head .= '        td, th { border: 1px solid black; padding: 2px 4px; }' . "\n";
     $head .= '        tr.new, td.class.new, td.lesson.new { background: yellow !important; }' . "\n";
     $head .= '    -->' . "\n";
@@ -275,7 +281,7 @@
 
     
     $startlines = 3;                //TODO: convert script: move parameters to database
-    $maxlines = 40;
+    $maxlines = 30;
     $lines = 0;
     $pages = 0;
     
