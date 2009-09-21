@@ -177,16 +177,18 @@
             }
         }
         
-        //var_dump($_table);
-        
         if ( empty( $_table ) ) {
             echo "\tError: The input file ($filename) contained no data for today or a later day.\n";
             return false;
         }
     
         //sort the sub-arrays by class
-        foreach ($_table as $key => $value)
-            uksort($_table[$key], "classSort");
+        foreach ($_table as $date => $thisDate)
+            uksort($_table[$date], "classSort");
+        
+        /*foreach ($_table as $thisDate)
+            foreach ($thisDate as $class => $thisClass)
+                echo "$class: " . count($thisClass) . "\n";*/
         
         return $_table;
     
@@ -198,24 +200,26 @@
         exit(1);
     }
     if ( date("h:n") < "07:00" ) {
+        echo "\tCopying backup to check for changes later\n";
         copy( $filename, $tempdir . basename( $filename ) );
     } else if ( file_exists( $tempdir . basename( $filename ) ) ) {
-        $old_table = readfile( $tempdir . basename( $filename ) );
+        echo "\tComparing with backup\n";
+        $old_table = read_file( $tempdir . basename( $filename ) );
         
         //compare backup and new table, and highlight changes, if any
         foreach ($table as $date => $thisDate) {
             if ( ($date == date("Y-m-d")) && (isset( $old_table[$date] )) ) {
                 foreach ($thisDate as $class => $thisClass) {
-                    if ( !isset( $old_table[$date][$class] ) || empty( $old_table[$date][$class] ) ) {
-                        $table[$date][$class]["new"] = true;
+                    if ( empty( $old_table[$date][$class] ) ) {
+                        $isnew[$date][$class]["new"] = true;
                     } else {
                         foreach ($thisClass as $lesson => $thisLesson) {
-                            if ( !isset( $old_table[$date][$class][$lesson] ) || empty( $old_table[$date][$class][$lesson] ) ) {
-                                $table[$date][$class][$lesson]["new"] = true;
+                            if ( empty( $old_table[$date][$class][$lesson] ) ) {
+                                $isnew[$date][$class][$lesson]["new"] = true;
                             } else {
-                                foreach ($thisLesson as $value) {
-                                    if ( !isset( $old_table[$date][$class][$lesson][$value] ) || empty( $old_table[$date][$class][$lesson][$value] ) ) {
-                                        $table[$date][$class][$lesson][$value]["new"] = true;
+                                foreach ($thisLesson as $key => $value) {
+                                    if ( empty( $old_table[$date][$class][$lesson][$key] ) ) {
+                                        $isnew[$date][$class][$lesson][$key]["new"] = true;
                                     }
                                 }
                             }
@@ -224,6 +228,8 @@
                 }
             }
         }
+    } else {
+        echo "\tNo backup found. Cannot check for changes\n";
     }
     
     
@@ -245,7 +251,7 @@
     $head .= '        body.other    tr.odd                                                      { background: #D4E5F6; }' . "\n";
     $head .= '        table#main { border-collapse: collapse; }' . "\n";
     $head .= '        td, th { border: 1px solid black; padding: 2px 4px; }' . "\n";
-    $head .= '        td.new { background: yellow; }' . "\n";
+    $head .= '        tr.new, td.class.new, td.lesson.new { background: yellow !important; }' . "\n";
     $head .= '    -->' . "\n";
     $head .= '    </style>' . "\n";
     $head .= '    <title>Vertretungsplan</title>' . "\n";
@@ -301,16 +307,14 @@
         foreach ($thisDate as $class => $thisClass) {
             $tempout = "";
             $templines = 0;
-            $inheritnew = false;
             $prefix  = "<td";
             $c = 0;
             foreach ($thisClass as $thisLesson)
                 $c += count($thisLesson);
             if ( $c > 1 )
                 $prefix .= " rowspan=\"$c\"";
-            if ( $thisClass["new"] ) {
+            if ( $isnew[$date][$class]["new"] ) {
                 $classnew = " new";
-                $inheritnew = true;
             } else {
                 $classnew = "";
             }
@@ -319,20 +323,19 @@
                 $prefix .= "<td";
                 if ( count($thisLesson) > 1 )
                     $prefix .= " rowspan=\"" . count($thisLesson) . "\"";
-                if ( $thisLesson["new"] || $inheritnew ) {
+                if ( $isnew[$date][$class][$lesson]["new"] || $classnew ) {
                     $lessonnew = " new";
-                    $inheritnew = true;
                 } else {
                     $lessonnew = "";
                 }
                 $prefix .= " class=\"lesson$lessonnew\">$lesson</td>";
-                foreach ($thisLesson as $value) {
+                foreach ($thisLesson as $key => $value) {
                     $templines++;
                     if ( ($lines + $templines) % 2 )
                         $lineclass = "odd";
                     else
                         $lineclass = "even";
-                    if ( $value["new"] || $inheritnew )
+                    if ( $isnew[$date][$class][$lesson][$key]["new"] || $lessonnew )
                         $lineclass .= " new";
                     $tempout .= "            <tr class=\"$lineclass\">" . $prefix . 
                                 "<td>" . $value["(Fach)"] . "</td>" .
