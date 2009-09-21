@@ -1,7 +1,7 @@
 <?php
 /**
- * @version     2009-09-16
- * @author      Patrick Lehner
+ * @version     2009-09-21
+ * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      CLI script to convert the substitution table to displayable HTML
  * 
@@ -17,6 +17,11 @@
  *
  *              You should have received a copy of the GNU General Public License
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *              
+ * @note        If anyone understands this code -- and I mean REALLY understand --
+ *              please contact me, because then you're probably a genius. Most of
+ *              this I don't even understand myself when I look at it again after
+ *              more than a week :)
  */
     //TODO: convert script: comment code more extensively
     //TODO: convert script: generate more console output
@@ -30,6 +35,10 @@
     setlocale(LC_TIME, 'de_DE', 'de_DE', 'deu_deu', 'de', 'ge'); //set locale (to get week day names in german)
     
     $outputdir = dirname($argv[0]); //remember where to put the output files  //TODO: convert script: fetch default from database
+    $tempdir = dirname($argv[0]) . "../temp/convert_substtable/";
+    
+    if ( !file_exists( $tempdir ) )
+        mkdir( $tempdir );
     
     $verbose = false;
     $silent = false;
@@ -70,74 +79,6 @@
                 echo "\tError: Unknown option '$argv[$i]'\n";
         }
     }
-    
-    //$filename = $argv[$i];
-    if ( empty( $filename ) ) {
-        echo "\tError: Empty filename\nQuitting.\n\n";
-        exit(1);
-    } else if ( !is_file( $filename ) ) {
-        echo "\tError: Filename invalid or file does not exist: '$filename'\nQuitting.\n\n";
-        exit(1);
-    } else if ( !file_exists( $filename ) ) {
-        echo "\tError: File does not exist: '$filename'\nQuitting.\n\n";
-        exit(1);
-    } else if ( !is_readable( $filename ) ) {
-        echo "\tError: File is not readable: '$filename'\nQuitting.\n\n";
-        exit(1);
-    } else if ( !is_Writable( $outputdir ) ) {
-        echo "\tError: Output directory ($outputdir) is not writable.\nQuitting.\n\n";
-        exit(1);
-    } else {
-        $subst_file = file( $filename ); //read the input file into an array
-        if ( $subst_file === false ) {
-            echo "\tError: There was an error while reading the input file ($filename).\nQuitting.\n\n";
-            exit(1);
-        } else if ( empty( $subst_file ) ) {
-            echo "\tError: The input file ($filename) is empty.\nQuitting.\n\n";
-            exit(1);
-        }
-    }
-    
-    if ( !$silent )
-        echo "\tAnalyzing file '$filename' ...\n";    
-    
-    //extract all headers
-    $heading = explode("\t", rtrim($subst_file[0], "\r\n\0"));
-    //determine all the columns you want to keep here:
-    $wanted_heads = array(/*"Datum", "Stunde",*/ "(Fach)", "Fach", "(Lehrer)", "Vertreter", /*"(Klasse(n))",*/ "(Raum)", "Raum", "Art", "Vertretungs-Text");
-    //create the array of columns we have to delete
-    $unwanted_heads = array_diff($heading, $wanted_heads);
-    
-    for ($i = 1; $i < count($subst_file); $i++) {
-        $line = $line_ = array_combine($heading, explode("\t", rtrim($subst_file[$i], "\r\n\0"))); //create an associative array from the headres and the values
-        foreach ($unwanted_heads as $value)         //delete all unwanted items
-            unset($line[$value]);
-        foreach ($line as $key => $entry)           //remove the place-holder string placed in empty cells
-            if ( $entry == "'---" )
-                $line[$key] = "";
-        if (!in_array($line_["Art"], array("Freisetzung", "Sondereins.", "Pausenaufsicht")))        //remove some items we dont want to display
-            $table[$line_["Datum"]][strtoupper($line_["Klasse(n)"])][$line_["Stunde"]][] = $line;     //create our actual multi-dimensional array
-    }
-    
-    
-    //pick only two days to display
-    $today = date("Y-m-d");
-    foreach ($table as $date => $thisDate) {
-        $_date = date("Y-m-d", strtotime(str_replace(".", "-", $date) . date("Y"))); //modify time stamp so we can compare it
-        if ( ( $_date >= $today ) && ( count( $_table ) < 2 ) ) {
-            $_table[$_date] = $table[$date];
-        }
-    }
-    
-    //var_dump($_table);
-    
-    if ( empty( $_table ) ) {
-        //TODO: handle error
-        echo "\nError: The input file ($filename) contained no data for today or a later day.\nQuitting.\n\n";
-        exit(1);
-    }
-        
-    $table = $_table;
 
 
     //function used to sort the classes in ascending order: 5-9, 10-11, Q11, K12, K13, Wahlf
@@ -165,11 +106,125 @@
         return strcasecmp($a, $b);
     }
     
-    //sort the sub-arrays by class
-    foreach ($table as $key => $value)
-        uksort($table[$key], "classSort");
+    function check_if_ignore($line) {
+        if ( in_array( $line["Art"], array("Freisetzung", "Pausenaufsicht") ) )
+            return true;
         
-    unset($subst_file);
+        if ( ($line["Art"] == "Sondereins.") && ($line["Vertretungs-Text"] != "entfällt!") )
+            return true;
+        
+        return false;
+    }
+    
+    function read_file ($filename) {
+        
+        global $outputdir;
+    
+        if ( empty( $filename ) ) {
+            echo "\tError: Empty filename\n";
+            return false;
+        } else if ( !is_file( $filename ) ) {
+            echo "\tError: Filename invalid or file does not exist: '$filename'\n";
+            return false;
+        } else if ( !file_exists( $filename ) ) {
+            echo "\tError: File does not exist: '$filename'\n";
+            return false;
+        } else if ( !is_readable( $filename ) ) {
+            echo "\tError: File is not readable: '$filename'\n";
+            return false;
+        } else if ( !is_Writable( $outputdir ) ) {
+            echo "\tError: Output directory ($outputdir) is not writable.\n";
+            return false;
+        } else {
+            $subst_file = file( $filename ); //read the input file into an array
+            if ( $subst_file === false ) {
+                echo "\tError: There was an error while reading the input file ($filename).\n";
+                return false;
+            } else if ( empty( $subst_file ) ) {
+                echo "\tError: The input file ($filename) is empty.\n";
+                return false;
+            }
+        }
+        
+        if ( !$silent )
+            echo "\tAnalyzing file '$filename' ...\n";
+        
+        //extract all headers
+        $col_names = explode("\t", rtrim($subst_file[0], "\r\n\0"));
+        //determine all the columns you want to keep here:
+        $wanted_cols = array(/*"Datum", "Stunde",*/ "(Fach)", "Fach", "(Lehrer)", "Vertreter", /*"(Klasse(n))",*/ "(Raum)", "Raum", "Art", "Vertretungs-Text");
+        //create the array of columns we have to delete
+        $unwanted_cols = array_diff($col_names, $wanted_cols);
+        
+        for ($i = 1; $i < count($subst_file); $i++) {
+            $line = $line_ = array_combine($col_names, explode("\t", rtrim($subst_file[$i], "\r\n\0"))); //create an associative array from the headres and the values
+            foreach ( $unwanted_cols as $value )         //delete all unwanted items
+                unset( $line[$value] );
+            foreach ($line as $key => $entry)           //remove the place-holder string placed in empty cells
+                if ( $entry == "'---" )
+                    $line[$key] = "";
+            if ( !check_if_ignore( $line_ ) )        //remove some items we dont want to display
+                $table[$line_["Datum"]][strtoupper($line_["Klasse(n)"])][$line_["Stunde"]][] = $line;     //create our actual multi-dimensional array
+        }
+        
+        
+        //pick only two days to display
+        $today = date("Y-m-d");
+        foreach ($table as $date => $thisDate) {
+            $_date = date("Y-m-d", strtotime(str_replace(".", "-", $date) . date("Y"))); //modify time stamp so we can compare it
+            if ( ( $_date >= $today ) && ( count( $_table ) < 2 ) ) {
+                $_table[$_date] = $table[$date];
+            }
+        }
+        
+        //var_dump($_table);
+        
+        if ( empty( $_table ) ) {
+            echo "\tError: The input file ($filename) contained no data for today or a later day.\n";
+            return false;
+        }
+    
+        //sort the sub-arrays by class
+        foreach ($_table as $key => $value)
+            uksort($_table[$key], "classSort");
+        
+        return $_table;
+    
+    }
+        
+    $table = read_file( $filename );
+    if ( $table === false ) {
+        echo "Quitting.\n\n";
+        exit(1);
+    }
+    if ( date("h:n") < "07:00" ) {
+        copy( $filename, $tempdir . basename( $filename ) );
+    } else if ( file_exists( $tempdir . basename( $filename ) ) ) {
+        $old_table = readfile( $tempdir . basename( $filename ) );
+        
+        //compare backup and new table, and highlight changes, if any
+        foreach ($table as $date => $thisDate) {
+            if ( ($date == date("Y-m-d")) && (isset( $old_table[$date] )) ) {
+                foreach ($thisDate as $class => $thisClass) {
+                    if ( !isset( $old_table[$date][$class] ) || empty( $old_table[$date][$class] ) ) {
+                        $table[$date][$class]["new"] = true;
+                    } else {
+                        foreach ($thisClass as $lesson => $thisLesson) {
+                            if ( !isset( $old_table[$date][$class][$lesson] ) || empty( $old_table[$date][$class][$lesson] ) ) {
+                                $table[$date][$class][$lesson]["new"] = true;
+                            } else {
+                                foreach ($thisLesson as $value) {
+                                    if ( !isset( $old_table[$date][$class][$lesson][$value] ) || empty( $old_table[$date][$class][$lesson][$value] ) ) {
+                                        $table[$date][$class][$lesson][$value]["new"] = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
     
     
     $head = "";
@@ -182,11 +237,15 @@
     $head .= '    <style type="text/css">' . "\n";
     $head .= '    <!--' . "\n";
     $head .= '        body { font-family: Arial, Verdana, sans-serif; }' . "\n";
-    $head .= '        body.today td, body.today th { background: #FFD; }' . "\n";
-    $head .= '        body.tomorrow td, body.tomorrow th { background: #DFD; }' . "\n";
-    $head .= '        body.other td, body.other th { background: #DEF; }' . "\n";
+    $head .= '        body.today    tr.even, body.today    td.class, body.today    td.lesson    { background: #FFFFDD; }' . "\n";
+    $head .= '        body.today    tr.odd                                                      { background: #fff3ae; }' . "\n";
+    $head .= '        body.tomorrow tr.even, body.tomorrow td.class, body.tomorrow td.lesson    { background: #DDFFDD; }' . "\n";
+    $head .= '        body.tomorrow tr.odd                                                      { background: #beffbe; }' . "\n";
+    $head .= '        body.other    tr.even, body.other    td.class, body.other    td.lesson    { background: #DDEEFF; }' . "\n";
+    $head .= '        body.other    tr.odd                                                      { background: #D4E5F6; }' . "\n";
     $head .= '        table#main { border-collapse: collapse; }' . "\n";
     $head .= '        td, th { border: 1px solid black; padding: 2px 4px; }' . "\n";
+    $head .= '        td.new { background: yellow; }' . "\n";
     $head .= '    -->' . "\n";
     $head .= '    </style>' . "\n";
     $head .= '    <title>Vertretungsplan</title>' . "\n";
@@ -200,10 +259,9 @@
     $thead = "";
     $thead .= '    <table id="main" border="0" cellspacing="0" cellpadding="0">' . "\n";
     $thead .= '        <tbody>' . "\n";
-    //$thead .= '            <tr><td style="padding-bottom: 10px; text-align: center;" colspan="10"><span style="margin: 0 20px; background-color: white;">Heute: 4</span> <span style="margin: 0 20px; background-color: #FFD; color: gray; font-style: italic;">(Morgen: 0)</span> <span style="margin: 0 20px; background-color: #DFD;">Montag: 2</span></td></tr>' . "\n";
-    $thead .= '            <tr><td colspan="10" style="text-align: center;"><span style="font-weight: bold;">%s</span>, Seite %d/%%d</td></tr>' . "\n";
-    $thead .= '            <tr><th rowspan="2">Kl</th><th rowspan="2">Std.</th><th colspan="3">Planm&auml;&szlig;ig</th><th colspan="5">Vertretung</th></tr>' . "\n";
-    $thead .= '            <tr><td>Fach</td><td>Lehrer</td><td>Raum</td><td>Fach</td><td>Lehrer</td><td>Raum</td><td>Art</td><td>Grund</td></tr>' . "\n";
+    $thead .= '            <tr class="even"><td colspan="10" style="text-align: center;"><span style="font-weight: bold;">%s</span>, Seite %d/%%d</td></tr>' . "\n";
+    $thead .= '            <tr class="even"><th rowspan="2">Kl</th><th rowspan="2">Std.</th><th colspan="3">Planm&auml;&szlig;ig</th><th colspan="5">Vertretung</th></tr>' . "\n";
+    $thead .= '            <tr class="even"><td>Fach</td><td>Lehrer</td><td>Raum</td><td>Fach</td><td>Lehrer</td><td>Raum</td><td>Art</td><td>Grund</td></tr>' . "\n";
     
     $tfoot = "";
     $tfoot .= '        </tbody>' . "\n";
@@ -217,11 +275,10 @@
     
     if ( !$silent )
         echo "\tCreating HTML...\n";
-    
+        
     $output[0] = "";
     foreach ($table as $date => $thisDate) {
-        //$internaldate = strtotime(str_replace(".", "-", $date) . date("Y"));
-        if ( $date == $today ) {
+        if ( $date == date("Y-m-d") ) {
             $dateText = "Heute, " . date("d.m.", strtotime($date));
             $bodyClass = "today";
         } else if ( $date == date("Y-m-d", strtotime("+1day")) ) {
@@ -231,7 +288,7 @@
             $dateText = strftime("%A, %d.%m.", strtotime($date));
             $bodyClass = "other";
         }
-        if ( !empty( $output[$pages] ) ) {
+        if ( !empty( $output[$pages] ) ) {      
             $output[$pages] .= $tfoot . $foot;
             $_output[] = $output;
             $pages = 0;
@@ -244,27 +301,57 @@
         foreach ($thisDate as $class => $thisClass) {
             $tempout = "";
             $templines = 0;
+            $inheritnew = false;
             $prefix  = "<td";
             $c = 0;
             foreach ($thisClass as $thisLesson)
                 $c += count($thisLesson);
-            $prefix .= ($c > 1) ? " rowspan=\"$c\"" : "" ;
-            $prefix .= ">$class</td>";
+            if ( $c > 1 )
+                $prefix .= " rowspan=\"$c\"";
+            if ( $thisClass["new"] ) {
+                $classnew = " new";
+                $inheritnew = true;
+            } else {
+                $classnew = "";
+            }
+            $prefix .= " class=\"class$classnew\">$class</td>";
             foreach ($thisClass as $lesson => $thisLesson) {
                 $prefix .= "<td";
-                $prefix .= (count($thisLesson) > 1) ? " rowspan=\"" . count($thisLesson) . "\"" : "" ;
-                $prefix .= ">$lesson</td>";
+                if ( count($thisLesson) > 1 )
+                    $prefix .= " rowspan=\"" . count($thisLesson) . "\"";
+                if ( $thisLesson["new"] || $inheritnew ) {
+                    $lessonnew = " new";
+                    $inheritnew = true;
+                } else {
+                    $lessonnew = "";
+                }
+                $prefix .= " class=\"lesson$lessonnew\">$lesson</td>";
                 foreach ($thisLesson as $value) {
                     $templines++;
-                    $tempout .= "            <tr>" . $prefix . "<td>" . $value["(Fach)"] . "</td><td>" . $value["(Lehrer)"] . "</td><td>" . $value["(Raum)"] . "</td><td>" . $value["Fach"] . "</td><td>" . $value["Vertreter"] . "</td><td>" . $value["Raum"] . "</td><td>" . $value["Art"] . "</td><td>" . $value["Vertretungs-Text"] . "</td></tr>\n";
+                    if ( ($lines + $templines) % 2 )
+                        $lineclass = "odd";
+                    else
+                        $lineclass = "even";
+                    if ( $value["new"] || $inheritnew )
+                        $lineclass .= " new";
+                    $tempout .= "            <tr class=\"$lineclass\">" . $prefix . 
+                                "<td>" . $value["(Fach)"] . "</td>" .
+                                "<td>" . $value["(Lehrer)"] . "</td>" .
+                                "<td>" . $value["(Raum)"] . "</td>" .
+                                "<td>" . $value["Fach"] . "</td>" .
+                                "<td>" . $value["Vertreter"] . "</td>" .
+                                "<td>" . $value["Raum"] . "</td>" .
+                                "<td>" . $value["Art"] . "</td>" .
+                                "<td>" . $value["Vertretungs-Text"] . "</td>" .
+                                "</tr>\n";
                     $prefix = "";
                 }
             }
-            if (($lines + $templines) >= $maxlines) {
-                $output[$pages] .= $tfoot . $foot;
-                $pages++;
-                $output[$pages] = sprintf($head, $bodyClass) . sprintf($thead, $dateText, $pages + 1);
-                $lines = $startlines;
+            if (($lines + $templines) >= $maxlines) {   //if the lines for this class dont fit onto this page anymore...
+                $output[$pages] .= $tfoot . $foot;      //add the footer of this page
+                $pages++;                               //increment the pages counter
+                $output[$pages] = sprintf($head, $bodyClass) . sprintf($thead, $dateText, $pages + 1);  //start a new page and add its head
+                $lines = $startlines;                   //reset the lines counter
             }
             $output[$pages] .= $tempout;
             $lines += $templines;
