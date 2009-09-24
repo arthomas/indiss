@@ -239,7 +239,7 @@
         </div>
     </div>
     <div id="footer">
-        Layout und Umsetzung &copy; 2009 Patrick Lehner
+        Layout und Umsetzung &copy; 2009 Patrick Lehner &nbsp; | &nbsp; InfoScreen ist freie Software unter der GNU GPLv3
     </div>
 </body>
 </html>

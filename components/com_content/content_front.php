@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-09-10
+ * @version     2009-09-24
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      
@@ -37,11 +37,10 @@
             $rows[] = $row;  //and save them into our array
         }
         
-        $now = date($datefmt);
         unset($items); //just to be sure
         if ( !empty( $rows ) )
             foreach ($rows as $value) {
-                if (!($value->deleted) && ($value->end > $now) && ($value->start < $now)) {
+                if (!($value->deleted) && (strtotime($value->end) > time()) && (strtotime($value->start) < time())) {
                     $items[] = $value;
                 }
             }
@@ -161,7 +160,10 @@ else if ( $type == "iframe" ) { ?>
             <iframe src="<?php echo $current->url; ?>" scrolling="no" frameborder="0" width="100%" height="<?php echo getValueByNameD("com_content_options", "iframe_height", 1020); ?>"></iframe>
 <?php } 
 else if ( $type == "image" ) { 
-    $size = getimagesize(getcwd() . "/../.." . $current->url);  //TODO: find more general way to determine root file path etc
+    if ( $current->type == "LocalImage" )
+        $size = getimagesize( $_SERVER["DOCUMENT_ROOT"] . $current->url );
+    else
+        $size = getimagesize( $current->url );
     if ( $size === false ) { ?>
             Beim holen der Bilddatei <pre><?php echo $current->url; ?></pre> ist ein Fehler aufgetreten. Bitte benachrichtigen Sie den Systembetreuer und/oder Entwickler.<br />
             <?php echo getcwd();?>

@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-09-10
+ * @version     2009-09-24
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      tickers_front -- Display tickers in the frontend
@@ -55,11 +55,10 @@
             $rows[] = $row;  //and save them into our array
         }
         
-        $now = date($datefmt);
         unset($tickers); //just to be sure
         if ( !empty( $rows ) )
             foreach ($rows as $value) {
-                if (!($value->deleted) && ($value->end > $now) && ($value->start < $now)) {
+                if (!($value->deleted) && (strtotime($value->end) > time()) && (strtotime($value->start) < time())) {
                     if (!empty($value->caption) && !empty($value->content))
                         $tickers[] = "<span class=\"caption\">" . $value->caption . ":</span> " . $value->content;
                     else if (!empty($value->caption))

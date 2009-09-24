@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-09-19
+ * @version     2009-09-24
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      content_admin -- HTML page manager (backend)
@@ -220,23 +220,19 @@
             $rows[] = $row;  //and save them into our array
         }
         
-        $now = date($datefmt);
         unset($past, $preset, $future); //just to be sure
         if (isset($rows))
             foreach ($rows as $value) {
                 if ($value->deleted)
                    $deleted[] = $value;
-                else if ($value->end < $now)
+                else if (strtotime($value->end) < time())
                    $past[] = $value;
-                else if ($value->start > $now)
+                else if (strtotime($value->start) > time())
                    $future[] = $value;
                 else
                    $present[] = $value;
             }
     }
-    
-    //$test = "INSERT INTO `infoscreen`.`com_content` (`id`, `name`, `url`, `displaytime`, `start`, `end`, `type`, `deleted`) VALUES (NULL, \'\', \'http://lol.cion\', \'123\', \'2009-09-18 17:43:43\', \'2009-09-25 17:43:45\', \'ExternalOther\', \'0\');";
-    //var_dump($test);
     
     
     
@@ -366,7 +362,7 @@ else if ($view == "create") {
                     </form>
                     <?php lang_echo("conEmptyURLNotice");?> 
                 </div>
-                <script type="text/javascript">
+                <script type="text/javascript"><?php //TODO: move JS to separate file ?> 
                 function updateResult2 ( Index, StartOrEnd ) {
                 	document.getElementById(StartOrEnd + Index + "result").value = document.getElementById(StartOrEnd + Index + "dateval").value + ' ' + document.getElementById(StartOrEnd + Index + "timeval").value;
                 }
@@ -434,7 +430,7 @@ else if ($view == "create") {
                 }
 
                 function checkDispTime (obj, index) {
-                	if ( (String(obj.value).search(/^\d+$/) != -1) && (obj.value <= 0) ) {
+                	if ( (String(obj.value).search(/^\d+$/) != -1) && (obj.value > 0) ) {
                 	    determineType ( document.getElementById("URL" + index), index);
                 	} else {
                 		document.getElementById("info" + index).firstChild.nodeValue = "This entry will be ignored: invalid display time.";

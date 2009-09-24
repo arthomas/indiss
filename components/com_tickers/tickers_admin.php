@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-09-10
+ * @version     2009-09-24
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      tickers_admin -- Ticker Manager (backend)
@@ -194,14 +194,13 @@
             $rows[] = $row;  //and save them into our array
         }
         
-        $now = date($datefmt);
         unset($past, $preset, $future); //just to be sure
         foreach ($rows as $value) {
             if ($value->deleted)
                $deleted[] = $value;
-            else if ($value->end < $now)
+            else if ( strtotime($value->end) < time() )
                $past[] = $value;
-            else if ($value->start > $now)
+            else if ( strtotime($value->start) > time() )
                $future[] = $value;
             else
                $present[] = $value;
