@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-09-21
+ * @version     2009-09-24
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      CLI script to convert the substitution table to displayable HTML
@@ -25,24 +25,24 @@
  */
     //TODO: convert script: comment code more extensively
     //TODO: convert script: generate more console output
-    //TODO: convert script: include database and use it
     
     //TODO: convert script: include language file and translate
     
-    //TODO: convert script: mark odd/even table rows
-    //TODO: convert script: hightlight changes after 7am
+    include_once ( __DIR__ . "/../config/config.php" );
+    include_once ( __DIR__ . "/../includes/database.php" );
         
     setlocale(LC_TIME, 'de_DE', 'de_DE', 'deu_deu', 'de', 'ge'); //set locale (to get week day names in german)
     
-    $outputdir = dirname($argv[0]); //remember where to put the output files  //TODO: convert script: fetch default from database
-    $tempdir = dirname($argv[0]) . "../temp/convert_substtable/";
+    $outputdir = ($a = getValueByNameD("com_substtable_options", "default_output_dir", "")) ? $_SERVER["DOCUMENT_ROOT"] . $basepath . $a : dirname($argv[0]); //remember where to put the output files
+    $tempdir = $_SERVER["DOCUMENT_ROOT"] . $basepath . getValueByNameD("com_substtable_options", "default_output_dir", "/temp/convert_substtable/");
     
     if ( !file_exists( $tempdir ) )
-        mkdir( $tempdir );
+        mkdir( $tempdir, 0777, true );
     
     $verbose = false;
     $silent = false;
     $cron = false;
+    $debug = false;
     
     for ($i = 1; $i < $argc; $i++) {
         if ( $argv[$i][0] == '-' ) {
@@ -55,6 +55,7 @@
             } else if ( ($argv[$i] == '-v') || (strcasecmp($argv[$i], '--verbose') == 0) ) {
                 $verbose = true;
                 $silent = false; 
+                echo "\tVerbose mode on.\n";
             } else if ( ($argv[$i] == '-s') || (strcasecmp($argv[$i], '--silent') == 0) ) {
                 $silent = true;
                 $verbose = false;
@@ -62,6 +63,10 @@
                 $silent = true;
                 $cron = true;
                 $verbose = false;
+            } else if ( ($argv[$i] == '-d') || (strcasecmp($argv[$i], '--debug') == 0) ) {
+                $debug = true;
+                if ( !$silent )
+                    echo "\tDebug mode on.\n";
             } else if ( ($argv[$i] == '-o') || (strcasecmp($argv[$i], '--output') == 0) ) {
                 if ( $argv[$i+1][0] != '-' )
                     $outputdir = $argv[++$i];
@@ -83,34 +88,42 @@
 
     //function used to sort the classes in ascending order: 5-9, 10-11, Q11, K12, K13, Wahlf
     function classSort($a, $b) {
+        global $debug;
+        
         $letters = array('Q', 'K', 'W');
         //if $a is any of the classes 5-9, add a leading zero
-        if ($a[0] != "1" && !( $al = in_array($a[0], $letters) ))
+        if ($a[0] != "1" && !( $al = in_array($a[0], $letters) )) {
             $a = "0" . $a;
+        }
         //if $b is any of the classes 5-9, add a leading zero
-        if ($b[0] != "1" && !( $bl = in_array($b[0], $letters) ))
+        if ($b[0] != "1" && !( $bl = in_array($b[0], $letters) )) {
             $b = "0" . $b;
+        }
         //handle special cases
         if ( $al || $bl ) {
-            if ($ak && !$bk)
+            if ($al && !$bl)
                 return 1;
-            else if (!$ak && $bk)
+            else if (!$al && $bl)
                 return -1;
-            else {
-                if ( ($a[0] == 'Q') && ($b[0] != 'Q') )
-                    return 1;
-                else if ( ($a[0] != 'Q') && ($b[0] == 'Q') )
-                    return -1;
+            else if ($al && $bl) {
+                $result = array_search($a[0], $letters) - array_search($b[0], $letters);
+                if ( $debug )
+                    echo "$a - $b = $result\n";
+                if ( $result != 0 )
+                    return $result;
             }
         }
         return strcasecmp($a, $b);
     }
     
-    function check_if_ignore($line) {
+    function check_if_ignore($line) {  //TODO: convert script: make blacklist configurable (backend, database)
         if ( in_array( $line["Art"], array("Freisetzung", "Pausenaufsicht") ) )
             return true;
         
         if ( ($line["Art"] == "Sondereins.") && ($line["Vertretungs-Text"] != "entfällt!") )
+            return true;
+            
+        if ( strcasecmp($line["(Klasse(n))"], "Pers") == 0 )
             return true;
         
         return false;
@@ -175,10 +188,9 @@
         
         
         //pick only two days to display
-        $today = date("Y-m-d");
         foreach ($table as $date => $thisDate) {
-            $_date = date("Y-m-d", strtotime(str_replace(".", "-", $date) . date("Y"))); //modify time stamp so we can compare it
-            if ( ( $_date >= $today ) && ( count( $_table ) < 2 ) ) {
+            $_date = strtotime(str_replace(".", "-", $date) . date("Y")); //modify time stamp so we can compare it
+            if ( ( $_date >= time() ) && ( count( $_table ) < 2 ) ) {
                 $_table[$_date] = $table[$date];
             }
         }
@@ -192,10 +204,6 @@
         foreach ($_table as $date => $thisDate)
             uksort($_table[$date], "classSort");
         
-        /*foreach ($_table as $thisDate)
-            foreach ($thisDate as $class => $thisClass)
-                echo "$class: " . count($thisClass) . "\n";*/
-        
         return $_table;
     
     }
@@ -205,7 +213,7 @@
         echo "Quitting.\n\n";
         exit(1);
     }
-    if ( date("h:n") < "07:00" ) {
+    if ( time() < strtotime(date("Y-m-d" . " " . getValueByNameD("com_substtable_options", "highlight_changes_after", "07:00:00"))) ) {
         echo "\tCopying backup to check for changes later\n";
         copy( $filename, $tempdir . basename( $filename ) );
     } else if ( file_exists( $tempdir . basename( $filename ) ) ) {
@@ -213,6 +221,9 @@
         $old_table = read_file( $tempdir . basename( $filename ) );
         
         //compare backup and new table, and highlight changes, if any
+        $newclasses = 0;
+        $newlessons = 0;
+        $newsubjects = 0;
         foreach ($table as $date => $thisDate) {
             if ( ($date == date("Y-m-d")) && (isset( $old_table[$date] )) ) {
                 foreach ($thisDate as $class => $thisClass) {
@@ -234,6 +245,9 @@
                 }
             }
         }
+        if ( $verbose ) {
+            echo "\t\t" . ($newclasses + $newlessons + $newsubjects) . " found ($newclasses new classes, $newlessons new lessons, $newsubjects new subjects)\n";
+        }
     } else {
         echo "\tNo backup found. Cannot check for changes\n";
     }
@@ -245,7 +259,7 @@
     $head .= '<head>' . "\n";
     $head .= '    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />' . "\n";
     $head .= '    <meta name="author" content="Patrick Lehner" />' . "\n";
-    $head .= '    <meta http-equiv="refresh" content="15; URL=%%s" />' . "\n";
+    $head .= '    <meta http-equiv="refresh" content="%%%%RELOAD_STRING%%%%" />' . "\n";
     $head .= '    <style type="text/css">' . "\n";
     $head .= '    <!--' . "\n";
     $head .= '        body { font-family: Arial, Verdana, sans-serif; }' . "\n";
@@ -280,8 +294,8 @@
     $tfoot .= '    </table>' . "\n";
 
     
-    $startlines = 3;                //TODO: convert script: move parameters to database
-    $maxlines = 30;
+    $startlines = (int) getValueByNameD("com_substtable_options", "start_lines", 3);
+    $maxlines = (int) getValueByNameD("com_substtable_options", "max_lines", 40);
     $lines = 0;
     $pages = 0;
     
@@ -300,13 +314,20 @@
             $dateText = strftime("%A, %d.%m.", strtotime($date));
             $bodyClass = "other";
         }
-        if ( !empty( $output[$pages] ) ) {      
+        if ( !empty( $output[$pages] ) ) {
             $output[$pages] .= $tfoot . $foot;
             $_output[] = $output;
+            if ( $verbose ) {
+                echo "\t\tLast page is page " . ($pages+1) . " with $lines lines\n";
+            }
             $pages = 0;
+            unset( $output );
             $output[0] = "";
         }
         if ( empty( $output[$pages] ) ) {
+            if ( $verbose ) {
+                echo "\tStarting new entry for $date...\n";
+            }
             $output[$pages] = sprintf($head, $bodyClass) . sprintf($thead, $dateText, $pages + 1);
             $lines = $startlines;
         }
@@ -343,7 +364,7 @@
                         $lineclass = "even";
                     if ( $isnew[$date][$class][$lesson][$key]["new"] || $lessonnew )
                         $lineclass .= " new";
-                    $tempout .= "            <tr class=\"$lineclass\">" . $prefix . 
+                    $tempout .= "            <tr class=\"$lineclass\">" . $prefix .             //TODO: convert script: make columns configurable
                                 "<td>" . $value["(Fach)"] . "</td>" .
                                 "<td>" . $value["(Lehrer)"] . "</td>" .
                                 "<td>" . $value["(Raum)"] . "</td>" .
@@ -357,6 +378,14 @@
                 }
             }
             if (($lines + $templines) >= $maxlines) {   //if the lines for this class dont fit onto this page anymore...
+                if ( $verbose ) {
+                    echo "\t\tPage " . ($pages + 1) ." full ($lines lines), next item is $templines lines\n";
+                }
+                if ( !($lines % 2) ) {
+                    $tempout = str_replace("class=\"even", "class=\"even_", $tempout);
+                    $tempout = str_replace("class=\"odd", "class=\"even", $tempout);
+                    $tempout = str_replace("class=\"even_", "class=\"odd", $tempout);
+                }
                 $output[$pages] .= $tfoot . $foot;      //add the footer of this page
                 $pages++;                               //increment the pages counter
                 $output[$pages] = sprintf($head, $bodyClass) . sprintf($thead, $dateText, $pages + 1);  //start a new page and add its head
@@ -366,10 +395,11 @@
             $lines += $templines;
         }
     }
+    if ( $verbose ) {
+        echo "\t\tLast page is page " . ($pages+1) . " with $lines lines\n";
+    }
     $output[$pages] .= $tfoot . $foot;
     $_output[] = $output;
-    
-    //$verbose = true;
     
     //delete old output files
     if ( !$silent )
@@ -394,7 +424,7 @@
     $c = 0;
     for ($j = 0; $j < count( $_output ); $j++) 
         for ($i = 0; $i < ( $count = count( $_output[$j] ) ); $i++) {
-            file_put_contents( $outputdir . "/" . $filenames[$c++], sprintf( $_output[$j][$i], $filenames[$c], $count ) );   //ATTENTION!!!! watch out for any %'s you used in the HTML!!
+            file_put_contents( $outputdir . "/" . $filenames[$c++], sprintf( $_output[$j][$i], $count ) );   //ATTENTION!!!! watch out for any %'s you used in the HTML!!
         }                                                                                                           //TODO: convert script: move template to file
 
     if ( !$cron ) {

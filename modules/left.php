@@ -1,7 +1,7 @@
 <?php
 /**
- * @version     2009-09-10
- * @author      Patrick Lehner
+ * @version     2009-09-24
+ * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      the left frame of the default view
  * 
@@ -21,6 +21,6 @@
 
     define("__MAIN", 1);
     
-    include("../components/com_content/main.php")
+    include("../components/com_content/main.php");
 
 ?>

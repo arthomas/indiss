@@ -1,8 +1,9 @@
 <?php
 /**
- * @version     2009-09-10
- * @author      Patrick Lehner
+ * @version     2009-09-24
+ * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
+ * @module      
  * 
  * @license     This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU General Public License as published by
@@ -17,25 +18,9 @@
  *              You should have received a copy of the GNU General Public License
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-    $configfile    = true;
-
-    /*General config*/
-    $basepath      = "/InfoScreen";
-	$sitename      = "THG InfoScreen";
-	$defaultlang   = "de";
-	
-	/*Database config*/
-	$dbhost        = "localhost";
-	$dbuser        = "root";
-	$dbpass        = "";
-	$dbname        = "infoscreen";
-	$datefmt       = "Y-m-d H:i:s";
-	
-	/*Debug config*/
-	$debug         = "0";
-	
-	/*Other*/
-	$version       = "0.1.0";
+ 
+    defined("__MAIN") or die("Restricted access.");
+    
+    include("substtable_front.php");
 
 ?>

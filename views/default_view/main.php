@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-09-10
+ * @version     2009-09-24
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module
@@ -24,7 +24,7 @@
     $topsrc = "modules/top.php";
     $bottomsrc = "modules/bottom.php";
     $leftsrc = "modules/left.php";
-    $rightsrc = "cli_scripts/Day0_0.html";
+    $rightsrc = "modules/right.php";
     
 ?>
 <iframe id="top" name="top" src="<?php echo $topsrc;?>"></iframe>

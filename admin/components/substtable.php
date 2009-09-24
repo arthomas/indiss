@@ -31,7 +31,7 @@
         $line = $line_ = array_combine($heading, explode("\t", rtrim($subst_file[$i], "\r\n\0")));
         foreach ($unwanted_heads as $value)
             unset($line[$value]);
-        if (!in_array($line_["Art"], array("Freisetzung", "Sondereins.", "Pausenaufsicht")))
+        if (!in_array($line_["Art"], array("Freisetzung", "Pausenaufsicht")))
             $table[$line_["Datum"]][$line_["(Klasse(n))"]][$line_["Stunde"]][] = $line;
     }
     

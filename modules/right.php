@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-09-10
+ * @version     2009-09-24
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module
@@ -19,6 +19,10 @@
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-?>
+    define("__MAIN", 1);
+    
+    $thisfile = "right.php";
+    
+    include("../components/com_substtable/main.php");
 
-<body style="background: maroon;"></body>
+?>

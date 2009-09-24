@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-09-10
+ * @version     2009-09-24
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      Backend main page
@@ -211,7 +211,7 @@
         <div id="topBarInner">
             <?php if ($loggedin) { ?><div id="topBarLogout" class="topBarRight"><a href="index.php?logout">[<?php lang_echo("genLogout"); ?>]</a></div><?php } ?> 
         	<div id="topBarVer" class="topBarRight">Version: <?php echo $version; ?></div>
-            <div id="topBarTime" class="topBarRight">Seite erzeugt: <?php echo date("d.m.y H:i:s", $_SERVER["REQUEST_TIME"]); ?></div>
+            <div id="topBarTime" class="topBarRight">Seite erzeugt: <?php echo date("d.m.Y H:i:s", $_SERVER["REQUEST_TIME"]); ?></div>
             <div id="topBarLang" class="topBarRight">
                 <form action="<?php echo $_SERVER["REQUEST_URI"]; ?>" method="post">
                     <?php lang_echo("genLanguage");?>:
