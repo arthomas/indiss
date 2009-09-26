@@ -28,13 +28,17 @@
     
     //TODO: convert script: include language file and translate
     
-    include_once ( __DIR__ . "/../config/config.php" );
-    include_once ( __DIR__ . "/../includes/database.php" );
+    define("__MAIN", 1);
+    
+    include_once ( dirname(__FILE__) . "/../config/config.php" );
+    include_once ( dirname(__FILE__) . "/../includes/database.php" );
         
     setlocale(LC_TIME, 'de_DE', 'de_DE', 'deu_deu', 'de', 'ge'); //set locale (to get week day names in german)
     
-    $outputdir = ($a = getValueByNameD("com_substtable_options", "default_output_dir", "")) ? $_SERVER["DOCUMENT_ROOT"] . $basepath . $a : dirname($argv[0]); //remember where to put the output files
-    $tempdir = $_SERVER["DOCUMENT_ROOT"] . $basepath . getValueByNameD("com_substtable_options", "default_output_dir", "/temp/convert_substtable/");
+    $today = strtotime(date("Y-m-d") . " 00:00:00");
+    
+    $outputdir = dirname(__FILE__) . "/.." . getValueByNameD("com_substtable_options", "default_output_dir", "/cli_scripts"); //remember where to put the output files
+    $tempdir = dirname(__FILE__) . "/.." . getValueByNameD("com_substtable_options", "default_temp_dir", "/temp/convert_substtable") . "/";
     
     if ( !file_exists( $tempdir ) )
         mkdir( $tempdir, 0777, true );
@@ -132,6 +136,8 @@
     function read_file ($filename) {
         
         global $outputdir;
+        global $debug;
+        global $today;
     
         if ( empty( $filename ) ) {
             echo "\tError: Empty filename\n";
@@ -186,13 +192,22 @@
                 }
         }
         
+        //if ( $debug )
+            //var_dump(array_keys($table));
+        //ksort($table);
+        //if ( $debug )
+            //var_dump(array_keys($table));
         
+        if ( $debug ) echo "time=".time()." (".date("Y-m-d").")\n";
         //pick only two days to display
         foreach ($table as $date => $thisDate) {
             $_date = strtotime(str_replace(".", "-", $date) . date("Y")); //modify time stamp so we can compare it
-            if ( ( $_date >= time() ) && ( count( $_table ) < 2 ) ) {
+            if ( $debug ) echo "date=$date; _date=$_date (" . date("Y-m-d", $_date) . ")";
+            if ( ( $_date >= $today ) && ( count( $_table ) < 2 ) ) {
                 $_table[$_date] = $table[$date];
+                if ( $debug ) echo " -- accepted";
             }
+            if ( $debug ) echo "\n";
         }
         
         if ( empty( $_table ) ) {
@@ -225,7 +240,7 @@
         $newlessons = 0;
         $newsubjects = 0;
         foreach ($table as $date => $thisDate) {
-            if ( ($date == date("Y-m-d")) && (isset( $old_table[$date] )) ) {
+            if ( (date("Y-m-d", $date) == $today) && (isset( $old_table[$date] )) ) {
                 foreach ($thisDate as $class => $thisClass) {
                     if ( empty( $old_table[$date][$class] ) ) {
                         $isnew[$date][$class]["new"] = true;
@@ -304,14 +319,14 @@
         
     $output[0] = "";
     foreach ($table as $date => $thisDate) {
-        if ( $date == date("Y-m-d") ) {
-            $dateText = "Heute, " . date("d.m.", strtotime($date));
+        if ( $date == $today ) {
+            $dateText = "Heute, " . date("d.m.", $date);
             $bodyClass = "today";
-        } else if ( $date == date("Y-m-d", strtotime("+1day")) ) {
-            $dateText = "Morgen, " . date("d.m.", strtotime($date));
+        } else if ( $date == strtotime(date("Y-m-d", strtotime("+1day"))) ) {
+            $dateText = "Morgen, " . date("d.m.", $date);
             $bodyClass = "tomorrow";
         } else {
-            $dateText = strftime("%A, %d.%m.", strtotime($date));
+            $dateText = strftime("%A, %d.%m.", $date);
             $bodyClass = "other";
         }
         if ( !empty( $output[$pages] ) ) {
@@ -326,7 +341,7 @@
         }
         if ( empty( $output[$pages] ) ) {
             if ( $verbose ) {
-                echo "\tStarting new entry for $date...\n";
+                echo "\tStarting new entry for " . date("Y-m-d", $date) . "...\n";
             }
             $output[$pages] = sprintf($head, $bodyClass) . sprintf($thead, $dateText, $pages + 1);
             $lines = $startlines;
@@ -424,7 +439,9 @@
     $c = 0;
     for ($j = 0; $j < count( $_output ); $j++) 
         for ($i = 0; $i < ( $count = count( $_output[$j] ) ); $i++) {
-            file_put_contents( $outputdir . "/" . $filenames[$c++], sprintf( $_output[$j][$i], $count ) );   //ATTENTION!!!! watch out for any %'s you used in the HTML!!
+            $result = file_put_contents( $outputdir . "/" . $filenames[$c++], sprintf( $_output[$j][$i], $count ) );  //ATTENTION!!!! watch out for any %'s you used in the HTML!!
+            if ( $debug )
+                echo (($result) ? $result : "fail") . "\n";   
         }                                                                                                           //TODO: convert script: move template to file
 
     if ( !$cron ) {
