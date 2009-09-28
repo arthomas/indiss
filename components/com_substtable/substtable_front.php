@@ -41,7 +41,7 @@
         $reload .= "; URL=$thisfile";
         include (dirname(__FILE__) . "/substtable_error.php");
     } else {
-        $reload = getValueByNameD("com_substtable_options", "display_time", 15) . "; URL=$thisfile?last=";
+        $reload = getValueByNameD("com_substtable_options", "display_time", 10) . "; URL=$thisfile?last=";
         if ( isset( $_GET["last"] ) ) {
             if ( !empty( $files[$_GET["last"] + 1] ) ) {
                 $reload .= $_GET["last"] + 1;

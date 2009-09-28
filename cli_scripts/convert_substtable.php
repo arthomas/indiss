@@ -228,7 +228,7 @@
         echo "Quitting.\n\n";
         exit(1);
     }
-    if ( time() < strtotime(date("Y-m-d" . " " . getValueByNameD("com_substtable_options", "highlight_changes_after", "07:00:00"))) ) {
+    if ( time() < strtotime(date("Y-m-d") . " " . getValueByNameD("com_substtable_options", "highlight_changes_after", "06:00:00")) ) {
         echo "\tCopying backup to check for changes later\n";
         copy( $filename, $tempdir . basename( $filename ) );
     } else if ( file_exists( $tempdir . basename( $filename ) ) ) {
@@ -240,18 +240,21 @@
         $newlessons = 0;
         $newsubjects = 0;
         foreach ($table as $date => $thisDate) {
-            if ( (date("Y-m-d", $date) == $today) && (isset( $old_table[$date] )) ) {
+            if ( ($date == $today) && (isset( $old_table[$date] )) ) {
                 foreach ($thisDate as $class => $thisClass) {
                     if ( empty( $old_table[$date][$class] ) ) {
                         $isnew[$date][$class]["new"] = true;
+                        $newclasses++;
                     } else {
                         foreach ($thisClass as $lesson => $thisLesson) {
                             if ( empty( $old_table[$date][$class][$lesson] ) ) {
                                 $isnew[$date][$class][$lesson]["new"] = true;
+                                $newlessons++;
                             } else {
                                 foreach ($thisLesson as $key => $value) {
                                     if ( empty( $old_table[$date][$class][$lesson][$key] ) ) {
                                         $isnew[$date][$class][$lesson][$key]["new"] = true;
+                                        $newsubjects++;
                                     }
                                 }
                             }

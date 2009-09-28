@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-09-19
+ * @version     2009-09-26
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      
@@ -20,6 +20,9 @@
  */
 
     include_once "../../config/config.php";
+    
+    session_name("InfoScreenAdmin");
+    session_start();
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -38,9 +41,11 @@
         }
     </style>
 </head>
-<?php   if ( !isset( $_GET["index"] ) ) { ?>
+<?php if ( !empty( $_SESSION["username"] ) ) {
+        if ( !isset( $_GET["index"] ) ) { ?>
 <body>
     Fehler: Es wurden nicht alle notwendigen Parameter &uuml;bergeben.
+</body>
 <?php   } else if ( isset( $_POST["submit"] ) ) {
             $destination ="../../upload/" . basename( $_FILES["file"]["name"] );
             if ( move_uploaded_file( $_FILES["file"]["tmp_name"], $destination ) ) { ?>
@@ -50,13 +55,16 @@
         <div>Pfad auf dem Server (URL): <?php echo "$basepath/upload/" . basename( $destination ); ?> </div>
         <div style="display: none;">Pfad auf dem Server (Dateisystem): <?php echo $destination; ?></div>
         <div>Dateigr&ouml;&szlig;e: <?php echo filesize( $destination ); ?> Bytes</div>
+    </fieldset>
+</body>
 <?php       } else { ?>
 <body>
     <fieldset><legend>Datei hochgeladen:</legend>
             Ein Fehler ist aufgetreten.
-<?php       } ?>
     </fieldset>
-<?php } else { ?>
+</body>
+<?php       }
+        } else { ?>
 <body>
     <fieldset><legend>Datei hochladen:</legend>
         <div id="info">Bitte w&auml;hlen Sie die Datei aus, die Sie hochladen m&ouml;chten, und klicken Sie dann auf "Hochladen".</div>
@@ -65,6 +73,11 @@
             <div style="text-align: right;"><input type="submit" name="submit" value="Hochladen" /></div>
         </form>
     </fieldset>
-<?php } ?>
 </body>
+<?php } 
+    } else { ?>
+<body>
+    Fehler: Sie sind nicht eingeloggt.
+</body>
+<?php } ?>
 </html>

@@ -26,8 +26,8 @@
 
     header("CONTENT-TYPE: text/css");
     
-    $screenWidth        = getValueByName("globalviewoptions", "screenDimensionX");
-    $screenHeight       = getValueByName("globalviewoptions", "screenDimensionY");
+    $screenWidth        = getValueByName("global_view_options", "screenDimensionX");
+    $screenHeight       = getValueByName("global_view_options", "screenDimensionY");
     $topBarHeight       = getValueByName("view_default_view", "topBarHeight");
     $bottomBarHeight    = getValueByName("view_default_view", "bottomBarHeight");
     $leftMainColWidth   = getValueByName("view_default_view", "leftMainColumnWidth");

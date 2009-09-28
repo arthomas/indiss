@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-09-24
+ * @version     2009-09-26
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      Backend main page
@@ -87,7 +87,7 @@
                     $loginresult = true;
                     $message .= lang("msgLoginSuccess") . "<br />\n";
                     
-                    if ($errview = getValueByName("globaloptions", "display_new_errors")) {
+                    if ($errview = getValueByName("global_options", "display_new_errors")) {
                         if ($errview == "admin_notify") {
                             $query = "SELECT COUNT()
                                         FROM `errors`
@@ -157,13 +157,17 @@
     	} else {
     		die(lang("errGeneralParamError"));
     	}
-    } else if (isset($_GET["logout"])) {
+    } else if (isset($_GET["logout"])) {  //log out: destroy session and all session data
     	if (isset($_SESSION['username'])) {
-    		foreach ($_SESSION as $key => $value) {
-    			unset($_SESSION[$key]);
-    		}
-    		unset($key);
-    		unset($value);
+    	    
+    		$_SESSION = array();
+
+            if (isset($_COOKIE[session_name()])) {
+                setcookie(session_name(), '', time()-42000, '/');
+            }
+
+            session_destroy();
+            
     		$message .= lang("msgLogoutSuccess") . "<br />\n";
     	} else {
     		$message .= lang("errCantLogout") . "<br />\n";

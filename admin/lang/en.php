@@ -1,7 +1,7 @@
 <?php
 /**
- * @version     2009-09-19
- * @author      Patrick Lehner
+ * @version     2009-09-26
+ * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * 
  * @license     This program is free software: you can redistribute it and/or modify
@@ -40,6 +40,13 @@
     $_LANG["genLogout"]                     = "Log out";
     $_LANG["genYes"]                        = "Yes";
     $_LANG["genNo"]                         = "No";
+    $_LANG["genClose"]                      = "Close";
+    $_LANG["genBack"]                       = "Back";
+    $_LANG["genForward"]                    = "Forward";
+    $_LANG["genDate"]                       = "Date";
+    $_LANG["genTime"]                       = "Time";
+    $_LANG["genToday"]                      = "Today";
+    $_LANG["genTomorrow"]                   = "Tomorrow";
     
     
     /*Top nav items*/
@@ -131,13 +138,17 @@
     $_LANG["conTypeExternalPage"]           = "External page";
     $_LANG["conTypeLocalImage"]             = "Local image";
     $_LANG["conTypeExternalImage"]          = "External image";
+    $_LANG["conTypeLocalPDF"]               = "Local PDF file";
+    $_LANG["conTypeExternalPDF"]            = "External PDF file";
+    $_LANG["conTypeLocalFlash"]             = "Local flash file";
+    $_LANG["conTypeExternalFlash"]          = "External flash file";
     $_LANG["conTypeLocalOther"]             = "Other local file";
     $_LANG["conTypeExternalOther"]          = "Other external file";
     $_LANG["conTypeUnknown"]                = "Unknown";
     
-    $_LANG["conPastPages"]                  = "Previous pages";
-    $_LANG["conPresentPages"]               = "Current pages";
-    $_LANG["conFuturePages"]                = "Future pages";
+    $_LANG["conPastPages"]                  = "Previous content items";
+    $_LANG["conPresentPages"]               = "Current content items";
+    $_LANG["conFuturePages"]                = "Future content items";
     
     $_LANG["conEdit"]                       = "Edit";
     $_LANG["conEditShort"]                  = "E";
@@ -160,14 +171,42 @@
     
     $_LANG["conYesReallyDelete"]            = "Yes, really delete";
     $_LANG["conNoDontDelete"]               = "No, don't delete";
-    $_LANG["conMoveToTrash?"]               = "Do you really want to move all pages listed below to the trash bin? (You can later restore them while they are still in the trash bin)";
-    $_LANG["conDeletePermanently?"]         = "Do you really want to delete all pages listed below permanently? (This cannot be undone!)";
-    $_LANG["conPagesToDelete"]              = "Pages to be deleted";
+    $_LANG["conMoveToTrash?"]               = "Do you really want to move all items listed below to the trash bin? (You can later restore them while they are still in the trash bin)";
+    $_LANG["conDeletePermanently?"]         = "Do you really want to delete all items listed below permanently? (This cannot be undone!)";
+    $_LANG["conPagesToDelete"]              = "Items to be deleted";
     
     $_LANG["conTrashBin"]                   = "Deleted content items - Trash bin";
     
-    $_LANG["conEditPage"]                   = "Edit page";
+    $_LANG["conEditPage"]                   = "Edit item";
     $_LANG["conDeleted"]                    = "Deleted";
-    $_LANG["conDeletedInfo"]                = "This page is currently in the trash bin. If you want to restore it from there when you click save, un-check this box. Otherwise, leave it checked.";
+    $_LANG["conDeletedInfo"]                = "This item is currently in the trash bin. If you want to restore it from there when you click save, un-check this box. Otherwise, leave it checked.";
+    
+    $_LANG["conBrowseServer"]               = "Browse server...";
+    $_LANG["conUploadFile"]                 = "Upload file...";
+    $_LANG["conCreateFile"]                 = "Create file...";
+    
+    $_LANG["conResultingTimeStamp"]         = "Resulting time stamp";
+    $_LANG["conInTwoDays"]                  = "In two days";
+    $_LANG["conCustomDate"]                 = "Custom date";
+    $_LANG["conCustomTime"]                 = "Custom time";
+    $_LANG["conMorning"]                    = "Morning";
+    $_LANG["conMorningBreak"]               = "Morning break";
+    $_LANG["conNoon"]                       = "Noon";
+    $_LANG["conEvening"]                    = "Evening";
+    
+    $_LANG["conIgnore1"]                    = "This entry will be ignored: "; //ATTENTION! this block will be inserted into javascript. do not escape any entities (html chars, umlauts, etc). however, escape PHP special chars twice (once for PHP, once for JS)!!
+    $_LANG["conIgnoreEmptyURL"]             = "Empty URL.";
+    $_LANG["conIgnoreUnsuppProt"]           = "Unsupported protocol.";
+    $_LANG["conIgnoreDispTime"]             = "Invalid display time.";
+    $_LANG["conThisIsLocalPage"]            = "This is a local page.";
+    $_LANG["conThisIsExternalPage"]         = "This is an external page.";
+    $_LANG["conThisIsLocalImage"]           = "This is a local image.";
+    $_LANG["conThisIsExternalImage"]        = "This is an external image.";
+    $_LANG["conThisIsLocalPDF"]             = "This is a local PDF file.";
+    $_LANG["conThisIsExternalPDF"]          = "This is an external PDF file.";
+    $_LANG["conThisIsLocalFlash"]           = "This is a local flash file.";
+    $_LANG["conThisIsExternalFlash"]        = "This is an external flash file.";
+    $_LANG["conThisIsLocalOther"]           = "This is a local link (type not recognized).";
+    $_LANG["conThisIsExternalOther"]        = "This is an external link (type not recognized).";
 
 ?>

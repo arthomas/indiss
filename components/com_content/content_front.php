@@ -1,7 +1,7 @@
 <?php
 /**
- * @version     2009-09-24
- * @author      Patrick Lehner
+ * @version     2009-09-26
+ * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      
  * 
@@ -75,6 +75,14 @@
                 case "LocalImage":
                     $type = "image";
                     break;
+                case "LocalPDF":
+                case "ExternalPDF":
+                    $type = "pdf";
+                    break;
+                case "LocalFlash":
+                case "ExternalFlash":
+                    $type = "flash";
+                    break;
                 default:
                     $type = "unknown";
                     break;
@@ -91,9 +99,29 @@
     } else {
         $reload = $current->displaytime . "; URL=left.php?last=" . $current->id;
     }
+    
+    $maxwidth = getValueByNameD("com_content_options", "max_width", "auto");
+    if ( strcasecmp( $maxwidth, "auto" ) == 0 ) {
+        $leftwidth = getValueByNameD("view_default_view", "leftMainColumnWidth", "50%");
+        preg_match( "/^([0-9]+)/", $leftwidth, $matches );
+        if ( strpos( $leftwidth, "%" ) !== false ) {
+            $maxwidth = (int)(getValueByNameD("global_view_options", "screenDimensionX", 1920) * ($matches[1] * 0.01));
+        } else {
+            $maxwidth = (int)$leftwidth;
+        }
+    } else {
+        $maxwidth = (int)$maxwidth;
+    }
+    
+    $maxheight = getValueByNameD("com_content_options", "max_height", "auto");
+    if ( strcasecmp( $maxheight, "auto" ) == 0 ) {
+        $maxheight = (int)(getValueByNameD("global_view_options", "screenDimensionY", 1080) - getValueByNameD("view_default_view", "topBarHeight", 30) - getValueByNameD("view_default_view", "bottomBarHeight", 30));
+    } else {
+        $maxheight = (int)$maxheight;
+    }
+    
 
 ?>
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
@@ -139,6 +167,11 @@
     
     iframe {
         overflow: hidden;
+        border: 0 none;
+    }
+    
+    iframe.pdf {
+        margin: 0px;
     }
     
     img {
@@ -157,7 +190,7 @@
             Momentan ist kein Inhalt vorhanden
 <?php }
 else if ( $type == "iframe" ) { ?>
-            <iframe src="<?php echo $current->url; ?>" scrolling="no" frameborder="0" width="100%" height="<?php echo getValueByNameD("com_content_options", "iframe_height", 1020); ?>"></iframe>
+            <iframe class="normal" src="<?php echo $current->url; ?>" scrolling="no" frameborder="0" width="<?php echo $maxwidth; ?>" height="<?php echo $maxheight; ?>"></iframe>
 <?php } 
 else if ( $type == "image" ) { 
     if ( $current->type == "LocalImage" )
@@ -169,8 +202,6 @@ else if ( $type == "image" ) {
             <?php echo getcwd();?>
 <?php }
     else {
-        $maxwidth = getValueByNameD("com_content_options", "img_max_width", 1100);
-        $maxheight = getValueByNameD("com_content_options", "img_max_height", 1000);
         if ( ( $size[0] > $maxwidth ) && ( $size[1] > $maxheight ) ) {
             if ( $size[0] > $size[1] ) {
                 $width = $maxwidth;
@@ -192,6 +223,15 @@ else if ( $type == "image" ) {
             <img src="<?php echo $current->url; ?>" width="<?php echo $width; ?>" height="<?php echo $height; ?>" />
 <?php }
 }
+else if ( $type == "pdf" ) { ?>
+            <iframe class="pdf" src="<?php echo $current->url; ?>#pagemode=none&toolbar=0&scrollbar=0&statusbar=0&navpanes=0" scrolling="no" frameborder="0" width="<?php echo $maxwidth; ?>" height="<?php echo $maxheight; ?>"></iframe>
+<?php }
+else if ( $type == "flash" ) { ?>
+            <object data="<?php echo $current->url; ?>" type="application/x-shockwave-flash" width="<?php echo $maxwidth; ?>" height="<?php echo $maxheight; ?>">
+                <param name="movie" value="<?php echo $current->url; ?>" />
+                <param name="quality" value="high" />
+            </object>
+<?php }
 else { ?>
             Ein Fehler ist aufgetreten. Bitte benachrichtigen Sie den Systembetreuer und/oder Entwickler.
 <?php } ?>

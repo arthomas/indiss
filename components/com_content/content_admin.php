@@ -1,7 +1,7 @@
 <?php
 /**
- * @version     2009-09-24
- * @author      Patrick Lehner
+ * @version     2009-09-26
+ * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      content_admin -- HTML page manager (backend)
  * 
@@ -112,6 +112,10 @@
                             $type = "ExternalImage";
                         } else if ( preg_match('/\.(?:html|html|php|shtml)$/', $URL) ) {
                             $type = "ExternalPage";
+                        } else if ( preg_match('/\.(?:pdf)$/', $URL) ) {
+                            $type = "ExternalPDF";
+                        } else if ( preg_match('/\.(?:swf)$/', $URL) ) {
+                            $type = "ExternalFlash";
                         } else {
                             $type = "ExternalOther";
                         }
@@ -122,6 +126,10 @@
                             $type = "LocalImage";
                         } else if ( preg_match('/\.(?:html|html|php|shtml)$/', $URL) ) {
                             $type = "LocalPage";
+                        } else if ( preg_match('/\.(?:pdf)$/', $URL) ) {
+                            $type = "LocalPDF";
+                        } else if ( preg_match('/\.(?:swf)$/', $URL) ) {
+                            $type = "LocalFlash";
                         } else {
                             $type = "LocalOther";
                         }
@@ -396,35 +404,34 @@ else if ($view == "create") {
                 function determineType (obj, index) {
                     //have to use  XXX.firstChild.nodeValue  instead of   XXX.innerText   here cause Firefox is being a bitch and doesnt change the display value with that.
                     output = document.getElementById("info" + index);
-                    typemem = document.getElementById("type" + index);
                     var temp;
                     if ( obj.value.length == 0 ) {
-                        output.firstChild.nodeValue = "This entry will be ignored: empty URL.";
-                        typemem.value = "ignore";
+                        output.firstChild.nodeValue = "<?php lang_echo("conIgnore1"); lang_echo("conIgnoreEmptyURL"); ?>";
                     } else if ( String(obj.value).search(/^http:\/\/[a-zA-Z0-9\.-]+\.[a-zA-Z]{2,5}/) != -1 ) {
-                    	if ( String(obj.value).search(/\.(?:bmp|gif|png|jpg|jpeg|svg)$/) != -1 ) {
-                            output.firstChild.nodeValue = "This is an external image.";
-                            typemem.value = "ExternalImage";
-                    	} else if ( String(obj.value).search(/\.(?:html|html|php|shtml)$/) != -1 ) {
-                            output.firstChild.nodeValue = "This is an external page.";
-                            typemem.value = "ExternalPage";
-                    	} else {
-                            output.firstChild.nodeValue = "This is an external link (type not recognized).";
-                            typemem.value = "ExternalOther";
+                    	if ( String(obj.value).search(/\.(?:html|html|php|shtml)$/) != -1 ) {
+                            output.firstChild.nodeValue = "<?php lang_echo("conThisIsExternalPage"); ?>";
+                    	} else if ( String(obj.value).search(/\.(?:bmp|gif|png|jpg|jpeg|svg)$/) != -1 ) {
+                            output.firstChild.nodeValue = "<?php lang_echo("conThisIsExternalImage"); ?>";
+                    	} else if ( String(obj.value).search(/\.(?:pdf)$/) != -1 ) {
+                            output.firstChild.nodeValue = "<?php lang_echo("conThisIsExternalPDF"); ?>";
+                        } else if ( String(obj.value).search(/\.(?:swf)$/) != -1 ) {
+                            output.firstChild.nodeValue = "<?php lang_echo("conThisIsExternalFlash"); ?>";
+                        } else {
+                            output.firstChild.nodeValue = "<?php lang_echo("conThisIsExternalOther"); ?>";
                     	}
                     } else if ( ((temp = String(obj.value).match(/:\/\/.+/g)) != null) && (temp.length == 1) ) {
-                    	output.firstChild.nodeValue = "This entry will be ignored: unsupported external link.";
-                    	typemem.value = "ignore";
+                    	output.firstChild.nodeValue = "<?php lang_echo("conIgnore1"); lang_echo("conIgnoreUnsuppProt"); ?>";
                     } else {
-                    	if ( String(obj.value).search(/\.(?:bmp|gif|png|jpg|jpeg|svg)$/) != -1 ) {
-                            output.firstChild.nodeValue = "This is a local image.";
-                            typemem.value = "LocalImage";
-                        } else if ( String(obj.value).search(/\.(?:html|html|php|shtml)$/) != -1 ) {
-                            output.firstChild.nodeValue = "This is a local page.";
-                            typemem.value = "LocalPage";
+                    	if ( String(obj.value).search(/\.(?:html|html|php|shtml)$/) != -1 ) {
+                            output.firstChild.nodeValue = "<?php lang_echo("conThisIsLocalPage"); ?>";
+                        } else if ( String(obj.value).search(/\.(?:bmp|gif|png|jpg|jpeg|svg)$/) != -1 ) {
+                            output.firstChild.nodeValue = "<?php lang_echo("conThisIsLocalImage"); ?>";
+                        } else if ( String(obj.value).search(/\.(?:pdf)$/) != -1 ) {
+                            output.firstChild.nodeValue = "<?php lang_echo("conThisIsLocalPDF"); ?>";
+                        } else if ( String(obj.value).search(/\.(?:swf)$/) != -1 ) {
+                            output.firstChild.nodeValue = "<?php lang_echo("conThisIsLocalFlash"); ?>";
                         } else {
-                            output.firstChild.nodeValue = "This is a local link (type not recognized).";
-                            typemem.value = "LocalOther";
+                            output.firstChild.nodeValue = "<?php lang_echo("conThisIsLocalOther"); ?>";
                         }
                     }
                 }
@@ -433,8 +440,7 @@ else if ($view == "create") {
                 	if ( (String(obj.value).search(/^\d+$/) != -1) && (obj.value > 0) ) {
                 	    determineType ( document.getElementById("URL" + index), index);
                 	} else {
-                		document.getElementById("info" + index).firstChild.nodeValue = "This entry will be ignored: invalid display time.";
-                		document.getElementById("type" + index).value = "ignore";
+                		document.getElementById("info" + index).firstChild.nodeValue = "<?php lang_echo("conIgnore1"); lang_echo("conIgnoreDispTime"); ?>";
                 	}
                 }
                 
@@ -445,19 +451,18 @@ else if ($view == "create") {
                     <input type="hidden" name="new_pages" value="<?php echo $new_pages; ?>" />
                     <table id="contentCreateContainerTable" summary="" border="0" cellpadding="2" cellspacing="0">
                         <tbody>
-<?php for ($i = 0; $i < $new_pages; $i++) {      //TODO: content admin: include CKEditor?>
+<?php for ($i = 0; $i < $new_pages; $i++) {?>
                             <tr><td>
-                                <fieldset class="contentCreateBox"><legend><?php lang_echo("conCreatePage");?> <span class="createBoxTypeInfo" id="info<?php echo $i; ?>">This entry will be ignored: empty URL.</span></legend>
-                                    <!-- <input type="hidden" id="type<?php echo $i;?>" name="type<?php echo $i; ?>" value="ignore" />-->
+                                <fieldset class="contentCreateBox"><legend><?php lang_echo("conCreatePage");?> <span class="createBoxTypeInfo" id="info<?php echo $i; ?>"><?php echo html_escape_regional_chars(lang("conIgnore1").lang("conIgnoreEmptyURL")); ?></span></legend>
                                     <table class="contentCreateTable" summary="" border="0" cellpadding="2" cellspacing="0">
                                         <tbody>
                                             <tr>
                                                 <td><label for="name<?php echo $i;?>"><?php lang_echo("conName");?>:</label></td>
                                                 <td>
                                                     <div class="FileButtons">
-                                                        <input type="button" value="Browse server..." disabled="disabled"/>
-                                                        <input type="button" value="Upload file..." onclick="window.open('/InfoScreen/components/com_content/popup_upload_file.php?index=<?php echo $i; ?>', 'Upload File', 'menubar=no,location=no,height=200,width=500,toolbar=no,status=yes,dependent=yes');" />
-                                                        <input type="button" value="Create file..." disabled="disabled" />
+                                                        <input type="button" value="<?php lang_echo("conBrowseServer"); ?>" disabled="disabled"/>
+                                                        <input type="button" value="<?php lang_echo("conUploadFile"); ?>" onclick="window.open('<?php echo $basepath; ?>/components/com_content/popup_upload_file.php?index=<?php echo $i; ?>', 'Upload File', 'menubar=no,location=no,height=200,width=500,toolbar=no,status=yes,dependent=yes');" />
+                                                        <input type="button" value="<?php lang_echo("conCreateFile"); ?>"  onclick="window.open('<?php echo $basepath; ?>/components/com_content/popup_edit_html_file.php?index=<?php echo $i; ?>', 'Create File', 'menubar=no,location=no,height=600,width=800,toolbar=no,status=yes,dependent=yes');" />
                                                     </div>
                                                     <input type="text" class="nameInput" name="name<?php echo $i;?>" />
                                                 </td>
@@ -470,46 +475,46 @@ else if ($view == "create") {
                                                     <table class="contentDateTable" summary="" border="0" cellpadding="0" cellspacing="0">
                                                         <tbody>
                                                             <tr>
-                                                                <th>Datum:</th>
-                                                                <td><input type="radio" name="start<?php echo $i;?>date" value="<?php echo date("Y-m-d"); ?>" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" />Heute</td>
-                                                                <td><input type="radio" name="start<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+1day")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" />Morgen</td>
-                                                                <td><input type="radio" name="start<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+2days")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" />&Uuml;bermorgen</td>
-                                                                <td><input type="radio" name="start<?php echo $i;?>date" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" /><label for="start<?php echo $i;?>date">Anderes Datum:</label></td>
+                                                                <th><?php lang_echo("genDate"); ?>:</th>
+                                                                <td><input type="radio" name="start<?php echo $i;?>date" value="<?php echo date("Y-m-d"); ?>" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" /><?php lang_echo("genToday"); ?></td>
+                                                                <td><input type="radio" name="start<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+1day")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" /><?php lang_echo("genTomorrow"); ?></td>
+                                                                <td><input type="radio" name="start<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+2days")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" /><?php lang_echo("conInTwoDays"); ?></td>
+                                                                <td><input type="radio" name="start<?php echo $i;?>date" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" /><label for="start<?php echo $i;?>date"><?php lang_echo("conCustomDate"); ?>:</label></td>
                                                                 <td>
                                                                     <input type="text" name="start<?php echo $i;?>datecustom" value="<?php echo date("Y-m-d"); ?>" id="start<?php echo $i;?>datecustom" disabled="disabled" onchange="updateResultDateCustom(this, '<?php echo $i;?>', 'start');" />
                                                                     <input type="hidden" name="start<?php echo $i;?>dateval" value="<?php echo date("Y-m-d"); ?>" id="start<?php echo $i;?>dateval" />
                                                                 </td>
-                                                                <td rowspan="2">Erzeugter Zeitstempel: <input type="text" name="start<?php echo $i;?>result" value="<?php echo date("Y-m-d H:i:s", strtotime("today 06:00")); ?>" readonly="readonly" id="start<?php echo $i;?>result" /></td>
+                                                                <td rowspan="2"><?php lang_echo("conResultingTimeStamp"); ?>: <input type="text" name="start<?php echo $i;?>result" value="<?php echo date("Y-m-d H:i:s", strtotime("today 06:00")); ?>" readonly="readonly" id="start<?php echo $i;?>result" /></td>
                                                             </tr>
                                                             <tr>
-                                                                <th>Zeit:</th>
-                                                                <td><input type="radio" name="start<?php echo $i;?>time" value="06:00:00" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" />Morgens</td>
-                                                                <td><input type="radio" name="start<?php echo $i;?>time" value="09:30:00" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" />Gro&szlig;e Pause</td>
-                                                                <td><input type="radio" name="start<?php echo $i;?>time" value="12:00:00" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" />Mittags</td>
-                                                                <td><input type="radio" name="start<?php echo $i;?>time" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" />Anderer Zeitpunkt:</td>
+                                                                <th><?php lang_echo("genTime"); ?>:</th>
+                                                                <td><input type="radio" name="start<?php echo $i;?>time" value="06:00:00" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" /><?php lang_echo("conMorning"); ?></td>
+                                                                <td><input type="radio" name="start<?php echo $i;?>time" value="09:30:00" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" /><?php lang_echo("conMorningBreak"); ?></td>
+                                                                <td><input type="radio" name="start<?php echo $i;?>time" value="12:00:00" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" /><?php lang_echo("conNoon"); ?></td>
+                                                                <td><input type="radio" name="start<?php echo $i;?>time" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" /><?php lang_echo("conCustomTime"); ?>:</td>
                                                                 <td>
                                                                     <input type="text" name="start<?php echo $i;?>timecustom" value="<?php echo date("H:i:s", strtotime("today 06:00")); ?>" id="start<?php echo $i;?>timecustom" disabled="disabled" onchange="updateResultTimeCustom(this, '<?php echo $i;?>', 'start');" />
                                                                     <input type="hidden" name="start<?php echo $i;?>timeval" value="<?php echo date("H:i:s", strtotime("today 06:00")); ?>" id="start<?php echo $i;?>timeval" />
                                                                 </td>
                                                             </tr>
                                                             <tr>
-                                                                <th>Datum:</th>
-                                                                <td><input type="radio" name="end<?php echo $i;?>date" value="<?php echo date("Y-m-d"); ?>" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" />Heute</td>
-                                                                <td><input type="radio" name="end<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+1day")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" />Morgen</td>
-                                                                <td><input type="radio" name="end<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+2days")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" />&Uuml;bermorgen</td>
-                                                                <td><input type="radio" name="end<?php echo $i;?>date" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" />Anderes Datum:</td>
+                                                                <th><?php lang_echo("genDate"); ?>:</th>
+                                                                <td><input type="radio" name="end<?php echo $i;?>date" value="<?php echo date("Y-m-d"); ?>" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" /><?php lang_echo("genToday"); ?></td>
+                                                                <td><input type="radio" name="end<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+1day")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" /><?php lang_echo("genTomorrow"); ?></td>
+                                                                <td><input type="radio" name="end<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+2days")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" /><?php lang_echo("conInTwoDays"); ?></td>
+                                                                <td><input type="radio" name="end<?php echo $i;?>date" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" /><?php lang_echo("conCustomDate"); ?>:</td>
                                                                 <td>
                                                                     <input type="text" name="end<?php echo $i;?>datecustom" value="<?php echo date("Y-m-d"); ?>" id="end<?php echo $i;?>datecustom" disabled="disabled" onchange="updateResultDateCustom(this, '<?php echo $i;?>', 'end');" />
                                                                     <input type="hidden" name="end<?php echo $i;?>dateval" value="<?php echo date("Y-m-d"); ?>" id="end<?php echo $i;?>dateval" />
                                                                 </td>
-                                                                <td rowspan="2">Erzeugter Zeitstempel: <input type="text" name="end<?php echo $i;?>result" value="<?php echo date("Y-m-d H:i:s", strtotime("today 18:00")); ?>" readonly="readonly" id="end<?php echo $i;?>result" /></td>
+                                                                <td rowspan="2"><?php lang_echo("conResultingTimeStamp"); ?>: <input type="text" name="end<?php echo $i;?>result" value="<?php echo date("Y-m-d H:i:s", strtotime("today 18:00")); ?>" readonly="readonly" id="end<?php echo $i;?>result" /></td>
                                                             </tr>
                                                             <tr>
-                                                                <th>Zeit:</th>
-                                                                <td><input type="radio" name="end<?php echo $i;?>time" value="09:30:00" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" />Gro&szlig;e Pause</td>
-                                                                <td><input type="radio" name="end<?php echo $i;?>time" value="12:00:00" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" />Mittags</td>
-                                                                <td><input type="radio" name="end<?php echo $i;?>time" value="18:00:00" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" />Abends</td>
-                                                                <td><input type="radio" name="end<?php echo $i;?>time" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" />Anderer Zeitpunkt:</td>
+                                                                <th><?php lang_echo("genTime"); ?>:</th>
+                                                                <td><input type="radio" name="end<?php echo $i;?>time" value="09:30:00" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" /><?php lang_echo("conMorningBreak"); ?></td>
+                                                                <td><input type="radio" name="end<?php echo $i;?>time" value="12:00:00" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" /><?php lang_echo("conNoon"); ?></td>
+                                                                <td><input type="radio" name="end<?php echo $i;?>time" value="18:00:00" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" /><?php lang_echo("conEvening"); ?></td>
+                                                                <td><input type="radio" name="end<?php echo $i;?>time" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" /><?php lang_echo("conCustomTime"); ?>:</td>
                                                                 <td>
                                                                     <input type="text" name="end<?php echo $i;?>timecustom" value="<?php echo date("H:i:s", strtotime("today 18:00")); ?>" id="end<?php echo $i;?>timecustom" disabled="disabled" onchange="updateResultTimeCustom(this, '<?php echo $i;?>', 'end');" />
                                                                     <input type="hidden" name="end<?php echo $i;?>timeval" value="<?php echo date("H:i:s", strtotime("today 18:00")); ?>" id="end<?php echo $i;?>timeval" />

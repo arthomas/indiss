@@ -1,7 +1,7 @@
 <?php
 /**
- * @version     2009-09-10
- * @author      Patrick Lehner
+ * @version     2009-09-26
+ * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * 
  * @license     This program is free software: you can redistribute it and/or modify

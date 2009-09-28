@@ -3,6 +3,7 @@
  * @version     2009-09-26
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
+ * @module      replace multiple substrings
  * 
  * @license     This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU General Public License as published by
@@ -18,27 +19,26 @@
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-    defined("__MAIN") or die("Restricted access.");
-
-    include("$lang.php");
-    include_once("../includes/str_replace_multi.php");
-    
-    
-    
-    function lang($lang_content_string) {
-        global $_LANG;
-        return (isset($_LANG[$lang_content_string])) ? $_LANG[$lang_content_string] : '[' . $lang_content_string . ']';
+function str_replace_multi ($search, $replace, $subject) {
+    if ( !is_array($search) || !is_array($replace) )
+        return false;
+        
+    if ( empty($subject) || count($search) == 0 || count($replace) == 0 )
+        return "";
+        
+    $search = array_keys($search);
+    $replace = array_keys($replace);
+        
+    if ( count($search) < count($replace) )
+        $replace = array_slice( $replace, 0, count($search), true );
+    else if ( count($search) > count($replace) )
+        $search = array_slice( $search, 0, count($replace), true );
+        
+    for ( $i = 0; $i < count($search); $i++ ) {
+        $subject = str_replace( $search[$i], $replace[$i], $subject );
     }
     
-    function lang_echo($lang_content_string) {
-        echo lang($lang_content_string);
-    }
-    
-    
-    function html_escape_regional_chars($str) {
-        $old = array('Ä','Ö','Ü','ä','ö','ü','ß');
-        $new = array('&Auml;','&Ouml;','&Uuml;','&auml;','&ouml;','&uuml;','&szlig;');
-        return str_replace_multi($old, $new, htmlspecialchars($str));
-    }
+    return $subject;
+}
 
 ?>

@@ -1,7 +1,7 @@
 <?php
 /**
- * @version     2009-09-19
- * @author      Patrick Lehner
+ * @version     2009-09-26
+ * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * 
  * @license     This program is free software: you can redistribute it and/or modify
@@ -40,6 +40,13 @@
     $_LANG["genLogout"]                     = "Abmelden";
     $_LANG["genYes"]                        = "Ja";
     $_LANG["genNo"]                         = "Nein";
+    $_LANG["genClose"]                      = "Schlie&szlig;en";
+    $_LANG["genBack"]                       = "Zur&uuml;ck";
+    $_LANG["genForward"]                    = "Vorw&auml;rts";
+    $_LANG["genDate"]                       = "Datum";
+    $_LANG["genTime"]                       = "Zeit";
+    $_LANG["genToday"]                      = "Heute";
+    $_LANG["genTomorrow"]                   = "Morgen";
     
     
     /*Top nav items*/
@@ -69,7 +76,7 @@
     $_LANG["ticDispUntil"]                  = "Angezeigt bis";
     
     $_LANG["ticPastTickers"]                = "Fr&uuml;her angezeigte Ticker";
-    $_LANG["ticPresentTickers"]             = "Gegenw&auml;rtig angezeigte Ticker";
+    $_LANG["ticPresentTickers"]             = "Gegenw&auml;rtig aktive Ticker";
     $_LANG["ticFutureTickers"]              = "Zuk&uuml;nftig anzuzeigende Ticker";
     
     $_LANG["ticEdit"]                       = "Bearbeiten";
@@ -97,7 +104,7 @@
     $_LANG["ticDeletePermanently?"]         = "Wollen Sie wirklich alle aufgelisteten Ticker endg&uuml;ltig l&ouml;schen? (Dies kann nicht r&uuml;ckg&auml;ngig gemacht werden!)";
     $_LANG["ticTickersToDelete"]            = "Ticker, die gel&ouml;scht werden sollen";
     
-    $_LANG["ticTrashBin"]                   = "Papierkorb";
+    $_LANG["ticTrashBin"]                   = "Ticker Papierkorb";
     
     $_LANG["ticEditTicker"]                 = "Ticker bearbeiten";
     $_LANG["ticDeleted"]                    = "Gel&ouml;scht";
@@ -105,12 +112,12 @@
     
     
     /*HTML pages manager*/
-    $_LANG["conPageManHeadline"]            = "Content manager";
+    $_LANG["conPageManHeadline"]            = "Inhaltsmanager";
     
-    $_LANG["conNavList"]                    = "List of content";
-    $_LANG["conNavCreate"]                  = "Add new content";
-    $_LANG["conNavTrash"]                   = "Content trash bin";
-    $_LANG["conNavOptions"]                 = "Content options";
+    $_LANG["conNavList"]                    = "Inhaltsliste";
+    $_LANG["conNavCreate"]                  = "Neuen Inhalt hinzuf&uuml;gen";
+    $_LANG["conNavTrash"]                   = "Inhaltspapierkorb";
+    $_LANG["conNavOptions"]                 = "Optionen zu Inhalten";
     
     $_LANG["conCreateSuccess"]              = "Successfully added %d content items."; //%d: number of created content items
     $_LANG["conRestoreFromTrashSuccess"]    = "Successfully restored %d content items from the trash bin.";  //%d: The number of content items restored
@@ -122,22 +129,26 @@
     
     $_LANG["conName"]                       = "Name";
     $_LANG["conURL"]                        = "URL";
-    $_LANG["conDispTime"]                   = "Displayed for";
-    $_LANG["conDispFrom"]                   = "Displayed from";
-    $_LANG["conDispUntil"]                  = "Displayed until";
-    $_LANG["conType"]                       = "Type";
+    $_LANG["conDispTime"]                   = "Angezeigt f&uuml;r";
+    $_LANG["conDispFrom"]                   = "Angezeigt von";
+    $_LANG["conDispUntil"]                  = "Angezeigt bis";
+    $_LANG["conType"]                       = "Typ";
     
     $_LANG["conTypeLocalPage"]              = "Lokale Seite";
     $_LANG["conTypeExternalPage"]           = "Externe Seite";
     $_LANG["conTypeLocalImage"]             = "Lokale Bilddatei";
     $_LANG["conTypeExternalImage"]          = "Externe Bilddatei";
+    $_LANG["conTypeLocalPDF"]               = "Lokale PDF-Datei";
+    $_LANG["conTypeExternalPDF"]            = "Externe PDF-Datei";
+    $_LANG["conTypeLocalFlash"]             = "Lokale Flash-Datei";
+    $_LANG["conTypeExternalFlash"]          = "Externe Flash-Datei";
     $_LANG["conTypeLocalOther"]             = "Andere lokale Datei";
     $_LANG["conTypeExternalOther"]          = "Andere externe Datei";
     $_LANG["conTypeUnknown"]                = "Unbekannt";
     
-    $_LANG["conPastPages"]                  = "Previous pages";
-    $_LANG["conPresentPages"]               = "Current pages";
-    $_LANG["conFuturePages"]                = "Future pages";
+    $_LANG["conPastPages"]                  = "Fr&uuml;her angezeigte Eintr&auml;ge";
+    $_LANG["conPresentPages"]               = "Gegenw&auml;rtig aktive Eintr&auml;ge";
+    $_LANG["conFuturePages"]                = "Zuk&uuml;nftig anzuzeigende Eintr&auml;ge";
     
     $_LANG["conEdit"]                       = "Edit";
     $_LANG["conEditShort"]                  = "E";
@@ -169,5 +180,33 @@
     $_LANG["conEditPage"]                   = "Edit page";
     $_LANG["conDeleted"]                    = "Deleted";
     $_LANG["conDeletedInfo"]                = "This page is currently in the trash bin. If you want to restore it from there when you click save, un-check this box. Otherwise, leave it checked.";
+    
+    $_LANG["conBrowseServer"]               = "Server durchsuchen...";
+    $_LANG["conUploadFile"]                 = "Datei hochladen...";
+    $_LANG["conCreateFile"]                 = "Datei erstellen...";
+    
+    $_LANG["conResultingTimeStamp"]         = "Erzeugter Zeitstempel";
+    $_LANG["conInTwoDays"]                  = "&Uuml;bermorgen";
+    $_LANG["conCustomDate"]                 = "Anderes Datum";
+    $_LANG["conCustomTime"]                 = "Anderer Zeitpunkt";
+    $_LANG["conMorning"]                    = "Morgens";
+    $_LANG["conMorningBreak"]               = "Gro&szlig;e Pause";
+    $_LANG["conNoon"]                       = "Mittags";
+    $_LANG["conEvening"]                    = "Abends";
+    
+    $_LANG["conIgnore1"]                    = "Dieser Eintrag wird ignoriert: "; //ATTENTION! this block will be inserted into javascript. do not escape any entities (html chars, umlauts, etc). however, escape PHP special chars twice (once for PHP, once for JS)!!
+    $_LANG["conIgnoreEmptyURL"]             = "Leere URL.";
+    $_LANG["conIgnoreUnsuppProt"]           = "Protkoll nicht unterstützt.";
+    $_LANG["conIgnoreDispTime"]             = "Ungültiger Werte im Feld \\\"Angezeigt für\\\".";
+    $_LANG["conThisIsLocalPage"]            = "This is a local page.";
+    $_LANG["conThisIsExternalPage"]         = "This is an external page.";
+    $_LANG["conThisIsLocalImage"]           = "This is a local image.";
+    $_LANG["conThisIsExternalImage"]        = "This is an external image.";
+    $_LANG["conThisIsLocalPDF"]             = "This is a local PDF file.";
+    $_LANG["conThisIsExternalPDF"]          = "This is an external PDF file.";
+    $_LANG["conThisIsLocalFlash"]           = "This is a local flash file.";
+    $_LANG["conThisIsExternalFlash"]        = "This is an external flash file.";
+    $_LANG["conThisIsLocalOther"]           = "This is a local link (type not recognized).";
+    $_LANG["conThisIsExternalOther"]        = "This is an external link (type not recognized).";
 
 ?>
