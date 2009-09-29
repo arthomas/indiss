@@ -80,7 +80,7 @@ div#main {
 
 }
 
-div#content {
+div#component {
     padding: 10px 20px;
 }
 
@@ -136,127 +136,9 @@ fieldset {
     padding: 10px;
 }
 
-
 div#footer {
     clear: both;
     font-size: 80%;
     text-align: center;
     margin-top: 30px;
-}
-
-
-/*Ticker manager*/
-
-div#tickerman div#tickermanNav {
-    text-align: right;
-}
-
-div#tickerman div#tickersDiv {
-    width: 1130px;
-    height: 200px;
-    overflow-x: hidden;
-    overflow-y: scroll;
-}
-
-div#tickerman table#tickersHead th {
-    padding: 1px;
-}
-
-div#tickerman table#tickers,
-div#tickerman table#tickersHead {
-    border-collapse: collapse;
-    width: 1100px;
-    max-width: 1100px;
-    min-width: 1100px;
-    margin-left: 1px;
-}
-div#tickerman table#tickers th {
-    vertical-align: top;
-}
-div#tickerman table#tickers tr > *,
-div#tickerman table#tickersHead tr > * {
-    border: 1px solid black;
-}
-
-div#tickerman table#tickers tr.none td {
-    color: gray;
-    font-style: italic;
-    text-indent: 40px;
-}
-
-div#tickerman table#tickers tr.category {
-    font-style: italic;
-    text-indent: 20px;
-    font-weight: bold;
-}
-
-div#tickerman table#tickers tr.past td {
-    color: darkgray;
-    font-style: italic;
-}
-div#tickerman table#tickers tr.future td {
-    color: darkblue;
-    font-style: italic;
-}
-
-div#tickerman table#tickers td.tName,
-div#tickerman table#tickersHead th.tName {
-    width: 130px;
-    padding: 0 10px;
-    overflow: hidden;
-}
-div#tickerman table#tickers td.tContent,
-div#tickerman table#tickersHead th.tContent {
-    
-}
-div#tickerman table#tickers td.tFrom,
-div#tickerman table#tickersHead th.tFrom {
-    width: 150px;
-    text-align: center;
-}
-div#tickerman table#tickers td.tUntil,
-div#tickerman table#tickersHead th.tUntil {
-    width: 150px;
-    text-align: center;
-}
-div#tickerman table#tickers td.tEdit,
-div#tickerman table#tickersHead th.tEdit {
-    width: 15px;
-    text-align: center;
-}
-div#tickerman table#tickers td.tDelete,
-div#tickerman table#tickersHead th.tDelete {
-    width: 15px;
-    text-align: center;
-}
-div#tickerman table#tickers td.tRestore,
-div#tickerman table#tickersHead th.tRestore {
-    width: 15px;
-    text-align: center;
-}
-div#tickerman table#tickers td.tCheck,
-div#tickerman table#tickersHead th.tCheck {
-    width: 20px;
-    text-align: center;
-}
-div#tickerman div#tickerListButtons {
-    text-align: right;
-    padding-right: 50px;
-}
-
-div#tickerman div#tickerCreateTop {
-    padding-top: 5px;
-}
-div#tickerman form#tickerCreateRestartForm {
-    float: right;
-}
-div#tickerman form#tickerCreateForm {
-    clear: both;
-}
-
-div#tickerman div#tickerDeleteTop {
-    padding-top: 5px;
-}
-div#tickerman div#tickerDeleteButtonBar {
-    float: right;
 }

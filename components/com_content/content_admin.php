@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-09-26
+ * @version     2009-09-29
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      content_admin -- HTML page manager (backend)
@@ -190,16 +190,17 @@
                 $c = 0;
                 for ($i = 0; $i < $_POST["editcount"]; $i++) {
                     $query = "UPDATE `com_content` SET";
-                    if (isset($_POST["caption$i"])) $query .= "`caption`='" . $_POST["caption$i"] . "',";
-                    if (isset($_POST["content$i"])) $query .= "`content`='" . $_POST["content$i"] . "',";
+                    if (isset($_POST["name$i"])) $query .= "`name`='" . $_POST["name$i"] . "',";
+                    if (isset($_POST["URL$i"])) $query .= "`url`='" . $_POST["URL$i"] . "',";
+                    if (isset($_POST["disptime$i"])) $query .= "`displaytime`='" . $_POST["disptime$i"] . "',";
                     if (isset($_POST["start$i"])) $query .= "`start`='" . $_POST["start$i"] . "',";
                     if (isset($_POST["end$i"])) $query .= "`end`='" . $_POST["end$i"] . "',";
-                    if (isset($_POST["deleted$i"])) {
+                    if (isset($_POST["wasdeleted$i"])) {
                         $query .= "`deleted`=";
-                        $query .= ($_POST["deleted$i"] == "on") ? "TRUE" : "FALSE";
+                        $query .= (isset($_POST["deleted$i"])) ? "TRUE" : "FALSE";
                     }
                     $query = rtrim($query, ",");
-                    $query .= "WHERE `id`=" . $_POST["id$i"];
+                    $query .= " WHERE `id`=" . $_POST["id$i"];
                     $result = mysql_query($query);
                     if (!$result) {
                         $message .= sprintf(lang("errDBError") . "<br />\n", mysql_error());      //  <<-----  $_LANG
@@ -272,7 +273,7 @@
     function contentmanOutputList($list, $indent=0, $withselect=1) {
         for ($i = 0; $i < $indent; $i++) $output .= " ";
         if  (!isset($GLOBALS[$list]))
-            echo $output . "<tr class=\"none\"><td colspan=\"9\">". lang("genNone") . "</td></tr>\n";
+            echo $output . "<tr class=\"none\"><td colspan=\"" . (($withselect == 2) ? 10 : 9) . "\">". lang("genNone") . "</td></tr>\n";
         else
             foreach ($GLOBALS[$list] as $value) {
                 unset($output);
@@ -332,12 +333,12 @@ if ($view == "list") { ?>
 <?php contentmanOutputTableHead(32); ?>
                             </thead>
                             <tbody>
-                                <tr class="category"><td colspan="9"><?php lang_echo("conPastPages");?></td></tr>
-<?php contentmanOutputList("past", 32);?>
                                 <tr class="category"><td colspan="9"><?php lang_echo("conPresentPages");?></td></tr>
 <?php contentmanOutputList("present", 32);?>
                                 <tr class="category"><td colspan="9"><?php lang_echo("conFuturePages");?></td></tr>
 <?php contentmanOutputList("future", 32);?>
+                                <tr class="category"><td colspan="9"><?php lang_echo("conPastPages");?></td></tr>
+<?php contentmanOutputList("past", 32);?>
                             </tbody>
                             <tfoot>
 <?php contentmanOutputTableHead(32); ?>
@@ -451,7 +452,7 @@ else if ($view == "create") {
                     <input type="hidden" name="new_pages" value="<?php echo $new_pages; ?>" />
                     <table id="contentCreateContainerTable" summary="" border="0" cellpadding="2" cellspacing="0">
                         <tbody>
-<?php for ($i = 0; $i < $new_pages; $i++) {?>
+<?php for ($i = 0; $i < $new_pages; $i++) { ?>
                             <tr><td>
                                 <fieldset class="contentCreateBox"><legend><?php lang_echo("conCreatePage");?> <span class="createBoxTypeInfo" id="info<?php echo $i; ?>"><?php echo html_escape_regional_chars(lang("conIgnore1").lang("conIgnoreEmptyURL")); ?></span></legend>
                                     <table class="contentCreateTable" summary="" border="0" cellpadding="2" cellspacing="0">
@@ -468,7 +469,7 @@ else if ($view == "create") {
                                                 </td>
                                             </tr>
                                             <tr><td><label for="URL<?php echo $i;?>"><?php lang_echo("conURL");?>:</label></td><td><input type="text" class="URLInput" name="URL<?php echo $i;?>" id="URL<?php echo $i;?>" onchange="determineType(this, <?php echo $i; ?>);" /></td></tr>
-                                            <tr><td><label for="disptime<?php echo $i;?>"><?php lang_echo("conDispTime");?>:</label></td><td><input type="text" class="timeInput" name="disptime<?php echo $i;?>" onchange="checkDispTime(this, <?php echo $i; ?>);" value="<?php echo (($time = getValueByName("com_content_options", "default_display_time")) === false) ? "120" : $time; ?>" />s</td></tr>
+                                            <tr><td><label for="disptime<?php echo $i;?>"><?php lang_echo("conDispTime");?>:</label></td><td><input type="text" class="timeInput" name="disptime<?php echo $i;?>" onchange="checkDispTime(this, <?php echo $i; ?>);" value="<?php echo getValueByNameD("com_content_options", "default_display_time", 120); ?>" />s</td></tr>
                                             <tr>
                                                 <td class="vertMiddle"><label><?php lang_echo("conDispFrom");?>:</label></td>
                                                 <td rowspan="2">
@@ -478,20 +479,20 @@ else if ($view == "create") {
                                                                 <th><?php lang_echo("genDate"); ?>:</th>
                                                                 <td><input type="radio" name="start<?php echo $i;?>date" value="<?php echo date("Y-m-d"); ?>" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" /><?php lang_echo("genToday"); ?></td>
                                                                 <td><input type="radio" name="start<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+1day")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" /><?php lang_echo("genTomorrow"); ?></td>
-                                                                <td><input type="radio" name="start<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+2days")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" /><?php lang_echo("conInTwoDays"); ?></td>
-                                                                <td><input type="radio" name="start<?php echo $i;?>date" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" /><label for="start<?php echo $i;?>date"><?php lang_echo("conCustomDate"); ?>:</label></td>
+                                                                <td><input type="radio" name="start<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+2days")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" /><?php lang_echo("genInTwoDays"); ?></td>
+                                                                <td><input type="radio" name="start<?php echo $i;?>date" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" /><label for="start<?php echo $i;?>date"><?php lang_echo("genCustomDate"); ?>:</label></td>
                                                                 <td>
                                                                     <input type="text" name="start<?php echo $i;?>datecustom" value="<?php echo date("Y-m-d"); ?>" id="start<?php echo $i;?>datecustom" disabled="disabled" onchange="updateResultDateCustom(this, '<?php echo $i;?>', 'start');" />
                                                                     <input type="hidden" name="start<?php echo $i;?>dateval" value="<?php echo date("Y-m-d"); ?>" id="start<?php echo $i;?>dateval" />
                                                                 </td>
-                                                                <td rowspan="2"><?php lang_echo("conResultingTimeStamp"); ?>: <input type="text" name="start<?php echo $i;?>result" value="<?php echo date("Y-m-d H:i:s", strtotime("today 06:00")); ?>" readonly="readonly" id="start<?php echo $i;?>result" /></td>
+                                                                <td rowspan="2"><?php lang_echo("genResultingTimeStamp"); ?>: <input type="text" name="start<?php echo $i;?>result" value="<?php echo date("Y-m-d H:i:s", strtotime("today 06:00")); ?>" readonly="readonly" id="start<?php echo $i;?>result" /></td>
                                                             </tr>
                                                             <tr>
                                                                 <th><?php lang_echo("genTime"); ?>:</th>
-                                                                <td><input type="radio" name="start<?php echo $i;?>time" value="06:00:00" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" /><?php lang_echo("conMorning"); ?></td>
-                                                                <td><input type="radio" name="start<?php echo $i;?>time" value="09:30:00" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" /><?php lang_echo("conMorningBreak"); ?></td>
-                                                                <td><input type="radio" name="start<?php echo $i;?>time" value="12:00:00" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" /><?php lang_echo("conNoon"); ?></td>
-                                                                <td><input type="radio" name="start<?php echo $i;?>time" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" /><?php lang_echo("conCustomTime"); ?>:</td>
+                                                                <td><input type="radio" name="start<?php echo $i;?>time" value="06:00:00" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" /><?php lang_echo("genMorning"); ?></td>
+                                                                <td><input type="radio" name="start<?php echo $i;?>time" value="09:30:00" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" /><?php lang_echo("genMorningBreak"); ?></td>
+                                                                <td><input type="radio" name="start<?php echo $i;?>time" value="12:00:00" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" /><?php lang_echo("genNoon"); ?></td>
+                                                                <td><input type="radio" name="start<?php echo $i;?>time" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" /><?php lang_echo("genCustomTime"); ?>:</td>
                                                                 <td>
                                                                     <input type="text" name="start<?php echo $i;?>timecustom" value="<?php echo date("H:i:s", strtotime("today 06:00")); ?>" id="start<?php echo $i;?>timecustom" disabled="disabled" onchange="updateResultTimeCustom(this, '<?php echo $i;?>', 'start');" />
                                                                     <input type="hidden" name="start<?php echo $i;?>timeval" value="<?php echo date("H:i:s", strtotime("today 06:00")); ?>" id="start<?php echo $i;?>timeval" />
@@ -501,20 +502,20 @@ else if ($view == "create") {
                                                                 <th><?php lang_echo("genDate"); ?>:</th>
                                                                 <td><input type="radio" name="end<?php echo $i;?>date" value="<?php echo date("Y-m-d"); ?>" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" /><?php lang_echo("genToday"); ?></td>
                                                                 <td><input type="radio" name="end<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+1day")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" /><?php lang_echo("genTomorrow"); ?></td>
-                                                                <td><input type="radio" name="end<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+2days")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" /><?php lang_echo("conInTwoDays"); ?></td>
-                                                                <td><input type="radio" name="end<?php echo $i;?>date" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" /><?php lang_echo("conCustomDate"); ?>:</td>
+                                                                <td><input type="radio" name="end<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+2days")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" /><?php lang_echo("genInTwoDays"); ?></td>
+                                                                <td><input type="radio" name="end<?php echo $i;?>date" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" /><?php lang_echo("genCustomDate"); ?>:</td>
                                                                 <td>
                                                                     <input type="text" name="end<?php echo $i;?>datecustom" value="<?php echo date("Y-m-d"); ?>" id="end<?php echo $i;?>datecustom" disabled="disabled" onchange="updateResultDateCustom(this, '<?php echo $i;?>', 'end');" />
                                                                     <input type="hidden" name="end<?php echo $i;?>dateval" value="<?php echo date("Y-m-d"); ?>" id="end<?php echo $i;?>dateval" />
                                                                 </td>
-                                                                <td rowspan="2"><?php lang_echo("conResultingTimeStamp"); ?>: <input type="text" name="end<?php echo $i;?>result" value="<?php echo date("Y-m-d H:i:s", strtotime("today 18:00")); ?>" readonly="readonly" id="end<?php echo $i;?>result" /></td>
+                                                                <td rowspan="2"><?php lang_echo("genResultingTimeStamp"); ?>: <input type="text" name="end<?php echo $i;?>result" value="<?php echo date("Y-m-d H:i:s", strtotime("today 18:00")); ?>" readonly="readonly" id="end<?php echo $i;?>result" /></td>
                                                             </tr>
                                                             <tr>
                                                                 <th><?php lang_echo("genTime"); ?>:</th>
-                                                                <td><input type="radio" name="end<?php echo $i;?>time" value="09:30:00" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" /><?php lang_echo("conMorningBreak"); ?></td>
-                                                                <td><input type="radio" name="end<?php echo $i;?>time" value="12:00:00" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" /><?php lang_echo("conNoon"); ?></td>
-                                                                <td><input type="radio" name="end<?php echo $i;?>time" value="18:00:00" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" /><?php lang_echo("conEvening"); ?></td>
-                                                                <td><input type="radio" name="end<?php echo $i;?>time" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" /><?php lang_echo("conCustomTime"); ?>:</td>
+                                                                <td><input type="radio" name="end<?php echo $i;?>time" value="09:30:00" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" /><?php lang_echo("genMorningBreak"); ?></td>
+                                                                <td><input type="radio" name="end<?php echo $i;?>time" value="12:00:00" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" /><?php lang_echo("genNoon"); ?></td>
+                                                                <td><input type="radio" name="end<?php echo $i;?>time" value="18:00:00" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" /><?php lang_echo("genEvening"); ?></td>
+                                                                <td><input type="radio" name="end<?php echo $i;?>time" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" /><?php lang_echo("genCustomTime"); ?>:</td>
                                                                 <td>
                                                                     <input type="text" name="end<?php echo $i;?>timecustom" value="<?php echo date("H:i:s", strtotime("today 18:00")); ?>" id="end<?php echo $i;?>timecustom" disabled="disabled" onchange="updateResultTimeCustom(this, '<?php echo $i;?>', 'end');" />
                                                                     <input type="hidden" name="end<?php echo $i;?>timeval" value="<?php echo date("H:i:s", strtotime("today 18:00")); ?>" id="end<?php echo $i;?>timeval" />
@@ -553,14 +554,14 @@ else if (($view == "delete") || ($view == "delete2")) { ?>
                     </form>
                 </div>
                 <fieldset id="contentDeleteList"><legend><?php lang_echo("conPagesToDelete");?></legend>
-                    <table id="contentHead" summary="" border="0" cellpadding="0" cellspacing="0">
-                        <tr><th class="tName"><?php lang_echo("conCaption");?></th><th class="tContent"><?php lang_echo("conContent");?></th><th class="tFrom"><?php lang_echo("conDispFrom");?></th><th class="tUntil"><?php lang_echo("conDispUntil");?></th></tr>
+                    <table id="contentTable">
+                        <thead>
+                            <tr><th class="tName"><?php lang_echo("conName");?></th><th class="tURL"><?php lang_echo("conURL");?></th><th class="tType"><?php lang_echo("conType");?></th><th class="tDispTime"><?php lang_echo("conDispTime");?></th><th class="tFrom"><?php lang_echo("conDispFrom");?></th><th class="tUntil"><?php lang_echo("conDispUntil");?></th></tr>
+                        </thead>
+                        <tbody>
+<?php contentmanOutputList("toDelete", 32, 0);?> 
+                        </tbody>
                     </table>
-                    <div id="contentDiv">
-                        <table id="content">
-<?php contentmanOutputList("toDelete", 32, 0);?>
-                        </table>
-                    </div>
                 </fieldset>
 <?php } 
 
@@ -568,17 +569,22 @@ else if (($view == "delete") || ($view == "delete2")) { ?>
 
 else if ($view == "deleted") { ?>
                 <fieldset id="contentDeleted"><legend><?php lang_echo("conTrashBin");?></legend>
-                    <table id="contentHead" summary="" border="0" cellpadding="0" cellspacing="0">
-                        <tr><th class="tName"><?php lang_echo("conCaption");?></th><th class="tContent"><?php lang_echo("conContent");?></th><th class="tFrom"><?php lang_echo("conDispFrom");?></th><th class="tUntil"><?php lang_echo("conDispUntil");?></th><th class="tEdit" title="<?php lang_echo("conEdit");?>"><?php lang_echo("conEditShort");?></th><th class="tRestore" title="<?php lang_echo("conRestore");?>"><?php lang_echo("conRestoreShort");?></th><th class="tDelete" title="<?php lang_echo("conDelete2");?>"><?php lang_echo("conDelete2Short");?></th><th class="tCheck"></th></tr>
-                    </table>
                     <form id="contentListForm" action="?component=content" method="post">
-                        <div id="contentDiv">
-                            <table id="content">
-<?php contentmanOutputList("deleted", 32, 2);?> 
-                            </table>
-                        </div>
                         <div id="contentListButtons">
                             <input type="hidden" name="postview" value="unset" id="postview" />
+                            <input type="submit" value="<?php lang_echo("conEditSelected");?>" onclick="this.form.action = './?component=content&view=edit'; document.getElementById('postview').value = 'multiEdit';" />
+                            <input type="submit" value="<?php lang_echo("conRestoreSelected");?>" onclick="this.form.action = './?component=content&view=restore'; document.getElementById('postview').value = 'multiRestore';" />
+                            <input type="submit" value="<?php lang_echo("conDelete2Selected");?>" onclick="this.form.action = './?component=content&view=delete2'; document.getElementById('postview').value = 'multiDelete';" />
+                        </div>
+                        <table id="contentTable">
+                            <thead>
+                                <tr><th class="tName"><?php lang_echo("conName");?></th><th class="tURL"><?php lang_echo("conURL");?></th><th class="tType"><?php lang_echo("conType");?></th><th class="tDispTime"><?php lang_echo("conDispTime");?></th><th class="tFrom"><?php lang_echo("conDispFrom");?></th><th class="tUntil"><?php lang_echo("conDispUntil");?></th><th class="tEdit" title="<?php lang_echo("conEdit");?>"><?php lang_echo("conEditShort");?></th><th class="tRestore" title="<?php lang_echo("conRestore");?>"><?php lang_echo("conRestoreShort");?></th><th class="tDelete" title="<?php lang_echo("conDelete2");?>"><?php lang_echo("conDelete2Short");?></th><th class="tCheck"></th></tr>
+                            </thead>
+                            <tbody>
+<?php contentmanOutputList("deleted", 32, 2);?> 
+                            </tbody>
+                        </table>
+                        <div id="contentListButtons">
                             <input type="submit" value="<?php lang_echo("conEditSelected");?>" onclick="this.form.action = './?component=content&view=edit'; document.getElementById('postview').value = 'multiEdit';" />
                             <input type="submit" value="<?php lang_echo("conRestoreSelected");?>" onclick="this.form.action = './?component=content&view=restore'; document.getElementById('postview').value = 'multiRestore';" />
                             <input type="submit" value="<?php lang_echo("conDelete2Selected");?>" onclick="this.form.action = './?component=content&view=delete2'; document.getElementById('postview').value = 'multiDelete';" />
@@ -594,20 +600,29 @@ else if ($view == "edit") { ?>
                     <input type="hidden" name="postview" value="edit" />
                     <div id="contentEditButtonBar"><input type="submit" value="Save" /></div>
                     <input type="hidden" name="editcount" value="<?php echo $editcount; ?>" />
+                    <table id="contentCreateContainerTable" summary="" border="0" cellpadding="2" cellspacing="0">
+                        <tbody>
 <?php for ($i = 0; $i < $editcount; $i++) {?>
-                    <fieldset class="contentEdit"><legend><?php lang_echo("conEditPage");?></legend>
-                        <input type="hidden" name="id<?php echo $i; ?>" value="<?php echo $toEdit[$i]->id?>" />
-                        <table class="contentEditTable" summary="" border="0" cellpadding="0" cellspacing="0">
-                            <tr><td><label for="caption<?php echo $i;?>"><?php lang_echo("conCaption");?>:</label></td><td><input type="text" name="caption<?php echo $i;?>" value="<?php echo $toEdit[$i]->caption; ?>" /></td></tr>
-                            <tr><td><label for="content<?php echo $i;?>"><?php lang_echo("conContent");?>:</label></td><td><textarea name="content<?php echo $i;?>"><?php echo $toEdit[$i]->content; ?></textarea></td></tr>
-                            <tr><td><label for="start<?php echo $i;?>"><?php lang_echo("conDispFrom");?>:</label></td><td><input type="text" name="start<?php echo $i;?>" value="<?php echo $toEdit[$i]->start; ?>" /> <i>Format: <acronym title="Year, 4-digit">YYYY</acronym>-<acronym title="Month, with leading zeroes">MM</acronym>-<acronym title="Day of month, with leading zeroes">DD</acronym> <acronym title="Hour of day (24h), with leading zeroes">HH</acronym>:<acronym title="Minute of hour, with leading zeroes">mm</acronym>:<acronym title="Second of minute, with leading zeroes">ss</acronym></i></td></tr>
-                            <tr><td><label for="end<?php echo $i;?>"><?php lang_echo("conDispUntil");?>:</label></td><td><input type="text" name="end<?php echo $i;?>"  value="<?php echo $toEdit[$i]->end; ?>" /> <i>Format: <acronym title="Year, 4-digit">YYYY</acronym>-<acronym title="Month, with leading zeroes">MM</acronym>-<acronym title="Day of month, with leading zeroes">DD</acronym> <acronym title="Hour of day (24h), with leading zeroes">HH</acronym>:<acronym title="Minute of hour, with leading zeroes">mm</acronym>:<acronym title="Second of minute, with leading zeroes">ss</acronym></i></td></tr>
+                            <tr><td>
+                                <fieldset class="contentEdit"><legend><?php lang_echo("conEditPage");?></legend>
+                                    <input type="hidden" name="id<?php echo $i; ?>" value="<?php echo $toEdit[$i]->id?>" />
+                                    <table class="contentEditTable" summary="" border="0" cellpadding="0" cellspacing="0">
+                                        <tbody>
+                                            <tr><td><label for="name<?php echo $i;?>"><?php lang_echo("conName");?>:</label></td><td><input type="text" name="name<?php echo $i;?>" value="<?php echo $toEdit[$i]->name; ?>" /></td></tr>
+                                            <tr><td><label for="URL<?php echo $i;?>"><?php lang_echo("conURL");?>:</label></td><td><input type="text" name="URL<?php echo $i;?>" value="<?php echo $toEdit[$i]->url; ?>" /></td></tr>
+                                            <tr><td><label for="disptime<?php echo $i;?>"><?php lang_echo("conDispTime");?>:</label></td><td><input type="text" class="timeInput" name="disptime<?php echo $i;?>" onchange="checkDispTime(this, <?php echo $i; ?>);" value="<?php echo $toEdit[$i]->displaytime;; ?>" />s</td></tr>
+                                            <tr><td><label for="start<?php echo $i;?>"><?php lang_echo("conDispFrom");?>:</label></td><td><input type="text" name="start<?php echo $i;?>" value="<?php echo $toEdit[$i]->start; ?>" /> <i>Format: <acronym title="Year, 4-digit">YYYY</acronym>-<acronym title="Month, with leading zeroes">MM</acronym>-<acronym title="Day of month, with leading zeroes">DD</acronym> <acronym title="Hour of day (24h), with leading zeroes">HH</acronym>:<acronym title="Minute of hour, with leading zeroes">mm</acronym>:<acronym title="Second of minute, with leading zeroes">ss</acronym></i></td></tr>
+                                            <tr><td><label for="end<?php echo $i;?>"><?php lang_echo("conDispUntil");?>:</label></td><td><input type="text" name="end<?php echo $i;?>"  value="<?php echo $toEdit[$i]->end; ?>" /> <i>Format: <acronym title="Year, 4-digit">YYYY</acronym>-<acronym title="Month, with leading zeroes">MM</acronym>-<acronym title="Day of month, with leading zeroes">DD</acronym> <acronym title="Hour of day (24h), with leading zeroes">HH</acronym>:<acronym title="Minute of hour, with leading zeroes">mm</acronym>:<acronym title="Second of minute, with leading zeroes">ss</acronym></i></td></tr>
 <?php if ($toEdit[$i]->deleted) { ?>
-                            <tr><td><label for="deleted<?php echo $i;?>"><?php lang_echo("conDeleted");?>:</label></td><td><input type="checkbox" name="deleted<?php echo $i;?>" checked="checked" title="<?php lang_echo("conDeletedInfo");?>" /></td></tr>
+                                            <tr><td><label for="deleted<?php echo $i;?>"><?php lang_echo("conDeleted");?>:</label></td><td><input type="checkbox" name="deleted<?php echo $i;?>" checked="checked" title="<?php lang_echo("conDeletedInfo");?>" /><input type="hidden" name="wasdeleted<?php echo $i;?>" value="yes" /></td></tr>
 <?php } ?>
-                        </table>
-                    </fieldset>
+                                        </tbody>
+                                    </table>
+                                </fieldset>
+                            </td></tr>
 <?php } ?>
+                        </tbody>
+                    </table>
                 </form>
 <?php }
 

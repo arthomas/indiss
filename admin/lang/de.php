@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-09-26
+ * @version     2009-09-29
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * 
@@ -47,6 +47,14 @@
     $_LANG["genTime"]                       = "Zeit";
     $_LANG["genToday"]                      = "Heute";
     $_LANG["genTomorrow"]                   = "Morgen";
+    $_LANG["genInTwoDays"]                  = "&Uuml;bermorgen";
+    $_LANG["genCustomDate"]                 = "Anderes Datum";
+    $_LANG["genCustomTime"]                 = "Anderer Zeitpunkt";
+    $_LANG["genMorning"]                    = "Morgens";
+    $_LANG["genMorningBreak"]               = "Gro&szlig;e Pause";
+    $_LANG["genNoon"]                       = "Mittags";
+    $_LANG["genEvening"]                    = "Abends";
+    $_LANG["genResultingTimeStamp"]         = "Erzeugter Zeitstempel";
     
     
     /*Top nav items*/
@@ -100,7 +108,7 @@
     
     $_LANG["ticYesReallyDelete"]            = "Ja, wirklich l&ouml;schen";
     $_LANG["ticNoDontDelete"]               = "Nein, nicht l&ouml;schen";
-    $_LANG["ticMoveToTrash?"]               = "Wollen Sie wirklich alle aufgelisteten Ticker in den Papierkorb verschieben? (Sie können sie sp&auml;ter wiederherstellen.)";
+    $_LANG["ticMoveToTrash?"]               = "Wollen Sie wirklich alle aufgelisteten Ticker in den Papierkorb verschieben? (Sie k&ouml;nnen sie sp&auml;ter wiederherstellen.)";
     $_LANG["ticDeletePermanently?"]         = "Wollen Sie wirklich alle aufgelisteten Ticker endg&uuml;ltig l&ouml;schen? (Dies kann nicht r&uuml;ckg&auml;ngig gemacht werden!)";
     $_LANG["ticTickersToDelete"]            = "Ticker, die gel&ouml;scht werden sollen";
     
@@ -117,7 +125,7 @@
     $_LANG["conNavList"]                    = "Inhaltsliste";
     $_LANG["conNavCreate"]                  = "Neuen Inhalt hinzuf&uuml;gen";
     $_LANG["conNavTrash"]                   = "Inhaltspapierkorb";
-    $_LANG["conNavOptions"]                 = "Optionen zu Inhalten";
+    $_LANG["conNavOptions"]                 = "Inhaltsoptionen";
     
     $_LANG["conCreateSuccess"]              = "Successfully added %d content items."; //%d: number of created content items
     $_LANG["conRestoreFromTrashSuccess"]    = "Successfully restored %d content items from the trash bin.";  //%d: The number of content items restored
@@ -184,15 +192,6 @@
     $_LANG["conBrowseServer"]               = "Server durchsuchen...";
     $_LANG["conUploadFile"]                 = "Datei hochladen...";
     $_LANG["conCreateFile"]                 = "Datei erstellen...";
-    
-    $_LANG["conResultingTimeStamp"]         = "Erzeugter Zeitstempel";
-    $_LANG["conInTwoDays"]                  = "&Uuml;bermorgen";
-    $_LANG["conCustomDate"]                 = "Anderes Datum";
-    $_LANG["conCustomTime"]                 = "Anderer Zeitpunkt";
-    $_LANG["conMorning"]                    = "Morgens";
-    $_LANG["conMorningBreak"]               = "Gro&szlig;e Pause";
-    $_LANG["conNoon"]                       = "Mittags";
-    $_LANG["conEvening"]                    = "Abends";
     
     $_LANG["conIgnore1"]                    = "Dieser Eintrag wird ignoriert: "; //ATTENTION! this block will be inserted into javascript. do not escape any entities (html chars, umlauts, etc). however, escape PHP special chars twice (once for PHP, once for JS)!!
     $_LANG["conIgnoreEmptyURL"]             = "Leere URL.";

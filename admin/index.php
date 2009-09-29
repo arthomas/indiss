@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-09-26
+ * @version     2009-09-28
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      Backend main page
@@ -21,7 +21,7 @@
 	define("__MAIN", 1);
 
 	include_once("../config/config.php");
-	include_once("includes/database.php");
+	include_once("../includes/database.php");
 	//include_once("../config/version.php");  //TODO: admin: Version management
 	
 	static $lang;
@@ -237,7 +237,7 @@
         </div>
     </div>
     <div id="main">
-        <div id="content">
+        <div id="component">
 <?php if (isset($message)) { echo "            <div id=\"messageBar\">$message</div>\n"; unset($message); } ?>
             <?php include($component); ?> 
         </div>

@@ -47,6 +47,14 @@
     $_LANG["genTime"]                       = "Time";
     $_LANG["genToday"]                      = "Today";
     $_LANG["genTomorrow"]                   = "Tomorrow";
+    $_LANG["genInTwoDays"]                  = "In two days";
+    $_LANG["genCustomDate"]                 = "Custom date";
+    $_LANG["genCustomTime"]                 = "Custom time";
+    $_LANG["genMorning"]                    = "Morning";
+    $_LANG["genMorningBreak"]               = "Morning break";
+    $_LANG["genNoon"]                       = "Noon";
+    $_LANG["genEvening"]                    = "Evening";
+    $_LANG["genResultingTimeStamp"]         = "Resulting time stamp";
     
     
     /*Top nav items*/
@@ -184,15 +192,6 @@
     $_LANG["conBrowseServer"]               = "Browse server...";
     $_LANG["conUploadFile"]                 = "Upload file...";
     $_LANG["conCreateFile"]                 = "Create file...";
-    
-    $_LANG["conResultingTimeStamp"]         = "Resulting time stamp";
-    $_LANG["conInTwoDays"]                  = "In two days";
-    $_LANG["conCustomDate"]                 = "Custom date";
-    $_LANG["conCustomTime"]                 = "Custom time";
-    $_LANG["conMorning"]                    = "Morning";
-    $_LANG["conMorningBreak"]               = "Morning break";
-    $_LANG["conNoon"]                       = "Noon";
-    $_LANG["conEvening"]                    = "Evening";
     
     $_LANG["conIgnore1"]                    = "This entry will be ignored: "; //ATTENTION! this block will be inserted into javascript. do not escape any entities (html chars, umlauts, etc). however, escape PHP special chars twice (once for PHP, once for JS)!!
     $_LANG["conIgnoreEmptyURL"]             = "Empty URL.";

@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-09-24
+ * @version     2009-09-28
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      tickers_admin -- Ticker Manager (backend)
@@ -160,12 +160,13 @@
                     if (isset($_POST["content$i"])) $query .= "`content`='" . $_POST["content$i"] . "',";
                     if (isset($_POST["start$i"])) $query .= "`start`='" . $_POST["start$i"] . "',";
                     if (isset($_POST["end$i"])) $query .= "`end`='" . $_POST["end$i"] . "',";
-                    if (isset($_POST["deleted$i"])) {
+                    if (isset($_POST["wasdeleted$i"])) {
                         $query .= "`deleted`=";
-                        $query .= ($_POST["deleted$i"] == "on") ? "TRUE" : "FALSE";
+                        $query .= (isset($_POST["deleted$i"])) ? "TRUE" : "FALSE";
                     }
+                    var_dump($_POST["deleted$i"]);
                     $query = rtrim($query, ",");
-                    $query .= "WHERE `id`=" . $_POST["id$i"];
+                    $query .= " WHERE `id`=" . $_POST["id$i"];
                     $result = mysql_query($query);
                     if (!$result) {
                         $message .= sprintf(lang("errDBError") . "<br />\n", mysql_error());      //  <<-----  $_LANG
@@ -221,7 +222,7 @@
     function tickermanOutputList($list, $indent=0, $withselect=1) {
         for ($i = 0; $i < $indent; $i++) $output .= " ";
         if  (!isset($GLOBALS[$list]))
-            echo $output . "<tr class=\"none\"><td colspan=\"7\">". lang("genNone") . "</td></tr>\n";
+            echo $output . "<tr class=\"none\"><td colspan=\"" . (($withselect == 2) ? 8 : 7) . "\">". lang("genNone") . "</td></tr>\n";
         else
             foreach ($GLOBALS[$list] as $value) {
                 unset($output);
@@ -262,32 +263,43 @@
                     <?php tickermanNavLink("options",   lang("ticNavOptions")); ?> 
                 </div>
 <?php 
+
 //----LIST------------------------------------------------------------------------------------------------------------------------------------------
+
 if ($view == "list") { ?>
                 <fieldset id="tickerList"><legend><?php lang_echo("ticExistingTickers");?></legend>
-                    <table id="tickersHead" summary="" border="0" cellpadding="0" cellspacing="0">
-                        <tr><th class="tName"><?php lang_echo("ticCaption");?></th><th class="tContent"><?php lang_echo("ticContent");?></th><th class="tFrom"><?php lang_echo("ticDispFrom");?></th><th class="tUntil"><?php lang_echo("ticDispUntil");?></th><th class="tEdit" title="<?php lang_echo("ticEdit");?>"><?php lang_echo("ticEditShort");?></th><th class="tDelete" title="<?php lang_echo("ticDelete");?>"><?php lang_echo("ticDeleteShort");?></th><th class="tCheck"></th></tr>
-                    </table>
                     <form id="tickerListForm" action="?component=tickers" method="post">
-                        <div id="tickersDiv">
-                            <table id="tickers">
-                                <tr class="category"><td colspan="7"><?php lang_echo("ticPastTickers");?></td></tr>
-<?php tickermanOutputList("past", 32);?>
+                        <div id="tickerListButtons">
+                            <input type="hidden" name="postview" value="unset" id="postview" />
+                            <input type="submit" value="<?php lang_echo("ticEditSelected");?>" onclick="this.form.action = './?component=tickers&view=edit'; document.getElementById('postview').value = 'multiEdit';" />
+                            <input type="submit" value="<?php lang_echo("ticDeleteSelected");?>" onclick="this.form.action = './?component=tickers&view=delete'; document.getElementById('postview').value = 'multiDelete';" />
+                        </div>
+                        <table id="tickers">
+                            <thead>
+                                <tr><th class="tName"><?php lang_echo("ticCaption");?></th><th class="tContent"><?php lang_echo("ticContent");?></th><th class="tFrom"><?php lang_echo("ticDispFrom");?></th><th class="tUntil"><?php lang_echo("ticDispUntil");?></th><th class="tEdit" title="<?php lang_echo("ticEdit");?>"><?php lang_echo("ticEditShort");?></th><th class="tDelete" title="<?php lang_echo("ticDelete");?>"><?php lang_echo("ticDeleteShort");?></th><th class="tCheck"></th></tr>
+                            </thead>
+                            <tbody>
                                 <tr class="category"><td colspan="7"><?php lang_echo("ticPresentTickers");?></td></tr>
 <?php tickermanOutputList("present", 32);?>
                                 <tr class="category"><td colspan="7"><?php lang_echo("ticFutureTickers");?></td></tr>
 <?php tickermanOutputList("future", 32);?>
-                            </table>
-                        </div>
+                                <tr class="category"><td colspan="7"><?php lang_echo("ticPastTickers");?></td></tr>
+<?php tickermanOutputList("past", 32);?>
+                            </tbody>
+                            <tfoot>
+                                <tr><th class="tName"><?php lang_echo("ticCaption");?></th><th class="tContent"><?php lang_echo("ticContent");?></th><th class="tFrom"><?php lang_echo("ticDispFrom");?></th><th class="tUntil"><?php lang_echo("ticDispUntil");?></th><th class="tEdit" title="<?php lang_echo("ticEdit");?>"><?php lang_echo("ticEditShort");?></th><th class="tDelete" title="<?php lang_echo("ticDelete");?>"><?php lang_echo("ticDeleteShort");?></th><th class="tCheck"></th></tr>
+                            </tfoot>
+                        </table>
                         <div id="tickerListButtons">
-                            <input type="hidden" name="postview" value="unset" id="postview" />
                             <input type="submit" value="<?php lang_echo("ticEditSelected");?>" onclick="this.form.action = './?component=tickers&view=edit'; document.getElementById('postview').value = 'multiEdit';" />
                             <input type="submit" value="<?php lang_echo("ticDeleteSelected");?>" onclick="this.form.action = './?component=tickers&view=delete'; document.getElementById('postview').value = 'multiDelete';" />
                         </div>
                     </form>
                 </fieldset>
 <?php } 
+
 //----CREATE----------------------------------------------------------------------------------------------------------------------------------------
+
 else if ($view == "create") {
     $new_tickers = (isset($_POST["new_tickers"])) ? $_POST["new_tickers"] : 2 ;
 ?>
@@ -340,75 +352,83 @@ else if ($view == "create") {
                     <input type="hidden" name="postview" value="create" />
                     <div id="tickerCreateButtonBar"><input type="submit" value="<?php lang_echo("genSave");?>" /></div>
                     <input type="hidden" name="new_tickers" value="<?php echo $new_tickers; ?>" />
-<?php for ($i = 0; $i < $new_tickers; $i++) {?>
-                    <fieldset class="tickerCreate"><legend><?php lang_echo("ticCreateTicker");?></legend>
-                        <table class="tickerCreateTable" summary="" border="0" cellpadding="0" cellspacing="0">
-                            <tr><td><label for="caption<?php echo $i;?>"><?php lang_echo("ticCaption");?>:</label></td><td><input type="text" name="caption<?php echo $i;?>" /></td></tr>
-                            <tr><td><label for="content<?php echo $i;?>"><?php lang_echo("ticContent");?>:</label></td><td><textarea name="content<?php echo $i;?>"></textarea></td></tr>
-                            <tr>
-                                <td><label><?php lang_echo("ticDispFrom");?>:</label></td>
-                                <td rowspan="2">
-                                    <table>
-                                        <tbody>
-                                            <tr>
-                                                <th>Date:</th>
-                                                <td><input type="radio" name="start<?php echo $i;?>date" value="<?php echo date("Y-m-d"); ?>" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" />Today</td>
-                                                <td><input type="radio" name="start<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+1day")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" />Tomorrow</td>
-                                                <td><input type="radio" name="start<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+2days")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" />In 2 days</td>
-                                                <td><input type="radio" name="start<?php echo $i;?>date" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" /><label for="start<?php echo $i;?>date">Custom:</label></td>
-                                                <td>
-                                                    <input type="text" name="start<?php echo $i;?>datecustom" value="<?php echo date("Y-m-d"); ?>" id="start<?php echo $i;?>datecustom" disabled="disabled" onchange="updateResultDateCustom(this, '<?php echo $i;?>', 'start');" />
-                                                    <input type="hidden" name="start<?php echo $i;?>dateval" value="<?php echo date("Y-m-d"); ?>" id="start<?php echo $i;?>dateval" />
-                                                </td>
-                                                <td rowspan="2">Resulting time stamp: <input type="text" name="start<?php echo $i;?>result" value="<?php echo date("Y-m-d H:i:s", strtotime("today 06:00")); ?>" readonly="readonly" id="start<?php echo $i;?>result" /></td>
-                                            </tr>
-                                            <tr>
-                                                <th>Time:</th>
-                                                <td><input type="radio" name="start<?php echo $i;?>time" value="06:00:00" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" />Morning</td>
-                                                <td><input type="radio" name="start<?php echo $i;?>time" value="09:30:00" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" />Morning break</td>
-                                                <td><input type="radio" name="start<?php echo $i;?>time" value="12:00:00" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" />Noon</td>
-                                                <td><input type="radio" name="start<?php echo $i;?>time" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" />Custom:</td>
-                                                <td>
-                                                    <input type="text" name="start<?php echo $i;?>timecustom" value="<?php echo date("H:i:s", strtotime("today 06:00")); ?>" id="start<?php echo $i;?>timecustom" disabled="disabled" onchange="updateResultTimeCustom(this, '<?php echo $i;?>', 'start');" />
-                                                    <input type="hidden" name="start<?php echo $i;?>timeval" value="<?php echo date("H:i:s", strtotime("today 06:00")); ?>" id="start<?php echo $i;?>timeval" />
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th>Date:</th>
-                                                <td><input type="radio" name="end<?php echo $i;?>date" value="<?php echo date("Y-m-d"); ?>" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" />Same day</td>
-                                                <td><input type="radio" name="end<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+1day")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" />Next day</td>
-                                                <td><input type="radio" name="end<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+2days")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" />2 days after</td>
-                                                <td><input type="radio" name="end<?php echo $i;?>date" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" />Custom:</td>
-                                                <td>
-                                                    <input type="text" name="end<?php echo $i;?>datecustom" value="<?php echo date("Y-m-d"); ?>" id="end<?php echo $i;?>datecustom" disabled="disabled" onchange="updateResultDateCustom(this, '<?php echo $i;?>', 'end');" />
-                                                    <input type="hidden" name="end<?php echo $i;?>dateval" value="<?php echo date("Y-m-d"); ?>" id="end<?php echo $i;?>dateval" />
-                                                </td>
-                                                <td rowspan="2">Resulting time stamp: <input type="text" name="end<?php echo $i;?>result" value="<?php echo date("Y-m-d H:i:s", strtotime("today 18:00")); ?>" readonly="readonly" id="end<?php echo $i;?>result" /></td>
-                                            </tr>
-                                            <tr>
-                                                <th>Time:</th>
-                                                <td><input type="radio" name="end<?php echo $i;?>time" value="09:30:00" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" />Morning break</td>
-                                                <td><input type="radio" name="end<?php echo $i;?>time" value="12:00:00" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" />Noon</td>
-                                                <td><input type="radio" name="end<?php echo $i;?>time" value="18:00:00" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" />Evening</td>
-                                                <td><input type="radio" name="end<?php echo $i;?>time" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" />Custom:</td>
-                                                <td>
-                                                    <input type="text" name="end<?php echo $i;?>timecustom" value="<?php echo date("H:i:s", strtotime("today 18:00")); ?>" id="end<?php echo $i;?>timecustom" disabled="disabled" onchange="updateResultTimeCustom(this, '<?php echo $i;?>', 'end');" />
-                                                    <input type="hidden" name="end<?php echo $i;?>timeval" value="<?php echo date("H:i:s", strtotime("today 18:00")); ?>" id="end<?php echo $i;?>timeval" />
-                                                </td>
-                                            </tr>
-                                        </tbody>
+                    <table id="tickerCreateContainerTable" summary="" border="0" cellpadding="2" cellspacing="0">
+                        <tbody>
+<?php for ($i = 0; $i < $new_tickers; $i++) { ?>
+                            <tr><td>
+                                <fieldset class="tickerCreate"><legend><?php lang_echo("ticCreateTicker");?></legend>
+                                    <table class="tickerCreateTable" summary="" border="0" cellpadding="2" cellspacing="0">
+                                        <tr><td><label for="caption<?php echo $i;?>"><?php lang_echo("ticCaption");?>:</label></td><td><input type="text" name="caption<?php echo $i;?>" class="captionInput" /></td></tr>
+                                        <tr><td><label for="content<?php echo $i;?>"><?php lang_echo("ticContent");?>:</label></td><td><input type="text" name="content<?php echo $i;?>" class="contentInput" /></td></tr>
+                                        <tr>
+                                            <td><label><?php lang_echo("ticDispFrom");?>:</label></td>
+                                            <td rowspan="2">
+                                                <table>
+                                                    <tbody>
+                                                        <tr>
+                                                            <th><?php lang_echo("genDate"); ?>:</th>
+                                                            <td><input type="radio" name="start<?php echo $i;?>date" value="<?php echo date("Y-m-d"); ?>" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" /><?php lang_echo("genToday"); ?></td>
+                                                            <td><input type="radio" name="start<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+1day")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" /><?php lang_echo("genTomorrow"); ?></td>
+                                                            <td><input type="radio" name="start<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+2days")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" /><?php lang_echo("genInTwoDays"); ?></td>
+                                                            <td><input type="radio" name="start<?php echo $i;?>date" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'date');" /><label for="start<?php echo $i;?>date"><?php lang_echo("genCustomDate"); ?>:</label></td>
+                                                            <td>
+                                                                <input type="text" name="start<?php echo $i;?>datecustom" value="<?php echo date("Y-m-d"); ?>" id="start<?php echo $i;?>datecustom" disabled="disabled" onchange="updateResultDateCustom(this, '<?php echo $i;?>', 'start');" />
+                                                                <input type="hidden" name="start<?php echo $i;?>dateval" value="<?php echo date("Y-m-d"); ?>" id="start<?php echo $i;?>dateval" />
+                                                            </td>
+                                                            <td rowspan="2"><?php lang_echo("genResultingTimeStamp"); ?>: <input type="text" name="start<?php echo $i;?>result" value="<?php echo date("Y-m-d H:i:s", strtotime("today 06:00")); ?>" readonly="readonly" id="start<?php echo $i;?>result" /></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th><?php lang_echo("genTime"); ?>:</th>
+                                                            <td><input type="radio" name="start<?php echo $i;?>time" value="06:00:00" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" /><?php lang_echo("genMorning"); ?></td>
+                                                            <td><input type="radio" name="start<?php echo $i;?>time" value="09:30:00" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" /><?php lang_echo("genMorningBreak"); ?></td>
+                                                            <td><input type="radio" name="start<?php echo $i;?>time" value="12:00:00" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" /><?php lang_echo("genNoon"); ?></td>
+                                                            <td><input type="radio" name="start<?php echo $i;?>time" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'start', 'time');" /><?php lang_echo("genCustomTime"); ?>:</td>
+                                                            <td>
+                                                                <input type="text" name="start<?php echo $i;?>timecustom" value="<?php echo date("H:i:s", strtotime("today 06:00")); ?>" id="start<?php echo $i;?>timecustom" disabled="disabled" onchange="updateResultTimeCustom(this, '<?php echo $i;?>', 'start');" />
+                                                                <input type="hidden" name="start<?php echo $i;?>timeval" value="<?php echo date("H:i:s", strtotime("today 06:00")); ?>" id="start<?php echo $i;?>timeval" />
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th><?php lang_echo("genDate"); ?>:</th>
+                                                            <td><input type="radio" name="end<?php echo $i;?>date" value="<?php echo date("Y-m-d"); ?>" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" /><?php lang_echo("genToday"); ?></td>
+                                                            <td><input type="radio" name="end<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+1day")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" /><?php lang_echo("genTomorrow"); ?></td>
+                                                            <td><input type="radio" name="end<?php echo $i;?>date" value="<?php echo date("Y-m-d", strtotime("+2days")); ?>" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" /><?php lang_echo("genInTwoDays"); ?></td>
+                                                            <td><input type="radio" name="end<?php echo $i;?>date" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'date');" /><?php lang_echo("genCustomDate"); ?>:</td>
+                                                            <td>
+                                                                <input type="text" name="end<?php echo $i;?>datecustom" value="<?php echo date("Y-m-d"); ?>" id="end<?php echo $i;?>datecustom" disabled="disabled" onchange="updateResultDateCustom(this, '<?php echo $i;?>', 'end');" />
+                                                                <input type="hidden" name="end<?php echo $i;?>dateval" value="<?php echo date("Y-m-d"); ?>" id="end<?php echo $i;?>dateval" />
+                                                            </td>
+                                                            <td rowspan="2"><?php lang_echo("genResultingTimeStamp"); ?>: <input type="text" name="end<?php echo $i;?>result" value="<?php echo date("Y-m-d H:i:s", strtotime("today 18:00")); ?>" readonly="readonly" id="end<?php echo $i;?>result" /></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th><?php lang_echo("genTime"); ?>:</th>
+                                                            <td><input type="radio" name="end<?php echo $i;?>time" value="09:30:00" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" /><?php lang_echo("genMorningBreak"); ?></td>
+                                                            <td><input type="radio" name="end<?php echo $i;?>time" value="12:00:00" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" /><?php lang_echo("genNoon"); ?></td>
+                                                            <td><input type="radio" name="end<?php echo $i;?>time" value="18:00:00" checked="checked" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" /><?php lang_echo("genEvening"); ?></td>
+                                                            <td><input type="radio" name="end<?php echo $i;?>time" value="custom" onclick="updateResult(this, '<?php echo $i;?>', 'end', 'time');" /><?php lang_echo("genCustomTime"); ?>:</td>
+                                                            <td>
+                                                                <input type="text" name="end<?php echo $i;?>timecustom" value="<?php echo date("H:i:s", strtotime("today 18:00")); ?>" id="end<?php echo $i;?>timecustom" disabled="disabled" onchange="updateResultTimeCustom(this, '<?php echo $i;?>', 'end');" />
+                                                                <input type="hidden" name="end<?php echo $i;?>timeval" value="<?php echo date("H:i:s", strtotime("today 18:00")); ?>" id="end<?php echo $i;?>timeval" />
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><label><?php lang_echo("ticDispUntil");?>:</label></td>
+                                        </tr>
                                     </table>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><label><?php lang_echo("ticDispUntil");?>:</label></td>
-                            </tr>
-                        </table>
-                    </fieldset>
+                                </fieldset>
+                            </td></tr>
 <?php } ?>
+                        </tbody>
+                    </table>
                 </form>
 <?php }
+
 //----DELETE/DELETE2--------------------------------------------------------------------------------------------------------------------------------
+
 else if (($view == "delete") || ($view == "delete2")) { ?>
                 <div id="tickerDeleteTop">
                     <form id="tickerDeleteForm" action="?component=tickers<?php if ($view == "delete2") echo "&view=deleted"; ?>" method="post">
@@ -423,30 +443,37 @@ else if (($view == "delete") || ($view == "delete2")) { ?>
                     </form>
                 </div>
                 <fieldset id="tickerDeleteList"><legend><?php lang_echo("ticTickersToDelete");?></legend>
-                    <table id="tickersHead" summary="" border="0" cellpadding="0" cellspacing="0">
-                        <tr><th class="tName"><?php lang_echo("ticCaption");?></th><th class="tContent"><?php lang_echo("ticContent");?></th><th class="tFrom"><?php lang_echo("ticDispFrom");?></th><th class="tUntil"><?php lang_echo("ticDispUntil");?></th></tr>
-                    </table>
-                    <div id="tickersDiv">
-                        <table id="tickers">
+                    <table id="tickers">
+                        <thead>
+                            <tr><th class="tName"><?php lang_echo("ticCaption");?></th><th class="tContent"><?php lang_echo("ticContent");?></th><th class="tFrom"><?php lang_echo("ticDispFrom");?></th><th class="tUntil"><?php lang_echo("ticDispUntil");?></th></tr>
+                        </thead>
+                        <tbody>
 <?php tickermanOutputList("toDelete", 32, 0);?>
-                        </table>
-                    </div>
+                        </tbody>
+                    </table>
                 </fieldset>
 <?php } 
+
 //----DELETED: TRASH BIN----------------------------------------------------------------------------------------------------------------------------
+
 else if ($view == "deleted") { ?>
                 <fieldset id="tickerDeleted"><legend><?php lang_echo("ticTrashBin");?></legend>
-                    <table id="tickersHead" summary="" border="0" cellpadding="0" cellspacing="0">
-                        <tr><th class="tName"><?php lang_echo("ticCaption");?></th><th class="tContent"><?php lang_echo("ticContent");?></th><th class="tFrom"><?php lang_echo("ticDispFrom");?></th><th class="tUntil"><?php lang_echo("ticDispUntil");?></th><th class="tEdit" title="<?php lang_echo("ticEdit");?>"><?php lang_echo("ticEditShort");?></th><th class="tRestore" title="<?php lang_echo("ticRestore");?>"><?php lang_echo("ticRestoreShort");?></th><th class="tDelete" title="<?php lang_echo("ticDelete2");?>"><?php lang_echo("ticDelete2Short");?></th><th class="tCheck"></th></tr>
-                    </table>
                     <form id="tickerListForm" action="?component=tickers" method="post">
-                        <div id="tickersDiv">
-                            <table id="tickers">
-<?php tickermanOutputList("deleted", 32, 2);?> 
-                            </table>
-                        </div>
                         <div id="tickerListButtons">
                             <input type="hidden" name="postview" value="unset" id="postview" />
+                            <input type="submit" value="<?php lang_echo("ticEditSelected");?>" onclick="this.form.action = './?component=tickers&view=edit'; document.getElementById('postview').value = 'multiEdit';" />
+                            <input type="submit" value="<?php lang_echo("ticRestoreSelected");?>" onclick="this.form.action = './?component=tickers&view=restore'; document.getElementById('postview').value = 'multiRestore';" />
+                            <input type="submit" value="<?php lang_echo("ticDelete2Selected");?>" onclick="this.form.action = './?component=tickers&view=delete2'; document.getElementById('postview').value = 'multiDelete';" />
+                        </div>
+                        <table id="tickers">
+                            <thead>
+                                <tr><th class="tName"><?php lang_echo("ticCaption");?></th><th class="tContent"><?php lang_echo("ticContent");?></th><th class="tFrom"><?php lang_echo("ticDispFrom");?></th><th class="tUntil"><?php lang_echo("ticDispUntil");?></th><th class="tEdit" title="<?php lang_echo("ticEdit");?>"><?php lang_echo("ticEditShort");?></th><th class="tRestore" title="<?php lang_echo("ticRestore");?>"><?php lang_echo("ticRestoreShort");?></th><th class="tDelete" title="<?php lang_echo("ticDelete2");?>"><?php lang_echo("ticDelete2Short");?></th><th class="tCheck"></th></tr>
+                            </thead>
+                            <tbody>
+<?php tickermanOutputList("deleted", 32, 2);?>
+                            </tbody> 
+                        </table>
+                        <div id="tickerListButtons">
                             <input type="submit" value="<?php lang_echo("ticEditSelected");?>" onclick="this.form.action = './?component=tickers&view=edit'; document.getElementById('postview').value = 'multiEdit';" />
                             <input type="submit" value="<?php lang_echo("ticRestoreSelected");?>" onclick="this.form.action = './?component=tickers&view=restore'; document.getElementById('postview').value = 'multiRestore';" />
                             <input type="submit" value="<?php lang_echo("ticDelete2Selected");?>" onclick="this.form.action = './?component=tickers&view=delete2'; document.getElementById('postview').value = 'multiDelete';" />
@@ -454,26 +481,36 @@ else if ($view == "deleted") { ?>
                     </form>
                 </fieldset>
 <?php }
+
 //----EDIT------------------------------------------------------------------------------------------------------------------------------------------
+
 else if ($view == "edit") { ?>
                 <form id="tickerEditForm" action="?component=tickers&view=list" method="post">
                     <input type="hidden" name="postview" value="edit" />
-                    <div id="tickerEditButtonBar"><input type="submit" value="Save" /></div>
+                    <div id="tickerEditButtonBar"><input type="submit" value="<?php lang_echo("genSave"); ?>" /><input type="button" value="<?php lang_echo("genCancel"); ?>" onclick="window.location.href = '?component=tickers';" /></div>
                     <input type="hidden" name="editcount" value="<?php echo $editcount; ?>" />
+                    <table id="tickerEditContainerTable" summary="" border="0" cellpadding="2" cellspacing="0">
+                        <tbody>
 <?php for ($i = 0; $i < $editcount; $i++) {?>
-                    <fieldset class="tickerEdit"><legend><?php lang_echo("ticEditTicker");?></legend>
-                        <input type="hidden" name="id<?php echo $i; ?>" value="<?php echo $toEdit[$i]->id?>" />
-                        <table class="tickerEditTable" summary="" border="0" cellpadding="0" cellspacing="0">
-                            <tr><td><label for="caption<?php echo $i;?>"><?php lang_echo("ticCaption");?>:</label></td><td><input type="text" name="caption<?php echo $i;?>" value="<?php echo $toEdit[$i]->caption; ?>" /></td></tr>
-                            <tr><td><label for="content<?php echo $i;?>"><?php lang_echo("ticContent");?>:</label></td><td><textarea name="content<?php echo $i;?>"><?php echo $toEdit[$i]->content; ?></textarea></td></tr>
-                            <tr><td><label for="start<?php echo $i;?>"><?php lang_echo("ticDispFrom");?>:</label></td><td><input type="text" name="start<?php echo $i;?>" value="<?php echo $toEdit[$i]->start; ?>" /> <i>Format: <acronym title="Year, 4-digit">YYYY</acronym>-<acronym title="Month, with leading zeroes">MM</acronym>-<acronym title="Day of month, with leading zeroes">DD</acronym> <acronym title="Hour of day (24h), with leading zeroes">HH</acronym>:<acronym title="Minute of hour, with leading zeroes">mm</acronym>:<acronym title="Second of minute, with leading zeroes">ss</acronym></i></td></tr>
-                            <tr><td><label for="end<?php echo $i;?>"><?php lang_echo("ticDispUntil");?>:</label></td><td><input type="text" name="end<?php echo $i;?>"  value="<?php echo $toEdit[$i]->end; ?>" /> <i>Format: <acronym title="Year, 4-digit">YYYY</acronym>-<acronym title="Month, with leading zeroes">MM</acronym>-<acronym title="Day of month, with leading zeroes">DD</acronym> <acronym title="Hour of day (24h), with leading zeroes">HH</acronym>:<acronym title="Minute of hour, with leading zeroes">mm</acronym>:<acronym title="Second of minute, with leading zeroes">ss</acronym></i></td></tr>
+                            <tr><td>
+                                <fieldset class="tickerEdit"><legend><?php lang_echo("ticEditTicker");?></legend>
+                                    <input type="hidden" name="id<?php echo $i; ?>" value="<?php echo $toEdit[$i]->id?>" />
+                                    <table class="tickerEditTable" summary="" border="0" cellpadding="2" cellspacing="0">
+                                        <tbody>
+                                            <tr><td><label for="caption<?php echo $i;?>"><?php lang_echo("ticCaption");?>:</label></td><td><input type="text" name="caption<?php echo $i;?>" value="<?php echo $toEdit[$i]->caption; ?>" class="captionInput" /></td></tr>
+                                            <tr><td><label for="content<?php echo $i;?>"><?php lang_echo("ticContent");?>:</label></td><td><input type="text" name="content<?php echo $i;?>" value="<?php echo $toEdit[$i]->content; ?>" class="contentInput" /></td></tr>
+                                            <tr><td><label for="start<?php echo $i;?>"><?php lang_echo("ticDispFrom");?>:</label></td><td><input type="text" name="start<?php echo $i;?>" value="<?php echo $toEdit[$i]->start; ?>" /> <i>Format: <acronym title="Year, 4-digit">YYYY</acronym>-<acronym title="Month, with leading zeroes">MM</acronym>-<acronym title="Day of month, with leading zeroes">DD</acronym> <acronym title="Hour of day (24h), with leading zeroes">HH</acronym>:<acronym title="Minute of hour, with leading zeroes">mm</acronym>:<acronym title="Second of minute, with leading zeroes">ss</acronym></i></td></tr>
+                                            <tr><td><label for="end<?php echo $i;?>"><?php lang_echo("ticDispUntil");?>:</label></td><td><input type="text" name="end<?php echo $i;?>"  value="<?php echo $toEdit[$i]->end; ?>" /> <i>Format: <acronym title="Year, 4-digit">YYYY</acronym>-<acronym title="Month, with leading zeroes">MM</acronym>-<acronym title="Day of month, with leading zeroes">DD</acronym> <acronym title="Hour of day (24h), with leading zeroes">HH</acronym>:<acronym title="Minute of hour, with leading zeroes">mm</acronym>:<acronym title="Second of minute, with leading zeroes">ss</acronym></i></td></tr>
 <?php if ($toEdit[$i]->deleted) { ?>
-                            <tr><td><label for="deleted<?php echo $i;?>"><?php lang_echo("ticDeleted");?>:</label></td><td><input type="checkbox" name="deleted<?php echo $i;?>" checked="checked" title="<?php lang_echo("ticDeletedInfo");?>" /></td></tr>
+                                            <tr><td><label for="deleted<?php echo $i;?>"><?php lang_echo("ticDeleted");?>:</label></td><td><input type="checkbox" name="deleted<?php echo $i;?>" checked="checked" title="<?php lang_echo("ticDeletedInfo");?>" /><input type="hidden" name="wasdeleted<?php echo $i;?>" value="yes" /></td></tr>
 <?php } ?>
-                        </table>
-                    </fieldset>
+                                        </tbody>
+                                    </table>
+                                </fieldset>
+                            </td></tr>
 <?php } ?>
+                        </tbody>
+                    </table>
                 </form>
 <?php } ?>
             </div>

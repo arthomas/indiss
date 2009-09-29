@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-09-24
+ * @version     2009-09-28
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      CLI script to convert the substitution table to displayable HTML
@@ -290,6 +290,11 @@
     $head .= '        table#main { border-collapse: collapse; width: 100%%%%; }' . "\n";
     $head .= '        td, th { border: 1px solid black; padding: 2px 4px; }' . "\n";
     $head .= '        tr.new, td.class.new, td.lesson.new { background: yellow !important; }' . "\n";
+    $head .= '        tr.firstrow > td { border-width: 2px 2px 1px 2px; text-align: center; }' . "\n";
+    $head .= '        tr.secondrow > td { font-weight: bold; text-align: center; }' . "\n";
+    $head .= '        tr.secondrow > td:first-child { border-left-width: 2px; }' . "\n";
+    $head .= '        tr.secondrow > td:first-child + td + td + td, tr.thirdrow > td:last-child { border-right-width: 2px; }' . "\n";
+    $head .= '        tr.secondrow > td:first-child, tr.secondrow > td:first-child + td, tr.thirdrow > td { border-bottom-width: 2px; }' . "\n";
     $head .= '    -->' . "\n";
     $head .= '    </style>' . "\n";
     $head .= '    <title>Vertretungsplan</title>' . "\n";
@@ -303,9 +308,9 @@
     $thead = "";
     $thead .= '    <table id="main" border="0" cellspacing="0" cellpadding="0">' . "\n";
     $thead .= '        <tbody>' . "\n";
-    $thead .= '            <tr class="even"><td colspan="10" style="text-align: center;"><span style="font-weight: bold;">%s</span>, Seite %d/%%d</td></tr>' . "\n";
-    $thead .= '            <tr class="even"><th rowspan="2">Kl</th><th rowspan="2">Std.</th><th colspan="3">Planm&auml;&szlig;ig</th><th colspan="5">Vertretung</th></tr>' . "\n";
-    $thead .= '            <tr class="even"><td>Fach</td><td>Lehrer</td><td>Raum</td><td>Fach</td><td>Lehrer</td><td>Raum</td><td>Art</td><td>Grund</td></tr>' . "\n";
+    $thead .= '            <tr class="even firstrow"><td colspan="10"><span style="font-weight: bold;">%s</span>, Seite %d/%%d</td></tr>' . "\n";
+    $thead .= '            <tr class="even secondrow"><td rowspan="2">Kl</td><td rowspan="2">Std.</td><td colspan="3">Planm&auml;&szlig;ig</td><td colspan="5">Vertretung</td></td>' . "\n";
+    $thead .= '            <tr class="even thirdrow"><td>Fach</td><td>Lehrer</td><td>Raum</td><td>Fach</td><td>Lehrer</td><td>Raum</td><td>Art</td><td>Grund</td></tr>' . "\n";
     
     $tfoot = "";
     $tfoot .= '        </tbody>' . "\n";

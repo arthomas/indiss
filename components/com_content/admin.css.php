@@ -1,9 +1,9 @@
 <?php
 /**
- * @version     2009-09-10
- * @author      Patrick Lehner
+ * @version     2009-09-29
+ * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
- * @module      HTML pages manager (backend) style definitions
+ * @module      content manager (backend) style definitions
  * 
  * @license     This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU General Public License as published by
@@ -37,16 +37,11 @@ div#content table#contentTable {
     border-collapse: collapse;
 }
 
-div#content table#contentTable th {
-    border: 1px solid black;
-    overflow: hidden;
-    padding: 1px;
-}
-
+div#content table#contentTable th,
 div#content table#contentTable td {
     border: 1px solid black;
     overflow: hidden;
-    padding: 1px;
+    padding: 1px 5px;
 }
 
 div#content table#contentTable .tName {
@@ -54,7 +49,7 @@ div#content table#contentTable .tName {
 }
 
 div#content table#contentTable .tType {
-    width: 100px;
+    width: 140px;
     text-align: center;
 }
 
@@ -81,10 +76,25 @@ div#content table#contentTable .tCheck {
     text-align: center;
 }
 
+div#content table#contentTable tr.none td {
+    color: gray;
+    font-style: italic;
+    text-indent: 10px;
+}
+
 div#content table#contentTable tr.category {
     font-style: italic;
     text-indent: 20px;
     font-weight: bold;
+}
+
+div#content table#contentTable tr.past td {
+    color: darkgray;
+    font-style: italic;
+}
+div#content table#contentTable tr.future td {
+    color: darkblue;
+    font-style: italic;
 }
 
 div#content div#contentListButtons {
@@ -97,7 +107,7 @@ div#content div#contentCreateTop {
     margin-top: 10px;
 }
 
-div#content div#contentCreateTop form {
+div#content div#contentCreateTop form#contentCreateRestartForm {
     float: right;
 }
 
@@ -111,7 +121,6 @@ div#content fieldset.contentCreateBox span.createBoxTypeInfo {
     vertical-align: baseline;
     font-style: italic;
 }
-
 
 div#content form#contentCreateForm {
     margin-top: 20px;
@@ -148,4 +157,13 @@ div#content table.contentCreateTable div.FileButtons {
 
 div#content table.contentDateTable td {
     padding: 1px 2px 0;
+}
+
+
+div#content div#contentDeleteTop {
+    padding-top: 5px;
+}
+
+div#content form#contentDeleteForm div#contentDeleteButtonBar {
+    text-align: right;
 }
