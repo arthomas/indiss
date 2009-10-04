@@ -70,7 +70,11 @@
     </div>
 </body>
 <?php   } else {
-            $result = file_put_contents($_SERVER["DOCUMENT_ROOT"] . "$basepath/upload/" . $_POST["filename"], $_POST["htmlContent"]);
+            if ( get_magic_quotes_gpc() )
+                $postedValue = stripslashes( $_POST["htmlContent"] );
+            else
+                $postedValue = $_POST["htmlContent"];
+            $result = file_put_contents($_SERVER["DOCUMENT_ROOT"] . "$basepath/upload/" . $_POST["filename"], $postedValue);
             if ( !$result ) { //an error has occurred during saving ?>
 <body>
     Fehler: Beim Speichern der Datei ist ein Fehler aufgetreten.<br />
