@@ -608,7 +608,15 @@ else if ($view == "edit") { ?>
                                     <input type="hidden" name="id<?php echo $i; ?>" value="<?php echo $toEdit[$i]->id?>" />
                                     <table class="contentEditTable" summary="" border="0" cellpadding="0" cellspacing="0">
                                         <tbody>
-                                            <tr><td><label for="name<?php echo $i;?>"><?php lang_echo("conName");?>:</label></td><td><input type="text" name="name<?php echo $i;?>" value="<?php echo $toEdit[$i]->name; ?>" /></td></tr>
+                                            <tr>
+                                                <td><label for="name<?php echo $i;?>"><?php lang_echo("conName");?>:</label></td>
+                                                <td>
+                                                    <?php if ( ( preg_match('/^Local/', $toEdit[$i]->type) ) && ( preg_match('/\.(?:htm|html)$/', $toEdit[$i]->url) ) ) {?><div class="FileButtons">
+                                                        <input type="button" value="<?php lang_echo("conEditFile"); ?>"  onclick="window.open('<?php echo $basepath; ?>/components/com_content/popup_edit_html_file.php?index=<?php echo $i; ?>&oldfile=<?php echo $toEdit[$i]->url; ?>', 'Create File', 'menubar=no,location=no,height=600,width=800,toolbar=no,status=yes,dependent=yes');" />
+                                                    </div><?php } ?> 
+                                                    <input type="text" name="name<?php echo $i;?>" value="<?php echo $toEdit[$i]->name; ?>" />
+                                                </td>
+                                            </tr>
                                             <tr><td><label for="URL<?php echo $i;?>"><?php lang_echo("conURL");?>:</label></td><td><input type="text" name="URL<?php echo $i;?>" value="<?php echo $toEdit[$i]->url; ?>" /></td></tr>
                                             <tr><td><label for="disptime<?php echo $i;?>"><?php lang_echo("conDispTime");?>:</label></td><td><input type="text" class="timeInput" name="disptime<?php echo $i;?>" onchange="checkDispTime(this, <?php echo $i; ?>);" value="<?php echo $toEdit[$i]->displaytime;; ?>" />s</td></tr>
                                             <tr><td><label for="start<?php echo $i;?>"><?php lang_echo("conDispFrom");?>:</label></td><td><input type="text" name="start<?php echo $i;?>" value="<?php echo $toEdit[$i]->start; ?>" /> <i>Format: <acronym title="Year, 4-digit">YYYY</acronym>-<acronym title="Month, with leading zeroes">MM</acronym>-<acronym title="Day of month, with leading zeroes">DD</acronym> <acronym title="Hour of day (24h), with leading zeroes">HH</acronym>:<acronym title="Minute of hour, with leading zeroes">mm</acronym>:<acronym title="Second of minute, with leading zeroes">ss</acronym></i></td></tr>

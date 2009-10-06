@@ -151,7 +151,7 @@ div#content table.contentCreateTable td.vertMiddle {
     vertical-align: middle;
 }
 
-div#content table.contentCreateTable div.FileButtons {
+div#content div.FileButtons {
     float: right;
 }
 

@@ -103,17 +103,24 @@
 </body>
 <?php       }
         }
-      } else { ?>
+      } else {
+        $oldcontent = "";
+        if ( !empty( $_GET["oldfile"] ) ) {
+            if ( file_exists( $_SERVER["DOCUMENT_ROOT"] . $_GET["oldfile"] ) && ( preg_match('/\.(?:htm|html)$/', $_GET["oldfile"]) ) ) {
+                $oldcontent = file_get_contents($_SERVER["DOCUMENT_ROOT"] . $_GET["oldfile"]);
+            }
+        } 
+?>
 <body>
     <form action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post">
         <fieldset><legend>Neue Seite erstellen</legend>
-            <textarea name="htmlContent" id="htmlContent"></textarea>
+            <textarea name="htmlContent" id="htmlContent"><?php echo $oldcontent ?></textarea>
             <script type="text/javascript">
                 CKEDITOR.replace( 'htmlContent' );
             </script>
         </fieldset>
         <div id="bottomline">
-            Dateiname: <input type="text" name="filename" value="newfile.html" />
+            Dateiname: <input type="text" name="filename" value="<?php echo ($oldcontent) ? basename($_GET["oldfile"]) : "newfile.html" ?>" />
             <div id="buttonContainer">
                 <input type="submit" value="Speichern" name="submit" />
                 <input type="button" value="Abbrechen" onclick="window.close();"/>
