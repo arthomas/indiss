@@ -40,7 +40,7 @@
         unset($items); //just to be sure
         if ( !empty( $rows ) )
             foreach ($rows as $value) {
-                if (!($value->deleted) && (strtotime($value->end) > time()) && (strtotime($value->start) < time())) {
+                if (!($value->deleted) && ($value->enabled) && (strtotime($value->end) > time()) && (strtotime($value->start) < time())) {
                     $items[] = $value;
                 }
             }

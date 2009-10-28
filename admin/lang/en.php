@@ -172,7 +172,7 @@
     $_LANG["conRestoreSelected"]            = "Restore selected";
     $_LANG["conSelectMultiple"]             = "Select multiple";
     
-    $_LANG["conCreatePage"]                 = "Add new content";
+    $_LANG["conCreateItem"]                 = "Add new content";
     $_LANG["conReloadCreate1"]              = "Reload with";        //A drop-down menu to select the number will be displayed between these two strings.
     $_LANG["conReloadCreate2"]              = "new content items.";         //no need to include spaces at the edges
     $_LANG["conEmptyURLNotice"]             = "Items with empty URL will be ignored (names are optional).";
@@ -185,13 +185,16 @@
     
     $_LANG["conTrashBin"]                   = "Deleted content items - Trash bin";
     
-    $_LANG["conEditPage"]                   = "Edit item";
+    $_LANG["conEditItem"]                   = "Edit item";
     $_LANG["conDeleted"]                    = "Deleted";
     $_LANG["conDeletedInfo"]                = "This item is currently in the trash bin. If you want to restore it from there when you click save, un-check this box. Otherwise, leave it checked.";
+    $_LANG["conEnabled"]                    = "Enabled";
     
     $_LANG["conBrowseServer"]               = "Browse server...";
     $_LANG["conUploadFile"]                 = "Upload file...";
     $_LANG["conCreateFile"]                 = "Create file...";
+    $_LANG["conEditFile"]                   = "Edit file...";
+    $_LANG["conOpenEditor"]                 = "Open Editor...";
     
     $_LANG["conIgnore1"]                    = "This entry will be ignored: "; //ATTENTION! this block will be inserted into javascript. do not escape any entities (html chars, umlauts, etc). however, escape PHP special chars twice (once for PHP, once for JS)!!
     $_LANG["conIgnoreEmptyURL"]             = "Empty URL.";

@@ -158,21 +158,21 @@
     $_LANG["conPresentPages"]               = "Gegenw&auml;rtig aktive Eintr&auml;ge";
     $_LANG["conFuturePages"]                = "Zuk&uuml;nftig anzuzeigende Eintr&auml;ge";
     
-    $_LANG["conEdit"]                       = "Edit";
-    $_LANG["conEditShort"]                  = "E";
-    $_LANG["conEditSelected"]               = "Edit selected";
-    $_LANG["conDelete"]                     = "Delete";
-    $_LANG["conDeleteShort"]                = "D";
-    $_LANG["conDeleteSelected"]             = "Delete selected";
-    $_LANG["conDelete2"]                    = "Delete permanently";
-    $_LANG["conDelete2Short"]               = "D";
-    $_LANG["conDelete2Selected"]            = "Delete selected permanently";
-    $_LANG["conRestor"]                     = "Restore";
-    $_LANG["conRestoreShort"]               = "R";
-    $_LANG["conRestoreSelected"]            = "Restore selected";
-    $_LANG["conSelectMultiple"]             = "Select multiple";
+    $_LANG["conEdit"]                       = "Bearbeiten";
+    $_LANG["conEditShort"]                  = "B";
+    $_LANG["conEditSelected"]               = "Auswahl bearbeiten";
+    $_LANG["conDelete"]                     = "L&ouml;schen";
+    $_LANG["conDeleteShort"]                = "L";
+    $_LANG["conDeleteSelected"]             = "Auswahl l&ouml;schen";
+    $_LANG["conDelete2"]                    = "Endg&uuml;ltig l&ouml;schen";
+    $_LANG["conDelete2Short"]               = "L";
+    $_LANG["conDelete2Selected"]            = "Auswahl endg&uuml;ltig l&ouml;schen";
+    $_LANG["conRestor"]                     = "Wiederherstellen";
+    $_LANG["conRestoreShort"]               = "W";
+    $_LANG["conRestoreSelected"]            = "Auswahl wiederherstellen";
+    $_LANG["conSelectMultiple"]             = "Mehrfachauswahl";
     
-    $_LANG["conCreatePage"]                 = "Neuer Inhalt";
+    $_LANG["conCreateItem"]                 = "Neuer Inhalt";
     $_LANG["conReloadCreate1"]              = "Mit";        //A drop-down menu to select the number will be displayed between these two strings.
     $_LANG["conReloadCreate2"]              = "Eintr&auml;gen neu laden.";         //no need to include spaces at the edges
     $_LANG["conEmptyURLNotice"]             = "Eintr&auml;ge mit leerer URL werden ignoriert (Namen sind optional).";
@@ -181,17 +181,20 @@
     $_LANG["conNoDontDelete"]               = "Nein, nicht l&ouml;schen";
     $_LANG["conMoveToTrash?"]               = "Do you really want to move all pages listed below to the trash bin? (You can later restore them while they are still in the trash bin)";
     $_LANG["conDeletePermanently?"]         = "Do you really want to delete all pages listed below permanently? (This cannot be undone!)";
-    $_LANG["conPagesToDelete"]              = "Pages to be deleted";
+    $_LANG["conPagesToDelete"]              = "Elemente, die gel&ouml;scht werden sollen";
     
     $_LANG["conTrashBin"]                   = "Gel&ouml;schte Eintr&auml;ge - Papierkorb";
     
-    $_LANG["conEditPage"]                   = "Edit page";
-    $_LANG["conDeleted"]                    = "Deleted";
-    $_LANG["conDeletedInfo"]                = "This page is currently in the trash bin. If you want to restore it from there when you click save, un-check this box. Otherwise, leave it checked.";
+    $_LANG["conEditItem"]                   = "Inhalt bearbeiten";
+    $_LANG["conDeleted"]                    = "Gel&ouml;scht";
+    $_LANG["conDeletedInfo"]                = "Dieses Element befindet sich im Moment im Papierkorb. Deaktivieren Sie diese Box, um das Element beim Speichern wiederherzustellen. Andernfalls belassen Sie sie aktiv.";
+    $_LANG["conEnabled"]                    = "Aktiviert";
     
     $_LANG["conBrowseServer"]               = "Server durchsuchen...";
     $_LANG["conUploadFile"]                 = "Datei hochladen...";
     $_LANG["conCreateFile"]                 = "Datei erstellen...";
+    $_LANG["conEditFile"]                   = "Datei bearbeiten...";
+    $_LANG["conOpenEditor"]                 = "Editor &ouml;ffnen...";
     
     $_LANG["conIgnore1"]                    = "Dieser Eintrag wird ignoriert: "; //ATTENTION! this block will be inserted into javascript. do not escape any entities (html chars, umlauts, etc). however, escape PHP special chars twice (once for PHP, once for JS)!!
     $_LANG["conIgnoreEmptyURL"]             = "Leere URL.";
