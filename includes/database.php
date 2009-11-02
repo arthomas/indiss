@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-09-10
+ * @version     2009-10-28
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * 
@@ -104,6 +104,24 @@
                 $rows = mysql_fetch_row($result);
                 return $rows[0];
             }
+        }
+    }
+    
+    function db_commit ( $query ) {
+        $result = mysql_query($query);
+        if ( !$result ) {
+            return mysql_error();
+        } else {
+            return true;
+        }
+    }
+    
+    function db_commit2 ( $query, $errors, $line = 0 ) {
+        if ( !($error = db_commit($query)) ) {
+            $errors[] = (($line) ? $line . ": " : "" ) . $error;
+            return false;
+        } else {
+            return true;
         }
     }
 	

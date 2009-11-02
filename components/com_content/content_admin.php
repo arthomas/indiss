@@ -108,27 +108,27 @@
                     
                     $URL = $_POST["URL$i"];
                     if ( preg_match('/^http:\/\/[a-zA-Z0-9\.-]+\.[a-zA-Z]{2,5}/i', $URL) ) {
-                        if ( preg_match('/\.(?:bmp|gif|png|jpg|jpeg|svg)$/', $URL) ) {
+                        if ( preg_match('/\.(?:bmp|gif|png|jpg|jpeg|svg)$/i', $URL) ) {
                             $type = "ExternalImage";
-                        } else if ( preg_match('/\.(?:html|html|php|shtml)$/', $URL) ) {
+                        } else if ( preg_match('/\.(?:html|html|php|shtml)$/i', $URL) ) {
                             $type = "ExternalPage";
-                        } else if ( preg_match('/\.(?:pdf)$/', $URL) ) {
+                        } else if ( preg_match('/\.(?:pdf)$/i', $URL) ) {
                             $type = "ExternalPDF";
-                        } else if ( preg_match('/\.(?:swf)$/', $URL) ) {
+                        } else if ( preg_match('/\.(?:swf)$/i', $URL) ) {
                             $type = "ExternalFlash";
                         } else {
                             $type = "ExternalOther";
                         }
-                    } else if ( preg_match('/^[a-zA-Z]+:\/\//', $URL) ) {
+                    } else if ( preg_match('/^[a-zA-Z]+:\/\//i', $URL) ) {
                         $type = "ignore";
                     } else {
-                        if ( preg_match('/\.(?:bmp|gif|png|jpg|jpeg|svg)$/', $URL) ) {
+                        if ( preg_match('/\.(?:bmp|gif|png|jpg|jpeg|svg)$/i', $URL) ) {
                             $type = "LocalImage";
-                        } else if ( preg_match('/\.(?:html|html|php|shtml)$/', $URL) ) {
+                        } else if ( preg_match('/\.(?:html|html|php|shtml)$/i', $URL) ) {
                             $type = "LocalPage";
-                        } else if ( preg_match('/\.(?:pdf)$/', $URL) ) {
+                        } else if ( preg_match('/\.(?:pdf)$/i', $URL) ) {
                             $type = "LocalPDF";
-                        } else if ( preg_match('/\.(?:swf)$/', $URL) ) {
+                        } else if ( preg_match('/\.(?:swf)$/i', $URL) ) {
                             $type = "LocalFlash";
                         } else {
                             $type = "LocalOther";
@@ -405,14 +405,14 @@ else if ( ( $create = ($view == "create") ) || ( $edit = ($view == "edit") ) ) {
                 }
                 
                 function updateResultDateCustom ( obj, Index, StartOrEnd ) {
-                    if ( String(obj.value).search(/^2\d{3}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2]\d|3[0-1])$/) != -1 ) {
+                    if ( String(obj.value).search(/^2\d{3}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2]\d|3[0-1])$/i) != -1 ) {
                     	document.getElementById(StartOrEnd + Index + "dateval").value = obj.value;
                     	updateResult2 ( Index, StartOrEnd );
                     }
                 }
 
                 function updateResultTimeCustom ( obj, Index, StartOrEnd ) {
-                    if ( String(obj.value).search(/^(?:[0-1]\d|2[0-3])(?::(?:[0-5]\d)){2}$/) != -1 ) {
+                    if ( String(obj.value).search(/^(?:[0-1]\d|2[0-3])(?::(?:[0-5]\d)){2}$/i) != -1 ) {
                         document.getElementById(StartOrEnd + Index + "timeval").value = obj.value;
                         updateResult2 ( Index, StartOrEnd );
                     }
@@ -424,14 +424,14 @@ else if ( ( $create = ($view == "create") ) || ( $edit = ($view == "edit") ) ) {
                     var temp;
                     if ( obj.value.length == 0 ) {
                         output.firstChild.nodeValue = "<?php lang_echo("conIgnore1"); lang_echo("conIgnoreEmptyURL"); ?>";
-                    } else if ( String(obj.value).search(/^http:\/\/[a-zA-Z0-9\.-]+\.[a-zA-Z]{2,5}/) != -1 ) {
-                    	if ( String(obj.value).search(/\.(?:html|html|php|shtml)$/) != -1 ) {
+                    } else if ( String(obj.value).search(/^http:\/\/[a-zA-Z0-9\.-]+\.[a-zA-Z]{2,5}/i) != -1 ) {
+                    	if ( String(obj.value).search(/\.(?:html|html|php|shtml)$/i) != -1 ) {
                             output.firstChild.nodeValue = "<?php lang_echo("conThisIsExternalPage"); ?>";
-                    	} else if ( String(obj.value).search(/\.(?:bmp|gif|png|jpg|jpeg|svg)$/) != -1 ) {
+                    	} else if ( String(obj.value).search(/\.(?:bmp|gif|png|jpg|jpeg|svg)$/i) != -1 ) {
                             output.firstChild.nodeValue = "<?php lang_echo("conThisIsExternalImage"); ?>";
-                    	} else if ( String(obj.value).search(/\.(?:pdf)$/) != -1 ) {
+                    	} else if ( String(obj.value).search(/\.(?:pdf)$/i) != -1 ) {
                             output.firstChild.nodeValue = "<?php lang_echo("conThisIsExternalPDF"); ?>";
-                        } else if ( String(obj.value).search(/\.(?:swf)$/) != -1 ) {
+                        } else if ( String(obj.value).search(/\.(?:swf)$/i) != -1 ) {
                             output.firstChild.nodeValue = "<?php lang_echo("conThisIsExternalFlash"); ?>";
                         } else {
                             output.firstChild.nodeValue = "<?php lang_echo("conThisIsExternalOther"); ?>";
@@ -439,13 +439,13 @@ else if ( ( $create = ($view == "create") ) || ( $edit = ($view == "edit") ) ) {
                     } else if ( ((temp = String(obj.value).match(/:\/\/.+/g)) != null) && (temp.length == 1) ) {
                     	output.firstChild.nodeValue = "<?php lang_echo("conIgnore1"); lang_echo("conIgnoreUnsuppProt"); ?>";
                     } else {
-                    	if ( String(obj.value).search(/\.(?:html|html|php|shtml)$/) != -1 ) {
+                    	if ( String(obj.value).search(/\.(?:html|html|php|shtml)$/i) != -1 ) {
                             output.firstChild.nodeValue = "<?php lang_echo("conThisIsLocalPage"); ?>";
-                        } else if ( String(obj.value).search(/\.(?:bmp|gif|png|jpg|jpeg|svg)$/) != -1 ) {
+                        } else if ( String(obj.value).search(/\.(?:bmp|gif|png|jpg|jpeg|svg)$/i) != -1 ) {
                             output.firstChild.nodeValue = "<?php lang_echo("conThisIsLocalImage"); ?>";
-                        } else if ( String(obj.value).search(/\.(?:pdf)$/) != -1 ) {
+                        } else if ( String(obj.value).search(/\.(?:pdf)$/i) != -1 ) {
                             output.firstChild.nodeValue = "<?php lang_echo("conThisIsLocalPDF"); ?>";
-                        } else if ( String(obj.value).search(/\.(?:swf)$/) != -1 ) {
+                        } else if ( String(obj.value).search(/\.(?:swf)$/i) != -1 ) {
                             output.firstChild.nodeValue = "<?php lang_echo("conThisIsLocalFlash"); ?>";
                         } else {
                             output.firstChild.nodeValue = "<?php lang_echo("conThisIsLocalOther"); ?>";
@@ -454,7 +454,7 @@ else if ( ( $create = ($view == "create") ) || ( $edit = ($view == "edit") ) ) {
                 }
 
                 function checkDispTime (obj, index) {
-                	if ( (String(obj.value).search(/^\d+$/) != -1) && (obj.value > 0) ) {
+                	if ( (String(obj.value).search(/^\d+$/i) != -1) && (obj.value > 0) ) {
                 	    determineType ( document.getElementById("URL" + index), index);
                 	} else {
                 		document.getElementById("info" + index).firstChild.nodeValue = "<?php lang_echo("conIgnore1"); lang_echo("conIgnoreDispTime"); ?>";
@@ -465,7 +465,7 @@ else if ( ( $create = ($view == "create") ) || ( $edit = ($view == "edit") ) ) {
                     obj = document.getElementById("URL" + index);
                     output = document.getElementById("info" + index);
                     if ( ( inout == "in" ) && ( !dispError ) ) {
-                        if ( ( String(obj.value).search(/\.(?:html|html)$/) == -1 ) || ( ( String(obj.value).search(/\.(?:html|html)$/) != -1 ) && ( String(obj.value).search(/^http:\/\/./) != -1 ) ) ) {
+                        if ( ( String(obj.value).search(/\.(?:html|html)$/i) == -1 ) || ( ( String(obj.value).search(/\.(?:html|html)$/i) != -1 ) && ( String(obj.value).search(/^http:\/\/./i) != -1 ) ) ) {
                             dispError = true;
                             oldMsg = output.firstChild.nodeValue;
                             document.getElementById("info" + index).firstChild.nodeValue = "This is not a local HTML file. You cannot edit it.";
