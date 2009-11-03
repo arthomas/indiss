@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-10-29
+ * @version     2009-11-03
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      Installation script, page 1: Language selection
@@ -34,6 +34,35 @@
     <title>InfoScreen Installation - Step 1: Language selection</title>
 </head>
 <body>
-
+    <fieldset id="container"><legend>InfoScreen Installation - Step 1: Language selection</legend>
+        <form method="post" action="">
+            <div style="margin-bottom: 10px;">
+                Please select the language for this installation:
+            </div>
+            <div>
+                <select id="langlist" name="langlist" size="20" style="width: 100%;">
+<?php include ( "lang/languages.php" );
+    foreach ( $languages as $langkey => $language ) {
+        if ( $langkey == $defaultlang )
+            $selected = " selected=\"selected\"";
+        else
+            $selected = ""; ?>
+                    <option value="<?php echo $langkey;?>"<?php echo $selected; ?>><?php echo $language; ?></option>
+<?php } ?>
+                </select>
+                <input type="checkbox" name="useasdefaultlang" value="yes" checked="checked" /> Use this language as default language for InfoScreen as well
+            </div>
+            <div>
+                <table id="buttonbar" summary="" cellpadding="0" cellspacing="0" border="0">
+                    <tbody>
+                        <tr>
+                            <td id="leftbox"></td>
+                            <td id="rightbox"><input type="submit" name="next" value="Next >" id="nextbutton" /></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </fieldset>
 </body>
 </html>

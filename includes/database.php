@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-10-28
+ * @version     2009-11-03
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * 
@@ -18,7 +18,7 @@
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-	defined("__MAIN") or die("Restricted access.");
+	( defined("__MAIN") || defined("__INSTALL") ) or die("Restricted access.");
 	
 	//include_once("../config/config.php");
 	if (!$configfile) {
