@@ -30,7 +30,7 @@
  *               lang
  *                \- en
  *                    +- en.php
- *                    \- license.txt
+ *                    \- license.html
  */
 
     $languages["en"]="English";

@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-10-28
+ * @version     2009-11-06
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      Installation script - creates necessary database tables and default entries
@@ -29,6 +29,14 @@
     $dbuser        = "root";
     $dbpass        = "";
     $dbname        = "infoscreen";
+    
+    if ( !empty( $_POST["lang"] ) ) {
+        $lang = $_POST["lang"];
+    } else {
+        $lang = $defaultlang;
+    }
+    
+    include ( "lang/lang.php");
     
     $configfile    = true;  //need this to cheat database.php
     

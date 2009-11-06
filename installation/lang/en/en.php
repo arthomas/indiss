@@ -3,7 +3,7 @@
  * @version     2009-11-06
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
- * @module      multiple languages support; for installation script
+ * @module      English language file for installation
  * 
  * @license     This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU General Public License as published by
@@ -18,28 +18,12 @@
  *              You should have received a copy of the GNU General Public License
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+ 
+    $_LANG["genNext"]                       = "Next";
+    $_LANG["genBack"]                       = "Back";
 
-    defined("__INSTALL") or die("Restricted access.");
-
-    include("$lang/$lang.php");
-    include_once("str_replace_multi.php");
+    $_LANG["1PageTitle"]                    = "InfoScreen Installation - Step 1: Language selection";
     
-    
-    
-    function lang($lang_content_string) {
-        global $_LANG;
-        return (isset($_LANG[$lang_content_string])) ? $_LANG[$lang_content_string] : '[' . $lang_content_string . ']';
-    }
-    
-    function lang_echo($lang_content_string) {
-        echo lang($lang_content_string);
-    }
-    
-    
-    function html_escape_regional_chars($str) {
-        $old = array('Ä','Ö','Ü','ä','ö','ü','ß');
-        $new = array('&Auml;','&Ouml;','&Uuml;','&auml;','&ouml;','&uuml;','&szlig;');
-        return str_replace_multi($old, $new, htmlspecialchars($str));
-    }
+    $_LANG["2PageTitle"]                    = "InfoScreen Installation - Step 2: Introduction and license";
 
 ?>

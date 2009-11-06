@@ -3,7 +3,7 @@
  * @version     2009-11-06
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
- * @module      Installation script, page 1: Language selection
+ * @module      Installation script, page 2: Intro and License
  * 
  * @license     This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU General Public License as published by
@@ -31,18 +31,18 @@
 
     <link rel="stylesheet" type="text/css" href="installation.css" />
     
-    <title><?php lang_echo("1PageTitle"); ?></title>
+    <title>InfoScreen Installation - Step 1: Language selection</title>
 </head>
 <body>
-    <fieldset id="container"><legend><?php lang_echo("1PageTitle"); ?></legend>
-        <form method="post" action="?step=2">
+    <fieldset id="container"><legend>InfoScreen Installation - Step 1: Language selection</legend>
+        <form method="post" action="">
             <p style="margin-top: 0;">Welcome to the InfoScreen installation script!</p>
             <p>Please select the language for this installation:</p>
             <div>
                 <select id="langlist" name="lang" size="20" style="width: 100%;">
 <?php include ( "lang/languages.php" );
     foreach ( $languages as $langkey => $language ) {
-        if ( $langkey == $lang )
+        if ( $langkey == $defaultlang )
             $selected = " selected=\"selected\"";
         else
             $selected = ""; ?>
