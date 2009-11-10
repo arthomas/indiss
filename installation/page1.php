@@ -49,7 +49,7 @@
                     <option value="<?php echo $langkey;?>"<?php echo $selected; ?>><?php echo $language; ?></option>
 <?php } ?>
                 </select>
-                <input type="checkbox" id="useasdefaultlang" name="useasdefaultlang" value="yes" <?php if ( isset($_POST["useasdefaultlang"])) { if ($_POST["useasdefaultlang"]) echo "checked=\"checked\" "; }?>/><span style="cursor:default;" onclick="o=document.getElementById('useasdefaultlang');o.checked=!o.checked;"> <?php lang_echo("1UseAsDefaultLang"); ?></span>
+                <input type="checkbox" id="useasdefaultlang" name="useasdefaultlang" value="yes" <?php if ( isset($_POST["useasdefaultlang"])) { if ($_POST["useasdefaultlang"]) echo "checked=\"checked\" "; } echo "checked=\"checked\" "; ?>/><span style="cursor:default;" onclick="o=document.getElementById('useasdefaultlang');o.checked=!o.checked;"> <?php lang_echo("1UseAsDefaultLang"); ?></span>
             </div>
             <div>
                 <table id="buttonbar" summary="" cellpadding="0" cellspacing="0" border="0">

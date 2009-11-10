@@ -35,23 +35,18 @@
 </head>
 <body>
     <fieldset id="container"><legend><?php lang_echo("2PageTitle"); ?></legend>
-        <form method="post" action="">
-            <p style="margin-top: 0;">This wizard will guide you through the installation of InfoScreen. It will ask you
-            to enter some default settings and an administrator password. Once you have completed entering all necessary
-            data, the script will create the required database tables and save all settings.</p>
-            <p>Please note: This script will change neither the database nor the file system until you confirm all settings
-            in the final installation step.</p>
-            <p>In the following, a full copy of the GNU General Public License v3 will be displayed. By installing and
-            using InfoScreen, you agree to this license, even if you by some means skip this step or the whole installation
-            script.</p>
-            <div id="license"><pre><?php echo htmlspecialchars(file_get_contents("lang/$lang/license.html")); ?></pre> 
-            </div>
+        <form method="post" action="?step=3">
+            <p style="margin-top: 0;"><?php lang_echo("2ThisWizard"); ?></p>
+            <p><?php lang_echo("2PleaseNote"); ?></p>
+            <p><?php lang_echo("2LicenseDisplay"); ?></p>
+            <div id="license"><?php include("lang/$lang/license.html"); ?></div>
+            <p style="text-align: center;"><?php lang_echo("2OrigDocAt"); ?> <a href="http://www.gnu.org/licenses/gpl.html">http://www.gnu.org/licenses/gpl.html</a></p>
             <div>
                 <table id="buttonbar" summary="" cellpadding="0" cellspacing="0" border="0">
                     <tbody>
                         <tr>
-                            <td id="leftbox"><input type="button" name="back" value="< Back" id="backbutton" onclick="this.form.action='?step=1'; this.form.submit();" /></td>
-                            <td id="rightbox"><input type="submit" name="next" value="Next >" id="nextbutton" /></td>
+                            <td id="leftbox"><input type="button" name="back" value="< <?php lang_echo("genBack"); ?>" id="backbutton" onclick="this.form.action='?step=1'; this.form.submit();" /></td>
+                            <td id="rightbox"><input type="submit" name="next" value="<?php lang_echo("genNext"); ?> >" id="nextbutton" /></td>
                         </tr>
                     </tbody>
                 </table>

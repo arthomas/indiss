@@ -51,14 +51,10 @@ table#buttonbar td#rightbox {
 }
 
 div#license {
-    margin: 20px;
+    margin: 20px auto;
     border: 1px solid black;
     padding: 10px;
     overflow-y: scroll;
     height: 300px;
-}
-
-div#license pre {
-    font-size: 10pt;
-    font-family: Arial, Verdana, sans-serif !important;
+    max-width: 900px;
 }

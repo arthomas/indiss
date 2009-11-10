@@ -19,7 +19,7 @@
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
  
-    $_LANG["genNext"]                       = "Next";
+    $_LANG["genNext"]                       = "Next";  //Note: for Next and Back buttons, don't include the arrows. They will be added by the displaying script.
     $_LANG["genBack"]                       = "Back";
 
     $_LANG["1PageTitle"]                    = "InfoScreen Installation - Step 1: Language selection";
@@ -28,5 +28,10 @@
     $_LANG["1UseAsDefaultLang"]             = "Use this language as default language for InfoScreen as well";
     
     $_LANG["2PageTitle"]                    = "InfoScreen Installation - Step 2: Introduction and license";
+    $_LANG["2ThisWizard"]                   = "This wizard will guide you through the installation of InfoScreen. It will ask you to enter some default settings and an administrator password. Once you have completed entering all necessary data, the script will create the required database tables and save all settings.";
+    $_LANG["2PleaseNote"]                   = "Please note: This script will change neither the database nor the file system until you confirm all settings in the final installation step.";
+    $_LANG["2LicenseDisplay"]               = "In the following box, a full copy of the GNU General Public License v3 will be displayed. By installing and using InfoScreen, you agree to this license, even if you by some means skip this step or the whole installation script.";
+    $_LANG["2OrigDocAt"]                    = "The original document can be viewed at";
+    
 
 ?>
