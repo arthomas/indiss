@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-11-06
+ * @version     2009-11-07
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      English language file for installation
@@ -23,6 +23,9 @@
     $_LANG["genBack"]                       = "Back";
 
     $_LANG["1PageTitle"]                    = "InfoScreen Installation - Step 1: Language selection";
+    $_LANG["1WelcomeMsg"]                   = "Welcome to the InfoScreen installation script!";
+    $_LANG["1PlsSelectLang"]                = "Please select the language for this installation:";
+    $_LANG["1UseAsDefaultLang"]             = "Use this language as default language for InfoScreen as well";
     
     $_LANG["2PageTitle"]                    = "InfoScreen Installation - Step 2: Introduction and license";
 
