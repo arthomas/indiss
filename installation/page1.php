@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-11-06
+ * @version     2009-11-10
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      Installation script, page 1: Language selection
@@ -36,8 +36,8 @@
 <body>
     <fieldset id="container"><legend><?php lang_echo("1PageTitle"); ?></legend>
         <form method="post" action="?step=2">
-            <p style="margin-top: 0;">Welcome to the InfoScreen installation script!</p>
-            <p>Please select the language for this installation:</p>
+            <p style="margin-top: 0;"><?php lang_echo("1WelcomeMsg"); ?></p>
+            <p><?php lang_echo("1PlsSelectLang"); ?></p>
             <div>
                 <select id="langlist" name="lang" size="20" style="width: 100%;">
 <?php include ( "lang/languages.php" );
@@ -49,20 +49,20 @@
                     <option value="<?php echo $langkey;?>"<?php echo $selected; ?>><?php echo $language; ?></option>
 <?php } ?>
                 </select>
-                <input type="checkbox" name="useasdefaultlang" value="yes" checked="checked" /> Use this language as default language for InfoScreen as well
+                <input type="checkbox" id="useasdefaultlang" name="useasdefaultlang" value="yes" <?php if ( isset($_POST["useasdefaultlang"])) { if ($_POST["useasdefaultlang"]) echo "checked=\"checked\" "; }?>/><span style="cursor:default;" onclick="o=document.getElementById('useasdefaultlang');o.checked=!o.checked;"> <?php lang_echo("1UseAsDefaultLang"); ?></span>
             </div>
             <div>
                 <table id="buttonbar" summary="" cellpadding="0" cellspacing="0" border="0">
                     <tbody>
                         <tr>
                             <td id="leftbox"></td>
-                            <td id="rightbox"><input type="submit" name="next" value="Next >" id="nextbutton" /></td>
+                            <td id="rightbox"><input type="submit" name="next" value="<?php lang_echo("genNext"); ?> >" id="nextbutton" /></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 <?php foreach ($_POST as $key => $value)
-        if ( !in_array($key, array("lang", "useasdefaultlang", "next", "previous")) ) { ?>
+        if ( !in_array($key, array("lang", "useasdefaultlang", "next", "back")) ) { ?>
             <input type="hidden" name="<?php echo $key; ?>" value="<?php echo $value; ?>" />
 <?php }?>
         </form>

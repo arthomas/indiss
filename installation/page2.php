@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-11-06
+ * @version     2009-11-10
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      Installation script, page 2: Intro and License
@@ -31,38 +31,33 @@
 
     <link rel="stylesheet" type="text/css" href="installation.css" />
     
-    <title>InfoScreen Installation - Step 1: Language selection</title>
+    <title><?php lang_echo("2PageTitle"); ?></title>
 </head>
 <body>
-    <fieldset id="container"><legend>InfoScreen Installation - Step 1: Language selection</legend>
+    <fieldset id="container"><legend><?php lang_echo("2PageTitle"); ?></legend>
         <form method="post" action="">
-            <p style="margin-top: 0;">Welcome to the InfoScreen installation script!</p>
-            <p>Please select the language for this installation:</p>
-            <div>
-                <select id="langlist" name="lang" size="20" style="width: 100%;">
-<?php include ( "lang/languages.php" );
-    foreach ( $languages as $langkey => $language ) {
-        if ( $langkey == $defaultlang )
-            $selected = " selected=\"selected\"";
-        else
-            $selected = ""; ?>
-                    <option value="<?php echo $langkey;?>"<?php echo $selected; ?>><?php echo $language; ?></option>
-<?php } ?>
-                </select>
-                <input type="checkbox" name="useasdefaultlang" value="yes" checked="checked" /> Use this language as default language for InfoScreen as well
+            <p style="margin-top: 0;">This wizard will guide you through the installation of InfoScreen. It will ask you
+            to enter some default settings and an administrator password. Once you have completed entering all necessary
+            data, the script will create the required database tables and save all settings.</p>
+            <p>Please note: This script will change neither the database nor the file system until you confirm all settings
+            in the final installation step.</p>
+            <p>In the following, a full copy of the GNU General Public License v3 will be displayed. By installing and
+            using InfoScreen, you agree to this license, even if you by some means skip this step or the whole installation
+            script.</p>
+            <div id="license"><pre><?php echo htmlspecialchars(file_get_contents("lang/$lang/license.html")); ?></pre> 
             </div>
             <div>
                 <table id="buttonbar" summary="" cellpadding="0" cellspacing="0" border="0">
                     <tbody>
                         <tr>
-                            <td id="leftbox"></td>
+                            <td id="leftbox"><input type="button" name="back" value="< Back" id="backbutton" onclick="this.form.action='?step=1'; this.form.submit();" /></td>
                             <td id="rightbox"><input type="submit" name="next" value="Next >" id="nextbutton" /></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 <?php foreach ($_POST as $key => $value)
-        if ( !in_array($key, array("lang", "useasdefaultlang", "next", "previous")) ) { ?>
+        if ( !in_array($key, array("next", "back")) ) { ?>
             <input type="hidden" name="<?php echo $key; ?>" value="<?php echo $value; ?>" />
 <?php }?>
         </form>

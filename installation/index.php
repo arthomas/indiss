@@ -42,10 +42,10 @@
     
     include_once("../includes/database.php");
     
-    if ( empty( $_POST["step"] ) ) {
+    if ( empty( $_GET["step"] ) ) {
         $step = 1;
     } else {
-        $step = $_POST["step"];
+        $step = $_GET["step"];
     }
     
     include ("page" . $step . ".php");
