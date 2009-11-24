@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-11-10
+ * @version     2009-11-11
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      Installation script, page 1: Language selection
@@ -35,7 +35,7 @@
 </head>
 <body>
     <fieldset id="container"><legend><?php lang_echo("1PageTitle"); ?></legend>
-        <form method="post" action="?step=2">
+        <form method="post" action="?step=<?php echo ($step + 1); ?>">
             <p style="margin-top: 0;"><?php lang_echo("1WelcomeMsg"); ?></p>
             <p><?php lang_echo("1PlsSelectLang"); ?></p>
             <div>

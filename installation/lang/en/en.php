@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-11-07
+ * @version     2009-11-11
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      English language file for installation
@@ -33,5 +33,9 @@
     $_LANG["2LicenseDisplay"]               = "In the following box, a full copy of the GNU General Public License v3 will be displayed. By installing and using InfoScreen, you agree to this license, even if you by some means skip this step or the whole installation script.";
     $_LANG["2OrigDocAt"]                    = "The original document can be viewed at";
     
+    $_LANG["3PageTitle"]                    = "InfoScreen Installation - Step 3: Database setup";
+    $_LANG["3PleaseEnterData"]              = "Please enter the data required to access the database below.";
+    $_LANG["3TablePermission"]              = "The used database must either already contain a table named 'infoscreen' (no quotes) or the account used to access the database must have permission to create new tables.";
+    $_LANG["3SecurityNote"]                 = "<b>Important</b>: Using the 'root' account to access the database is highly discouraged. Please be aware that the username, database name <b>and password</b> will be saved as <b>unencrypted text</b> on the file system. Therefore, please make sure that no unauthorized access to the InfoScreen folder is possible.";
 
 ?>

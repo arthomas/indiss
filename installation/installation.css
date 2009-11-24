@@ -1,5 +1,5 @@
 /**
- * @version     2009-11-03
+ * @version     2009-11-11
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      Installation script style definitions
@@ -50,6 +50,10 @@ table#buttonbar td#rightbox {
     text-align: right;
 }
 
+.small {
+    font-size: 80%;
+}
+
 div#license {
     margin: 20px auto;
     border: 1px solid black;
@@ -57,4 +61,24 @@ div#license {
     overflow-y: scroll;
     height: 300px;
     max-width: 900px;
+}
+
+div#enterdata {
+    margin: 20px auto;
+    border: 1px solid black;
+    padding: 10px;
+    max-width: 900px;
+}
+
+div#enterdata table {
+    margin: 0 auto;
+}
+
+div#enterdata table td {
+    vertical-align: top;
+    padding: 5px;
+}
+
+div#enterdata table td:first-child {
+    padding-right: 20px;
 }

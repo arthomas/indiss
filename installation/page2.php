@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-11-10
+ * @version     2009-11-11
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      Installation script, page 2: Intro and License
@@ -20,7 +20,6 @@
  */
  
     defined("__INSTALL") or die("Restricted access.");
-    //TODO: install script, step 1: might wanna enable auto-select if there is only one language available
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -35,7 +34,7 @@
 </head>
 <body>
     <fieldset id="container"><legend><?php lang_echo("2PageTitle"); ?></legend>
-        <form method="post" action="?step=3">
+        <form method="post" action="?step=<?php echo ($step + 1); ?>">
             <p style="margin-top: 0;"><?php lang_echo("2ThisWizard"); ?></p>
             <p><?php lang_echo("2PleaseNote"); ?></p>
             <p><?php lang_echo("2LicenseDisplay"); ?></p>
@@ -45,7 +44,7 @@
                 <table id="buttonbar" summary="" cellpadding="0" cellspacing="0" border="0">
                     <tbody>
                         <tr>
-                            <td id="leftbox"><input type="button" name="back" value="< <?php lang_echo("genBack"); ?>" id="backbutton" onclick="this.form.action='?step=1'; this.form.submit();" /></td>
+                            <td id="leftbox"><input type="button" name="back" value="< <?php lang_echo("genBack"); ?>" id="backbutton" onclick="this.form.action='?step=<?php echo ($step - 1); ?>'; this.form.submit();" /></td>
                             <td id="rightbox"><input type="submit" name="next" value="<?php lang_echo("genNext"); ?> >" id="nextbutton" /></td>
                         </tr>
                     </tbody>
