@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-09-26
+ * @version     2009-11-28
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      
@@ -23,6 +23,8 @@
     
     session_name("InfoScreenAdmin");
     session_start();
+    
+    $acceptedFileExts = array ( "htm", "html", "jpg", "jpeg", "png", "gif", "pdf", "swf" );
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -47,8 +49,16 @@
     Fehler: Es wurden nicht alle notwendigen Parameter &uuml;bergeben.
 </body>
 <?php   } else if ( isset( $_POST["submit"] ) ) {
-            $destination ="../../upload/" . basename( $_FILES["file"]["name"] );
-            if ( move_uploaded_file( $_FILES["file"]["tmp_name"], $destination ) ) { ?>
+            $pathinfo = pathinfo($_POST["filename"]);
+            if ( !( in_array($pathinfo["extension"], $acceptedFileExts) ) ) { ?>
+<body>
+    <fieldset><legend>Datei hochgeladen:</legend>
+            Fehler: Der Dateityp wird nicht akzeptiert.
+    </fieldset>
+</body>
+<?php       } else {
+                $destination ="../../upload/" . basename( $_FILES["file"]["name"] );
+                if ( move_uploaded_file( $_FILES["file"]["tmp_name"], $destination ) ) { ?>
 <body onload="opener.document.getElementById('URL<?php echo $_GET["index"]; ?>').value='<?php echo "$basepath/upload/" . basename( $destination ); ?>'">
     <fieldset><legend>Datei hochgeladen:</legend>
         <div>Hochgeladene Datei: <?php echo $_FILES["file"]["name"]; ?> </div>
@@ -63,7 +73,8 @@
             Ein Fehler ist aufgetreten.
     </fieldset>
 </body>
-<?php       }
+<?php           }
+            }
         } else { ?>
 <body>
     <fieldset><legend>Datei hochladen:</legend>
