@@ -87,17 +87,18 @@
             echo "            </script>\n";
             echo "        </fieldset>\n";
             echo '        <div id="bottomline">'."\n";
-            echo '            Dateiname: <input type="text" name="filename" value="' . $_POST["filename"] . '" disabled="disabled" />'."\n";
+            echo '            Dateiname: <input type="text" id="filename" name="filename" value="' . $_POST["filename"] . '" disabled="disabled" />'."\n";
             echo '            <div id="buttonContainer">'."\n";
             echo '                <input type="button" value="Zur&uuml;ck" onclick="history.back();"/>'."\n";
             echo '                <input type="button" value="Abbrechen" onclick="window.close();"/>'."\n";
-            echo '                <input type="submit" value="Speichern" name="submit" />'."\n";
+            echo '                <input type="submit" value="Speichern" name="submit" onclick="document.getElementById(\'filename\').disabled=false;" />'."\n";
             echo "            </div>\n";
             echo "        </div>\n";
             echo "    </form>\n";
             echo "</body>\n";
             
         } else if ( empty( $_POST["htmlContent"] ) || empty( $_POST["filename"] ) ) {
+            var_dump($_POST);
             echo "<body>\n";
             if ( empty( $_POST["htmlContent"] ) )  echo "    Fehler: Das Dokument war leer.<br />\n" ;
             if ( empty( $_POST["filename"] ) )     echo "    Fehler: Kein Dateiname angegeben.<br />\n";  
@@ -113,11 +114,11 @@
                 $postedValue = stripslashes( $_POST["htmlContent"] );
             else
                 $postedValue = $_POST["htmlContent"];
-            $result = file_put_contents($_SERVER["DOCUMENT_ROOT"] . "$basepath/com_content/files/html/" . $_POST["filename"], $postedValue);
+            $result = file_put_contents($_SERVER["DOCUMENT_ROOT"] . "$basepath/components/com_content/files/html/" . $_POST["filename"], $postedValue);
             if ( !$result ) { //an error has occurred during saving
                 echo "<body>\n";
                 echo "    Fehler: Beim Speichern der Datei ist ein Fehler aufgetreten.<br />\n";
-                echo "    Debug: Path: " . $_SERVER["DOCUMENT_ROOT"] . $basepath ."/com_content/files/html/" . $_POST["filename"] . "<br />\n";
+                echo "    Debug: Path: " . $_SERVER["DOCUMENT_ROOT"] . $basepath ."/components/com_content/files/html/" . $_POST["filename"] . "<br />\n";
                 echo "    Result: " . (($result === false) ? 'false' : $result) . "<br />\n";
                 echo "    Content: <pre>" . $_POST["htmlContent"] . "</pre>\n";
                 echo '    <div id="buttonContainer">'."\n";
@@ -128,10 +129,10 @@
                 echo "    </div>\n";
                 echo "</body>\n";
             } else {
-                echo "<body onload=\"opener.document.getElementById('URL" . $_GET["index"] . "').value='$basepath/com_content/files/html/" . $_POST["filename"] . "'\">\n";
+                echo "<body onload=\"opener.document.getElementById('URL" . $_GET["index"] . "').value='$basepath/components/com_content/files/html/" . $_POST["filename"] . "'\">\n";
                 echo "    <fieldset><legend>Datei hochgeladen:</legend>\n";
                 echo "        <div>Pfad auf dem Server (URL): $basepath/com_content/files/html/" . $_POST["filename"] . "</div>\n";
-                echo '        <div style="display: none;">Pfad auf dem Server (Dateisystem): ' . $_SERVER["DOCUMENT_ROOT"] . $basepath . "/com_content/files/html/" . $_POST["filename"] . "</div>\n";
+                echo '        <div style="display: none;">Pfad auf dem Server (Dateisystem): ' . $_SERVER["DOCUMENT_ROOT"] . $basepath . "/components/com_content/files/html/" . $_POST["filename"] . "</div>\n";
                 echo "        <div>Dateigr&ouml;&szlig;e: $result Bytes</div>\n";
                 echo "    </fieldset>\n";
                 echo '    <div id="buttonContainer">'."\n";
