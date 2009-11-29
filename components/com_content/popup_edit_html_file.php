@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-09-26
+ * @version     2009-11-29
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      
@@ -19,10 +19,15 @@
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+//Wonder if it wont give a better overview if we pack all this intermittent HTML into
+//PHP strings?
+
     include_once "../../config/config.php";
     
     session_name("InfoScreenAdmin");
     session_start();
+    
+    $template_basepath = $_SERVER["DOCUMENT_ROOT"] . $basepath ."/components/com_content/files/templates";
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -48,85 +53,161 @@
     </style>
     
 </head>
-<?php if ( empty( $_SESSION["username"] ) ) { //if the user is not logged in ?>
-<body>
-    Fehler: Sie sind nicht eingeloggt.
-</body>
-<?php } else  //else: the user is logged in
-      if ( !isset( $_GET["index"] ) ) { //the index is required to write the file path back into the create form ?>
-<body>
-    Fehler: Es wurden nicht alle notwendigen Parameter &uuml;bergeben.
-</body>
-<?php } else if ( isset( $_POST["submit"] ) ) { 
-        if ( empty( $_POST["htmlContent"] ) || empty( $_POST["filename"] ) ) { ?>
-<body>
-    <?php if ( empty( $_POST["htmlContent"] ) ) { ?>Fehler: Das Dokument war leer.<br /><?php } ?>
-    <?php if ( empty( $_POST["filename"] ) ) { ?>Fehler: Kein Dateiname angegeben.<br /><?php } ?>  
-    <div id="buttonContainer">
-        <form>
-            <input type="button" value="Zur&uuml;ck" onclick="history.back();" />
-            <input type="button" value="Abbrechen" onclick="window.close();" />
-        </form>
-    </div>
-</body>
-<?php   } else {
+<?php
+    if ( empty( $_SESSION["username"] ) ) { //if the user is not logged in
+        echo "<body>\n";
+        echo "    Fehler: Sie sind nicht eingeloggt.\n";
+        echo "</body>\n";
+    } else  //else: the user is logged in
+    if ( !isset( $_GET["index"] ) ) { //the index is required to write the file path back into the create/edit form
+        echo "<body>\n";
+        echo "    Fehler: Es wurden nicht alle notwendigen Parameter &uuml;bergeben.\n";
+        echo "</body>\n";
+    } else if ( isset( $_POST["submit"] ) ) {
+        if ( isset( $_POST["template_box"] ) ) {
+            
+            $oldcontent = "";
+            if ( $_POST["template_box"] == "editold" && !empty( $_GET["oldfile"] ) ) {
+                if ( file_exists( $_SERVER["DOCUMENT_ROOT"] . $_GET["oldfile"] ) && ( preg_match('/\.(?:htm|html)$/', $_GET["oldfile"]) ) ) {
+                    $oldcontent = file_get_contents($_SERVER["DOCUMENT_ROOT"] . $_GET["oldfile"]);
+                }
+            } else if ( $_POST["template_box"] != "createnew" ) {
+                if ( $xml = simplexml_load_file($template_basepath . "/" . $_POST["template_box"]) ) {
+                    if ( file_exists( $template_basepath . "/" . $xml->htmlfile ) ) {
+                        $oldcontent = file_get_contents($template_basepath . "/" . $xml->htmlfile);
+                    }
+                }
+            }
+            echo "<body>\n";
+            echo '    <form action="' . $_SERVER['REQUEST_URI'] . '" method="post">' . "\n";
+            echo "        <fieldset><legend>Neue Seite erstellen</legend>\n";
+            echo '            <textarea name="htmlContent" id="htmlContent">' . $oldcontent . "</textarea>\n";
+            echo '            <script type="text/javascript">' . "\n";
+            echo "                CKEDITOR.replace( 'htmlContent' );\n";
+            echo "            </script>\n";
+            echo "        </fieldset>\n";
+            echo '        <div id="bottomline">'."\n";
+            echo '            Dateiname: <input type="text" name="filename" value="' . $_POST["filename"] . '" disabled="disabled" />'."\n";
+            echo '            <div id="buttonContainer">'."\n";
+            echo '                <input type="button" value="Zur&uuml;ck" onclick="history.back();"/>'."\n";
+            echo '                <input type="button" value="Abbrechen" onclick="window.close();"/>'."\n";
+            echo '                <input type="submit" value="Speichern" name="submit" />'."\n";
+            echo "            </div>\n";
+            echo "        </div>\n";
+            echo "    </form>\n";
+            echo "</body>\n";
+            
+        } else if ( empty( $_POST["htmlContent"] ) || empty( $_POST["filename"] ) ) {
+            echo "<body>\n";
+            if ( empty( $_POST["htmlContent"] ) )  echo "    Fehler: Das Dokument war leer.<br />\n" ;
+            if ( empty( $_POST["filename"] ) )     echo "    Fehler: Kein Dateiname angegeben.<br />\n";  
+            echo '    <div id="buttonContainer">'."\n";
+            echo "        <form>\n";
+            echo '            <input type="button" value="Zur&uuml;ck" onclick="history.back();" />'."\n";
+            echo '            <input type="button" value="Abbrechen" onclick="window.close();" />'."\n";
+            echo "        </form>\n";
+            echo "    </div>\n";
+            echo "</body>\n";
+        } else {
             if ( get_magic_quotes_gpc() )
                 $postedValue = stripslashes( $_POST["htmlContent"] );
             else
                 $postedValue = $_POST["htmlContent"];
-            $result = file_put_contents($_SERVER["DOCUMENT_ROOT"] . "$basepath/upload/" . $_POST["filename"], $postedValue);
-            if ( !$result ) { //an error has occurred during saving ?>
-<body>
-    Fehler: Beim Speichern der Datei ist ein Fehler aufgetreten.<br />
-    Debug: Path: <?php echo $_SERVER["DOCUMENT_ROOT"] . "$basepath/upload/" . $_POST["filename"]; ?><br />
-    Result: <?php echo ($result === false) ? 'false' : $result; ?><br />
-    Content: <pre><?php echo $_POST["htmlContent"]; ?></pre>
-    <div id="buttonContainer">
-        <form>
-            <input type="button" value="Zur&uuml;ck" onclick="history.back();" />
-            <input type="button" value="Abbrechen" onclick="window.close();" />
-        </form>
-    </div>
-</body>
-<?php       } else { ?>
-<body onload="opener.document.getElementById('URL<?php echo $_GET["index"]; ?>').value='<?php echo "$basepath/upload/" . $_POST["filename"]; ?>'">
-    <fieldset><legend>Datei hochgeladen:</legend>
-        <div>Pfad auf dem Server (URL): <?php echo "$basepath/upload/" . $_POST["filename"]; ?> </div>
-        <div style="display: none;">Pfad auf dem Server (Dateisystem): <?php echo $_SERVER["DOCUMENT_ROOT"] . "$basepath/upload/" . $_POST["filename"] ?></div>
-        <div>Dateigr&ouml;&szlig;e: <?php echo $result; ?> Bytes</div>
-    </fieldset>
-    <div id="buttonContainer">
-        <form>
-            <input type="button" value="Schlie&szlig;en" onclick="window.close();" />
-        </form>
-    </div>
-</body>
-<?php       }
-        }
-      } else {
-        $oldcontent = "";
-        if ( !empty( $_GET["oldfile"] ) ) {
-            if ( file_exists( $_SERVER["DOCUMENT_ROOT"] . $_GET["oldfile"] ) && ( preg_match('/\.(?:htm|html)$/', $_GET["oldfile"]) ) ) {
-                $oldcontent = file_get_contents($_SERVER["DOCUMENT_ROOT"] . $_GET["oldfile"]);
+            $result = file_put_contents($_SERVER["DOCUMENT_ROOT"] . "$basepath/com_content/files/html/" . $_POST["filename"], $postedValue);
+            if ( !$result ) { //an error has occurred during saving
+                echo "<body>\n";
+                echo "    Fehler: Beim Speichern der Datei ist ein Fehler aufgetreten.<br />\n";
+                echo "    Debug: Path: " . $_SERVER["DOCUMENT_ROOT"] . $basepath ."/com_content/files/html/" . $_POST["filename"] . "<br />\n";
+                echo "    Result: " . (($result === false) ? 'false' : $result) . "<br />\n";
+                echo "    Content: <pre>" . $_POST["htmlContent"] . "</pre>\n";
+                echo '    <div id="buttonContainer">'."\n";
+                echo "        <form>\n";
+                echo '            <input type="button" value="Zur&uuml;ck" onclick="history.back();" />'."\n";
+                echo '            <input type="button" value="Abbrechen" onclick="window.close();" />'."\n";
+                echo "        </form>\n";
+                echo "    </div>\n";
+                echo "</body>\n";
+            } else {
+                echo "<body onload=\"opener.document.getElementById('URL" . $_GET["index"] . "').value='$basepath/com_content/files/html/" . $_POST["filename"] . "'\">\n";
+                echo "    <fieldset><legend>Datei hochgeladen:</legend>\n";
+                echo "        <div>Pfad auf dem Server (URL): $basepath/com_content/files/html/" . $_POST["filename"] . "</div>\n";
+                echo '        <div style="display: none;">Pfad auf dem Server (Dateisystem): ' . $_SERVER["DOCUMENT_ROOT"] . $basepath . "/com_content/files/html/" . $_POST["filename"] . "</div>\n";
+                echo "        <div>Dateigr&ouml;&szlig;e: $result Bytes</div>\n";
+                echo "    </fieldset>\n";
+                echo '    <div id="buttonContainer">'."\n";
+                echo "        <form>\n";
+                echo '            <input type="button" value="Schlie&szlig;en" onclick="window.close();" />'."\n";
+                echo "        </form>\n";
+                echo "    </div>\n";
+                echo "</body>\n";
             }
-        } 
-?>
-<body>
-    <form action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post">
-        <fieldset><legend>Neue Seite erstellen</legend>
-            <textarea name="htmlContent" id="htmlContent"><?php echo $oldcontent ?></textarea>
-            <script type="text/javascript">
-                CKEDITOR.replace( 'htmlContent' );
-            </script>
-        </fieldset>
-        <div id="bottomline">
-            Dateiname: <input type="text" name="filename" value="<?php echo ($oldcontent) ? basename($_GET["oldfile"]) : "newfile.html" ?>" />
-            <div id="buttonContainer">
-                <input type="submit" value="Speichern" name="submit" />
-                <input type="button" value="Abbrechen" onclick="window.close();"/>
-            </div>
-        </div>
-    </form>
-</body>
-<?php }?>
+        }
+    } else {
+        $_templates = scandir($template_basepath);
+        unset ($template_files);
+        foreach (preg_grep("/.xml$/i", $_templates) as $file) {
+            if ( is_file($template_basepath . "/" . $file) && is_readable($template_basepath . "/" . $file) )
+                $template_files[] = $template_basepath . "/" . $file;
+        }
+        unset ($_templates);
+        unset ($templates);
+        if ( isset($template_files) && is_array($template_files) ) {
+            foreach ($template_files as $template_file) {
+                unset ($template);
+                if ( $xml = simplexml_load_file($template_file) ) {
+                    if ( file_exists($template_basepath . "/" . $xml->htmlfile) ) {
+                        $template["filename"] = basename($template_file);
+                        foreach ($xml->children() as $key => $item)
+                            $template[$key] = (string)$item;
+                    }
+                }
+                if ( !empty($template) )
+                    $templates[] = $template;
+            }
+        }
+        
+        echo "<body>\n";
+        echo '    <script type="text/javascript">' . "\n";
+        echo "    function check_values( obj ) {\n";
+        echo "        sel = obj.options[obj.selectedIndex];\n";
+        echo "        if (sel.value == 'divider' || sel.value == 'notemplates') {\n";
+        echo "            document.getElementById('next').disabled=true;\n";
+        echo "            document.getElementById('filename').disabled=true;\n";
+        echo "        } else {\n";
+        echo "            document.getElementById('next').disabled=false;\n";
+        echo "            document.getElementById('filename').disabled=false;\n";
+        echo "        }\n";
+        echo "    }\n";
+        echo "    </script>\n";
+        echo '    <form action="' . $_SERVER['REQUEST_URI'] . '" method="post">' . "\n";
+        echo "        <fieldset><legend>HTML-Editor - Vorlage auswählen</legend>\n";
+        echo '            <select name="template_box" id="templatelist" size="10" style="width: 100%;" onclick="check_values( this );">'."\n";
+        if ( !empty( $_GET["oldfile"] ) ) { 
+        echo '                <option value="editold" selected="selected">Bestehende Datei bearbeiten</option>'."\n";
+        echo '                <option value="divider">---------------</option>'."\n";
+        }
+        echo '                <option value="createnew"' . ( ( empty( $_GET["oldfile"] ) ) ? ' selected="selected"' : "" ) . '>Leere Datei erstellen</option>'."\n";
+        echo '                <option value="divider">---------------</option>'."\n";
+        if ( empty( $templates ) ) {
+        echo '                <option value="notemplates">(Keine Vorlagen vorhanden)</option>'."\n";
+        } else {
+            foreach ($templates as $template) {
+        echo '                <option value="' . $template["filename"] . '">' . $template["name"] . " -- " . $template["shortdesc"] . "</option>\n";
+            }
+        }
+        echo "            </select>\n";
+        echo "        </fieldset>\n";
+        echo '        <div id="bottomline">'."\n";
+        echo '            Dateiname: <input type="text" id="filename" name="filename" value="' . ((!empty( $_GET["oldfile"] )) ? basename($_GET["oldfile"]) : "newfile.html") . '" />'."\n";
+        echo '            <div id="buttonContainer">'."\n";
+        echo '                <input type="submit" value="Weiter" id="next" name="submit" />'."\n";
+        echo '                <input type="button" value="Abbrechen" onclick="window.close();"/>'."\n";
+        echo "            </div>\n";
+        echo "        </div>\n";
+        echo "    </form>\n";
+        echo "</body>\n";
+        
+        
+        
+    } ?>
 </html>
