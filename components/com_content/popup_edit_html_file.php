@@ -27,7 +27,8 @@
     session_name("InfoScreenAdmin");
     session_start();
     
-    $template_basepath = $_SERVER["DOCUMENT_ROOT"] . $basepath ."/components/com_content/files/templates";
+    $template_basepath = $_SERVER["DOCUMENT_ROOT"] . $basepath . "/components/com_content/files/templates";
+    $html_basepath =     $_SERVER["DOCUMENT_ROOT"] . $basepath . "/components/com_content/files/html";
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -114,11 +115,11 @@
                 $postedValue = stripslashes( $_POST["htmlContent"] );
             else
                 $postedValue = $_POST["htmlContent"];
-            $result = file_put_contents($_SERVER["DOCUMENT_ROOT"] . "$basepath/components/com_content/files/html/" . $_POST["filename"], $postedValue);
+            $result = file_put_contents( $html_basepath . "/" . $_POST["filename"], $postedValue);
             if ( !$result ) { //an error has occurred during saving
                 echo "<body>\n";
                 echo "    Fehler: Beim Speichern der Datei ist ein Fehler aufgetreten.<br />\n";
-                echo "    Debug: Path: " . $_SERVER["DOCUMENT_ROOT"] . $basepath ."/components/com_content/files/html/" . $_POST["filename"] . "<br />\n";
+                echo "    Debug: Path: " . $html_basepath . "/" . $_POST["filename"] . "<br />\n";
                 echo "    Result: " . (($result === false) ? 'false' : $result) . "<br />\n";
                 echo "    Content: <pre>" . $_POST["htmlContent"] . "</pre>\n";
                 echo '    <div id="buttonContainer">'."\n";
@@ -132,7 +133,7 @@
                 echo "<body onload=\"opener.document.getElementById('URL" . $_GET["index"] . "').value='$basepath/components/com_content/files/html/" . $_POST["filename"] . "'\">\n";
                 echo "    <fieldset><legend>Datei hochgeladen:</legend>\n";
                 echo "        <div>Pfad auf dem Server (URL): $basepath/com_content/files/html/" . $_POST["filename"] . "</div>\n";
-                echo '        <div style="display: none;">Pfad auf dem Server (Dateisystem): ' . $_SERVER["DOCUMENT_ROOT"] . $basepath . "/components/com_content/files/html/" . $_POST["filename"] . "</div>\n";
+                echo '        <div style="display: none;">Pfad auf dem Server (Dateisystem): ' . $html_basepath . "/" . $_POST["filename"] . "</div>\n";
                 echo "        <div>Dateigr&ouml;&szlig;e: $result Bytes</div>\n";
                 echo "    </fieldset>\n";
                 echo '    <div id="buttonContainer">'."\n";
@@ -164,6 +165,16 @@
                 }
                 if ( !empty($template) )
                     $templates[] = $template;
+            }
+        }
+        
+        if ( !empty( $_GET["oldfile"] ) ) {
+            $filename = basename($_GET["oldfile"]);
+        } else {
+            if ( !file_exists($html_basepath . "/" . "newfile.html") ) {
+                $filename = "newfile.html";
+            } else {
+                for ($i = 1; file_exists($html_basepath . "/" . ($filename = sprintf("newfile_%03d.html", $i)) ) ;$i++) ;
             }
         }
         
@@ -199,7 +210,7 @@
         echo "            </select>\n";
         echo "        </fieldset>\n";
         echo '        <div id="bottomline">'."\n";
-        echo '            Dateiname: <input type="text" id="filename" name="filename" value="' . ((!empty( $_GET["oldfile"] )) ? basename($_GET["oldfile"]) : "newfile.html") . '" />'."\n";
+        echo '            Dateiname: <input type="text" id="filename" name="filename" value="' . $filename . '" />'."\n";
         echo '            <div id="buttonContainer">'."\n";
         echo '                <input type="submit" value="Weiter" id="next" name="submit" />'."\n";
         echo '                <input type="button" value="Abbrechen" onclick="window.close();"/>'."\n";

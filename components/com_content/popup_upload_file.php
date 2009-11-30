@@ -49,7 +49,7 @@
     Fehler: Es wurden nicht alle notwendigen Parameter &uuml;bergeben.
 </body>
 <?php   } else if ( isset( $_POST["submit"] ) ) {
-            $pathinfo = pathinfo($_POST["filename"]);
+            $pathinfo = pathinfo($_FILES["file"]["name"]);
             if ( !( in_array($pathinfo["extension"], $acceptedFileExts) ) ) { ?>
 <body>
     <fieldset><legend>Datei hochgeladen:</legend>
