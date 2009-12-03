@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-11-11
+ * @version     2009-11-25
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      English language file for installation
@@ -37,5 +37,19 @@
     $_LANG["3PleaseEnterData"]              = "Please enter the data required to access the database below.";
     $_LANG["3TablePermission"]              = "The used database must either already contain a table named 'infoscreen' (no quotes) or the account used to access the database must have permission to create new tables.";
     $_LANG["3SecurityNote"]                 = "<b>Important</b>: Using the 'root' account to access the database is highly discouraged. Please be aware that the username, database name <b>and password</b> will be saved as <b>unencrypted text</b> on the file system. Therefore, please make sure that no unauthorized access to the InfoScreen folder is possible.";
+    $_LANG["3DBType"]                       = "Database type";
+    $_LANG["3NoteOnlyMySQLSupported"]       = "Note: At the moment, only MySQL databases are supported.";
+    $_LANG["3DBHost"]                       = "Database host";
+    $_LANG["3DBHostProbablyLocalhost"]      = "This is probably <i>localhost</i>.";
+    $_LANG["3DBName"]                       = "Database";
+    $_LANG["3DBUser"]                       = "Username";
+    $_LANG["3DBPass"]                       = "Password";
+    $_LANG["3DBPassConfirm"]                = "Confirm password";
+    $_LANG["3DBConTestLater"]               = "Note: The database connection will be tested in the last installation step. Should there be problems with the data you entered, you will be redirected back here to correct it.";
+    $_LANG["3JSFieldEmpty"]                 = "Field cannot be empty."; //JS!
+    $_LANG["3JSPassNotMatch"]               = "Passwords do not match."; //JS!
+    
+    $_LANG["4PageTitle"]                    = "InfoScreen Installation - Step 4: Setup and default settings";
+    $_LANG["4EnterSettings"]                = "Here you can set important settings for your InfoScreen installation. Please select and/or enter values for all settings in the <i>Mandatory settings</i> section. If you want to, you can change default settings by expanding the section <i>Default values</i>.";
 
 ?>

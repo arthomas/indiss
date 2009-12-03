@@ -1,5 +1,5 @@
 /**
- * @version     2009-11-11
+ * @version     2009-11-25
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      Installation script style definitions
@@ -54,6 +54,10 @@ table#buttonbar td#rightbox {
     font-size: 80%;
 }
 
+.padleft {
+    padding-left: 2em;
+}
+
 div#license {
     margin: 20px auto;
     border: 1px solid black;
@@ -63,22 +67,40 @@ div#license {
     max-width: 900px;
 }
 
-div#enterdata {
+div.enterdata {
     margin: 20px auto;
     border: 1px solid black;
     padding: 10px;
     max-width: 900px;
 }
 
-div#enterdata table {
+div.enterdata table {
     margin: 0 auto;
 }
 
-div#enterdata table td {
+div.enterdata table td {
     vertical-align: top;
     padding: 5px;
 }
 
-div#enterdata table td:first-child {
+div.enterdata table td:first-child {
     padding-right: 20px;
+}
+
+div.enterdata span.label {
+    cursor: default;
+}
+
+table#dvt {
+    border-collapse: collapse;
+    margin-top: 2em;
+}
+
+table#dvt th, table#dvt td {
+    border: 1px solid black;
+    padding: 3px 5px;
+}
+
+table#dvt td[colspan] {
+    padding-left: 20px;
 }
