@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-11-25
+ * @version     2009-12-03
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      Installation script, page 4: Setup and default settings
@@ -93,7 +93,7 @@
                 <div style="float:right;font-size:80%;padding-top:5px;padding-right:20px;"><a href="javascript:toggleDVT();" id="togglelink">[Show default values table]</a></div>
                 <h2 style="margin-top: 5px;">Default values</h2>
                 <div><b>Important:</b> Only change these values if you know what you are doing! They will not be checked for correctness and thus can seriously break your installation!</div>
-                <table summary="" border="0" cellpadding="0" cellspacing="0" id="dvt" style="">
+                <table summary="" border="0" cellpadding="0" cellspacing="0" id="dvt" style="display: hidden;">
                     <tbody>
                         <tr>
                             <th style="width: 25%">Setting</th><th style="width: 25%;">Value</th><th style="width: 50%;">Comment/Description</th>
@@ -101,7 +101,7 @@
 <?php include ("defaultvalues.php"); 
     foreach ($DV as $key => $values) { ?>
                         <tr>
-                            <td colspan="3" style="font-style: italic; padding-left: 3em;"><?php lang_echo("4DV_$key"); ?></td>
+                            <td colspan="3" style="font-style: italic; padding-left: 3em;"><?php lang_echo("DV_$key"); ?></td>
                         </tr>
 <?php   foreach ($values as $value) { ?>
                         <tr>

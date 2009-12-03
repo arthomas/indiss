@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-11-25
+ * @version     2009-12-03
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      Installation script, page 3: Database setup
@@ -85,7 +85,7 @@
                     <tbody>
                         <tr>
                             <td><?php lang_echo("3DBType"); ?>:</td>
-                            <td>MySQL<div class="small"><?php lang_echo("3NoteOnlyMySQLSupported"); ?></div></td>
+                            <td>MySQL<input type="hidden" name="dbtype" value="MySQL" /><div class="small"><?php lang_echo("3NoteOnlyMySQLSupported"); ?></div></td>
                         </tr>
                         <tr id="dbhostrow">
                             <td><?php lang_echo("3DBHost"); ?>:</td>
@@ -126,7 +126,7 @@
                 </table>
             </div>
 <?php foreach ($_POST as $key => $value)
-        if ( !in_array($key, array("next", "back", "dbhost", "dbname", "dbuser", "dbpass1", "dbpass2")) ) { ?>
+        if ( !in_array($key, array("next", "back", "dbtype", "dbhost", "dbname", "dbuser", "dbpass1", "dbpass2")) ) { ?>
             <input type="hidden" name="<?php echo $key; ?>" value="<?php echo $value; ?>" />
 <?php }?>
         </form>

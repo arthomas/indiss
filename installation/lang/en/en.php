@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-11-25
+ * @version     2009-12-03
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      English language file for installation
@@ -21,6 +21,7 @@
  
     $_LANG["genNext"]                       = "Next";  //Note: for Next and Back buttons, don't include the arrows. They will be added by the displaying script.
     $_LANG["genBack"]                       = "Back";
+    $_LANG["genInstall"]                    = "Install!";
 
     $_LANG["1PageTitle"]                    = "InfoScreen Installation - Step 1: Language selection";
     $_LANG["1WelcomeMsg"]                   = "Welcome to the InfoScreen installation script!";
