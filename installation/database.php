@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-12-03
+ * @version     2009-12-07
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      Specialised database connection file for installation
@@ -23,24 +23,48 @@
 //      includes the approprite file depending on chosen DB type (similar to how the
 //      languages work)
 
-	( defined("__MAIN") || defined("__INSTALL") ) or die("Restricted access.");
-	
-	//include_once("../config/config.php");
-	if (!$configfile) {
-	    die("Config file not included [database.php]");
-	}
+	defined("__INSTALL") or die("Restricted access.");
 	
 	// Open connection to MySQL server
     if(!mysql_connect($dbhost, $dbuser, $dbpass)) { 
-        die("Error: Cannot connect to MySQL server. " . mysql_error());
+        $errors[] = $log[] = ( (isset($_LANG)) ? lang("6ErrMySQLConnFailed") : "Error: Cannot connect to MySQL server; MySQL said: ") . mysql_error();
+    } else {
+        $log[] = (isset($_LANG)) ? lang("6LogMySQLConnSuccess") : "Connection to MySQL server successfully established";
+        $dbconnected = true;
     }
     
-    $dbconnected = true;
-    
-    // Open the right database
-    if(!mysql_select_db($dbname)) { 
-        mysql_close();
-        die("Error: Cannot select database. " . mysql_error());
+    if ( empty( $errors ) ) {
+        $db_list = mysql_list_dbs($link);
+        $dbfound = false;
+        for ( $i = 0; $i < mysql_num_rows($db_list); $i++ ) {
+            if ( mysql_db_name($db_list, $i) == $dbname ) {
+                $dbfound = true;
+                break;
+            }
+        }
+        
+        if ( $dbfound ) {
+            $log[] = "Database '$dbname' already exists.";
+        } else {
+            $log[] = "Database '$dbname' does not exist.";
+            
+            $result = mysql_query( "CREATE DATABASE `$dbname`" );
+            if ( !$result ) {
+                $errors[] = $log[] = "Error: Creating database '$dbname' failed; MySQL said: " . mysql_error;
+            } else {
+                $log[] = "Database '$dbname' successfully created.";
+            }
+        }
+        
+        if ( empty( $errors ) ) {
+            // Open the right database
+            if(!mysql_select_db($dbname)) { 
+                mysql_close();
+                $errors[] = $log[] = ( (isset($_LANG)) ? lang("6ErrMySQLDBSelFailed") : "Error: Cannot select database '$dbname'; MySQL said: ") . mysql_error();
+            } else {
+                $log[] = "Database '$dbname' successfully selected.";
+            }
+        }
     }
     
     
@@ -90,6 +114,16 @@
         }
     }
     
+    function makeNameValueTableQuery ( $tablename ) {
+        return 
+            "CREATE TABLE `$tablename` (
+            `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+            `name` VARCHAR( 255 ) NOT NULL ,
+            `value` VARCHAR( 255 ) NOT NULL ,
+            `comment` VARCHAR( 255 ) NOT NULL
+            )";
+    }
+    
     /**
      * 
      * @param $tablename
@@ -122,7 +156,8 @@
     }
     
     function db_commit2 ( $query, $errors, $line = 0 ) {
-        if ( !($error = db_commit($query)) ) {
+        $error = db_commit($query);
+        if ( $error !== true ) {
             $errors[] = (($line) ? $line . ": " : "" ) . $error;
             return false;
         } else {

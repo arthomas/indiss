@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-12-03
+ * @version     2009-12-07
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      English language file for installation
@@ -52,5 +52,12 @@
     
     $_LANG["4PageTitle"]                    = "InfoScreen Installation - Step 4: Setup and default settings";
     $_LANG["4EnterSettings"]                = "Here you can set important settings for your InfoScreen installation. Please select and/or enter values for all settings in the <i>Mandatory settings</i> section. If you want to, you can change default settings by expanding the section <i>Default values</i>.";
+    
+    
+    
+    $_LANG["6ErrMySQLConnFailed"]           = "Error: Cannot connect to MySQL server; MySQL said: ";
+    $_LANG["6ErrMySQLTableSelFailed"]       = "Error: Cannot select database; MySQL said: ";
+    
+    $_LANG["6LogMySQLConnSuccess"]          = "Connection to MySQL server successfully established";
 
 ?>
