@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-12-07
+ * @version     2009-12-11
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      Installation script, page 6: Installation and install report
@@ -31,7 +31,49 @@
     unset( $errors );
     unset( $log );
     
-    include_once("database.php");
+    include_once("db_functions.php");
+    
+    // Open connection to MySQL server
+    if(!mysql_connect($dbhost, $dbuser, $dbpass)) { 
+        $errors[] = $log[] = ( (isset($_LANG)) ? lang("6ErrMySQLConnFailed") : "Error: Cannot connect to MySQL server; MySQL said: ") . mysql_error();
+    } else {
+        $log[] = (isset($_LANG)) ? lang("6LogMySQLConnSuccess") : "Connection to MySQL server successfully established";
+        $dbconnected = true;
+    }
+    
+    if ( empty( $errors ) ) {
+        $db_list = mysql_list_dbs($link);
+        $dbfound = false;
+        for ( $i = 0; $i < mysql_num_rows($db_list); $i++ ) {
+            if ( mysql_db_name($db_list, $i) == $dbname ) {
+                $dbfound = true;
+                break;
+            }
+        }
+        
+        if ( $dbfound ) {
+            $log[] = "Database '$dbname' already exists.";
+        } else {
+            $log[] = "Database '$dbname' does not exist.";
+            
+            $result = mysql_query( "CREATE DATABASE `$dbname`" );
+            if ( !$result ) {
+                $errors[] = $log[] = "Error: Creating database '$dbname' failed; MySQL said: " . mysql_error;
+            } else {
+                $log[] = "Database '$dbname' successfully created.";
+            }
+        }
+        
+        if ( empty( $errors ) ) {
+            // Open the right database
+            if(!mysql_select_db($dbname)) { 
+                mysql_close();
+                $errors[] = $log[] = ( (isset($_LANG)) ? lang("6ErrMySQLDBSelFailed") : "Error: Cannot select database '$dbname'; MySQL said: ") . mysql_error();
+            } else {
+                $log[] = "Database '$dbname' successfully selected.";
+            }
+        }
+    }
     
     if ( empty( $errors ) ) {  //if there was no error during opening DB connection in database.php
     

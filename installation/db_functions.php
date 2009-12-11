@@ -1,9 +1,9 @@
 <?php
 /**
- * @version     2009-12-07
+ * @version     2009-12-11
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
- * @module      Specialised database connection file for installation
+ * @module      Specialised database file for installation (containing only utility functions)
  * 
  * @license     This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU General Public License as published by
@@ -24,48 +24,6 @@
 //      languages work)
 
 	defined("__INSTALL") or die("Restricted access.");
-	
-	// Open connection to MySQL server
-    if(!mysql_connect($dbhost, $dbuser, $dbpass)) { 
-        $errors[] = $log[] = ( (isset($_LANG)) ? lang("6ErrMySQLConnFailed") : "Error: Cannot connect to MySQL server; MySQL said: ") . mysql_error();
-    } else {
-        $log[] = (isset($_LANG)) ? lang("6LogMySQLConnSuccess") : "Connection to MySQL server successfully established";
-        $dbconnected = true;
-    }
-    
-    if ( empty( $errors ) ) {
-        $db_list = mysql_list_dbs($link);
-        $dbfound = false;
-        for ( $i = 0; $i < mysql_num_rows($db_list); $i++ ) {
-            if ( mysql_db_name($db_list, $i) == $dbname ) {
-                $dbfound = true;
-                break;
-            }
-        }
-        
-        if ( $dbfound ) {
-            $log[] = "Database '$dbname' already exists.";
-        } else {
-            $log[] = "Database '$dbname' does not exist.";
-            
-            $result = mysql_query( "CREATE DATABASE `$dbname`" );
-            if ( !$result ) {
-                $errors[] = $log[] = "Error: Creating database '$dbname' failed; MySQL said: " . mysql_error;
-            } else {
-                $log[] = "Database '$dbname' successfully created.";
-            }
-        }
-        
-        if ( empty( $errors ) ) {
-            // Open the right database
-            if(!mysql_select_db($dbname)) { 
-                mysql_close();
-                $errors[] = $log[] = ( (isset($_LANG)) ? lang("6ErrMySQLDBSelFailed") : "Error: Cannot select database '$dbname'; MySQL said: ") . mysql_error();
-            } else {
-                $log[] = "Database '$dbname' successfully selected.";
-            }
-        }
-    }
     
     
     /**
