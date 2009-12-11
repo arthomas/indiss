@@ -21,12 +21,7 @@
  
     defined("__INSTALL") or die("Restricted access.");
     
-    
-    
-    $dbhost = $_POST["dbhost"];
-    $dbname = $_POST["dbname"];
-    $dbuser = $_POST["dbuser"];
-    $dbpass = $_POST["dbpass1"];
+    $fatal = false;  //this will remember if there was a fatal error
     
     unset( $errors );
     unset( $log );
@@ -34,15 +29,17 @@
     include_once("db_functions.php");
     
     // Open connection to MySQL server
-    if(!mysql_connect($dbhost, $dbuser, $dbpass)) { 
-        $errors[] = $log[] = ( (isset($_LANG)) ? lang("6ErrMySQLConnFailed") : "Error: Cannot connect to MySQL server; MySQL said: ") . mysql_error();
+    if(!mysql_connect($_POST["dbhost"], $_POST["dbuser"], $_POST["dbpass1"])) { 
+        $errors[] = $log[] = lang("6ErrMySQLConnFailed") . mysql_error();
+        $fatal = true;
     } else {
-        $log[] = (isset($_LANG)) ? lang("6LogMySQLConnSuccess") : "Connection to MySQL server successfully established";
+        $log[] = lang("6LogMySQLConnSuccess");
         $dbconnected = true;
     }
     
     if ( empty( $errors ) ) {
         $db_list = mysql_list_dbs($link);
+        $dbname = $_POST["dbname"];
         $dbfound = false;
         for ( $i = 0; $i < mysql_num_rows($db_list); $i++ ) {
             if ( mysql_db_name($db_list, $i) == $dbname ) {
@@ -59,6 +56,8 @@
             $result = mysql_query( "CREATE DATABASE `$dbname`" );
             if ( !$result ) {
                 $errors[] = $log[] = "Error: Creating database '$dbname' failed; MySQL said: " . mysql_error;
+                $fatal = true;
+                //note: should we insert an option to continue even if creating fails?
             } else {
                 $log[] = "Database '$dbname' successfully created.";
             }
@@ -68,107 +67,89 @@
             // Open the right database
             if(!mysql_select_db($dbname)) { 
                 mysql_close();
-                $errors[] = $log[] = ( (isset($_LANG)) ? lang("6ErrMySQLDBSelFailed") : "Error: Cannot select database '$dbname'; MySQL said: ") . mysql_error();
+                $errors[] = $log[] = lang("6ErrMySQLDBSelFailed") . mysql_error();
+                $fatal = true;
             } else {
                 $log[] = "Database '$dbname' successfully selected.";
             }
+            
+            if ( empty( $errors ) ) {  //if there was no error during opening DB connection in database.php
+    
+                /*Create Table for user login data*/
+                $query = 
+                    "CREATE TABLE `users` (
+                    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+                    `username` VARCHAR( 255 ) NOT NULL ,
+                    `password` VARCHAR( 255 ) NOT NULL ,
+                    `email` VARCHAR( 255 ) NOT NULL ,
+                    `type` ENUM( 'admin', 'user' ) NOT NULL
+                    )";
+                db_commit2( $query, $errors );
+                
+                /*Create Table for ticker data*/
+                $query = 
+                    "CREATE TABLE `com_tickers` (
+                    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+                    `caption` VARCHAR( 255 ) NOT NULL ,
+                    `content` VARCHAR( 255 ) NOT NULL ,
+                    `start` DATETIME NOT NULL ,
+                    `end` DATETIME NOT NULL,
+                    `enabled` BOOL NOT NULL,
+                    `deleted` BOOL NOT NULL
+                    )";
+                db_commit2( $query, $errors );
+                
+                /*Create Table for content data*/
+                $query = 
+                    "CREATE TABLE `com_content` (
+                    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+                    `name` VARCHAR( 255 ) NOT NULL ,
+                    `url` VARCHAR( 255 ) NOT NULL ,
+                    `displaytime` INT NOT NULL,
+                    `start` DATETIME NOT NULL ,
+                    `end` DATETIME NOT NULL,
+                    `enabled` BOOL NOT NULL,
+                    `deleted` BOOL NOT NULL
+                    )";
+                db_commit2( $query, $errors );
+            
+                /*Create Table for error log*/
+                $query = 
+                    "CREATE TABLE `errors` (
+                    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+                    `date` DATETIME NOT NULL ,
+                    `content` VARCHAR( 255 ) NOT NULL ,
+                    `new` BOOL NOT NULL
+                    )";
+                db_commit2( $query, $errors );
+            
+               
+                /*Create standard name-value tables and create default values*/
+                foreach ($DV as $key => $values) {
+                    $query = makeNameValueTableQuery($key);
+                    db_commit2( $query, $errors );
+                    if ( !empty( $values ) ) {
+                        foreach ($values as $value) {
+                            $query =
+                                "INSERT INTO `$key` (`name`, `value`, `comment`)" .
+                                "VALUES (" .
+                                    "'" . $value['name'] . "'," .
+                                    "'" . $_POST["dvt;".$key.";".$value["name"]] . "'," .
+                                    "'" . $value['comment'] . "'" .
+                                ")";
+                            db_commit2( $query, $errors );
+                        }
+                    }
+                }
+            
+            } else {
+                $errors[] = $log[] = "Connection to database not successful. Aborting...";
+            }
+            
         }
     }
     
-    if ( empty( $errors ) ) {  //if there was no error during opening DB connection in database.php
     
-        /*Create Table for user login data*/
-        $query = 
-            "CREATE TABLE `users` (
-            `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-            `username` VARCHAR( 255 ) NOT NULL ,
-            `password` VARCHAR( 255 ) NOT NULL ,
-            `email` VARCHAR( 255 ) NOT NULL ,
-            `type` ENUM( 'admin', 'user' ) NOT NULL
-            )";
-        db_commit2( $query, $errors );
-    
-        /*Create Table for global options*/
-        $query = makeNameValueTableQuery("global_options");
-        db_commit2( $query, $errors );
-        $query = 
-            "INSERT INTO `global_options`
-            (`name`, `value`) 
-            VALUES
-            ('display_new_errors', 'admin')";
-        db_commit2( $query, $errors );
-    
-        /*Create Table for global view options*/
-        $query = makeNameValueTableQuery("global_view_options");
-        db_commit2( $query, $errors );
-    
-        /*Create Table for default view options*/
-        $query = makeNameValueTableQuery("view_default_view");
-        db_commit2( $query, $errors );
-    
-        /*Create Table for ticker options*/
-        $query = makeNameValueTableQuery("com_tickers_options");
-        db_commit2( $query, $errors );
-        /*Create Table for ticker data*/
-        $query = 
-            "CREATE TABLE `com_tickers` (
-            `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-            `caption` VARCHAR( 255 ) NOT NULL ,
-            `content` VARCHAR( 255 ) NOT NULL ,
-            `start` DATETIME NOT NULL ,
-            `end` DATETIME NOT NULL,
-            `enabled` BOOL NOT NULL,
-            `deleted` BOOL NOT NULL
-            )";
-        db_commit2( $query, $errors );
-    
-        /*Create Table for content options*/
-        $query = makeNameValueTableQuery("com_content_options");
-        db_commit2( $query, $errors );
-        $query =
-            "INSERT INTO `com_content_options`
-            (`name`, `value`)
-            VALUES
-            ('default_display_time', 120),
-            ('error_display_time', 10),
-            ('max_width', 'auto'),
-            ('max_height', 'auto')";
-        db_commit2( $query, $errors );
-        /*Create Table for content data*/
-        $query = 
-            "CREATE TABLE `com_content` (
-            `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-            `name` VARCHAR( 255 ) NOT NULL ,
-            `url` VARCHAR( 255 ) NOT NULL ,
-            `displaytime` INT NOT NULL,
-            `start` DATETIME NOT NULL ,
-            `end` DATETIME NOT NULL,
-            `enabled` BOOL NOT NULL,
-            `deleted` BOOL NOT NULL
-            )";
-        db_commit2( $query, $errors );
-    
-        /*Create Table for error log*/
-        $query = 
-            "CREATE TABLE `errors` (
-            `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-            `date` DATETIME NOT NULL ,
-            `content` VARCHAR( 255 ) NOT NULL ,
-            `new` BOOL NOT NULL
-            )";
-        db_commit2( $query, $errors );
-        
-        /*Create Table for substitution table options*/
-        $query = makeNameValueTableQuery("com_substtable_options");
-        db_commit2( $query, $errors );
-        
-        /*Create Table for headline options*/
-        $query = makeNameValueTableQuery("com_headline_options");
-        db_commit2( $query, $errors );
-    
-    } else {
-        $errors[] = $log[] = "Connection to database not successful. Aborting...";
-    }
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -198,7 +179,19 @@
 <body>
     <fieldset id="container"><legend><?php lang_echo("6PageTitle"); ?></legend>
         <form method="post" action="?step=<?php echo ($step + 1); ?>">
-            <p style="margin-top: 0;"><?php lang_echo("6Success"); ?></p>
+            <p style="margin-top: 0;">
+                <?php
+                if ( empty( $errors ) && !$fatal ) { 
+                    lang_echo("6Success");
+                } else {
+                    if ( $fatal ) {
+                        echo "Es trat ein fataler Fehler auf. Die Installation wurde abgebrochen.<br />\n";
+                    }
+                    echo "Es traten " . ( (empty($errors)) ? "keine" : count( $errors ) ) . " Fehler auf.<br />\n";
+                } 
+                echo "Es wurden " . ( (empty($warnings)) ? "keine" : count( $warnings ) ) . " Warnungen ausgegeben." 
+                ?> 
+            </p>
             <div class="enterdata">
 <?php if (!empty($errors)) { ?>
                 <div style="float:right;font-size:80%;"><a id="errorstoggle" href="javascript:toggleVis('errors', 'errorstoggle', 'error list');">Show error list</a></div><h3>Errors</h3>
