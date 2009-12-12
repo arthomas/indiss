@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-12-11
+ * @version     2009-12-12
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      Installation script, page 6: Installation and install report
@@ -84,7 +84,12 @@
                     `email` VARCHAR( 255 ) NOT NULL ,
                     `type` ENUM( 'admin', 'user' ) NOT NULL
                     )";
-                db_commit2( $query, $errors );
+                $msg = "Create table 'users' for user login data... ";
+                if ( db_commit2( $query, $errors ) )
+                    $msg .= "Success!";
+                else
+                    $msg .= "Error!";
+                $log[] = $msg;
                 
                 /*Create Table for ticker data*/
                 $query = 
@@ -97,7 +102,12 @@
                     `enabled` BOOL NOT NULL,
                     `deleted` BOOL NOT NULL
                     )";
-                db_commit2( $query, $errors );
+                $msg = "Create table 'users' for user login data... ";
+                if ( db_commit2( $query, $errors ) )
+                    $msg .= "Success!";
+                else
+                    $msg .= "Error!";
+                $log[] = $msg;
                 
                 /*Create Table for content data*/
                 $query = 
@@ -111,7 +121,12 @@
                     `enabled` BOOL NOT NULL,
                     `deleted` BOOL NOT NULL
                     )";
-                db_commit2( $query, $errors );
+                $msg = "Create table 'com_content' for content data... ";
+                if ( db_commit2( $query, $errors ) )
+                    $msg .= "Success!";
+                else
+                    $msg .= "Error!";
+                $log[] = $msg;
             
                 /*Create Table for error log*/
                 $query = 
@@ -121,13 +136,24 @@
                     `content` VARCHAR( 255 ) NOT NULL ,
                     `new` BOOL NOT NULL
                     )";
-                db_commit2( $query, $errors );
+                $msg = "Create table 'errors' for error log... ";
+                if ( db_commit2( $query, $errors ) )
+                    $msg .= "Success!";
+                else
+                    $msg .= "Error!";
+                $log[] = $msg;
             
-               
+                $log[] = "Creating standard name-value tables and saving default values:";
+                
                 /*Create standard name-value tables and create default values*/
                 foreach ($DV as $key => $values) {
                     $query = makeNameValueTableQuery($key);
-                    db_commit2( $query, $errors );
+                    $msg = "Create name-value table '$key'... ";
+                    if ( db_commit2( $query, $errors ) )
+                        $msg .= "Success!";
+                    else
+                        $msg .= "Error!";
+                    $log[] = $msg;
                     if ( !empty( $values ) ) {
                         foreach ($values as $value) {
                             $query =
@@ -137,7 +163,12 @@
                                     "'" . $_POST["dvt;".$key.";".$value["name"]] . "'," .
                                     "'" . $value['comment'] . "'" .
                                 ")";
-                            db_commit2( $query, $errors );
+                            $msg = "Saving setting '" . $value["name"] . "' with value '" . $_POST["dvt;".$key.";".$value["name"]] . "' to table '$key' ... ";
+                            if ( db_commit2( $query, $errors ) )
+                                $msg .= "Success!";
+                            else
+                                $msg .= "Error!";
+                            $log[] = $msg;
                         }
                     }
                 }
@@ -196,6 +227,9 @@
 <?php if (!empty($errors)) { ?>
                 <div style="float:right;font-size:80%;"><a id="errorstoggle" href="javascript:toggleVis('errors', 'errorstoggle', 'error list');">Show error list</a></div><h3>Errors</h3>
                 <ul class="level1" id="errors" style="display:none;">
+<?php foreach ($errors as $entry) { ?>
+                    <li><?php echo $entry; ?></li>
+<?php } ?>
                 </ul>
 <?php } else { ?>
                 <h3>No errors occurred!</h3>
@@ -204,7 +238,9 @@
             <div class="enterdata">
                 <div style="float:right;font-size:80%;"><a id="detailstoggle" href="javascript:toggleVis('details', 'detailstoggle', 'installation log');">Show installation log</a></div><h3>Detailed installation log</h3>
                 <ul class="level1" id="details" style="display:none;">
-                    <li>Test</li>
+<?php foreach ($log as $entry) { ?>
+                    <li><?php echo $entry; ?></li>
+<?php } ?>
                 </ul>
             </div>
             <div>
