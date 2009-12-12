@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-09-28
+ * @version     2009-12-12
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      CLI script to convert the substitution table to displayable HTML
@@ -38,7 +38,7 @@
     $today = strtotime(date("Y-m-d") . " 00:00:00");
     
     $outputdir = dirname(__FILE__) . "/.." . getValueByNameD("com_substtable_options", "default_output_dir", "/cli_scripts"); //remember where to put the output files
-    $tempdir = dirname(__FILE__) . "/.." . getValueByNameD("com_substtable_options", "default_temp_dir", "/temp/convert_substtable") . "/";
+    $tempdir =   dirname(__FILE__) . "/.." . getValueByNameD("com_substtable_options", "default_temp_dir", "/temp/convert_substtable") . "/";  //remember where to put temporary stuff
     
     if ( !file_exists( $tempdir ) )
         mkdir( $tempdir, 0777, true );
@@ -47,45 +47,112 @@
     $silent = false;
     $cron = false;
     $debug = false;
+    $num_days = 2;
     
-    for ($i = 1; $i < $argc; $i++) {
-        if ( $argv[$i][0] == '-' ) {
-            if ( ($argv[$i] == '-V') || (strcasecmp($argv[$i], '--version') == 0) ) {
-                //output version info
-            } else if ( strcasecmp($argv[$i], '--usage') == 0 ) {
-                //output usage info
-            } else if ( ($argv[$i] == '-h') || ($argv[$i] == '-?') || (strcasecmp($argv[$i], '--help') == 0) ) {
-                //output help
-            } else if ( ($argv[$i] == '-v') || (strcasecmp($argv[$i], '--verbose') == 0) ) {
-                $verbose = true;
-                $silent = false; 
-                echo "\tVerbose mode on.\n";
-            } else if ( ($argv[$i] == '-s') || (strcasecmp($argv[$i], '--silent') == 0) ) {
-                $silent = true;
-                $verbose = false;
-            } else if ( ($argv[$i] == '-c') || (strcasecmp($argv[$i], '--cron') == 0) ) {
-                $silent = true;
-                $cron = true;
-                $verbose = false;
-            } else if ( ($argv[$i] == '-d') || (strcasecmp($argv[$i], '--debug') == 0) ) {
-                $debug = true;
-                if ( !$silent )
-                    echo "\tDebug mode on.\n";
-            } else if ( ($argv[$i] == '-o') || (strcasecmp($argv[$i], '--output') == 0) ) {
-                if ( $argv[$i+1][0] != '-' )
-                    $outputdir = $argv[++$i];
-            } else if ( ($argv[$i] == '-i') || (strcasecmp($argv[$i], '--input') == 0) ) {
-                if ( $argv[$i+1][0] != '-' )
-                    $filename = $argv[++$i];
-            } else if ( ($argv[$i] == '-l') || (strcasecmp($argv[$i], '--locale') == 0) ) {
-                if ( $argv[$i+1][0] != '-' )
-                    $locale = $argv[++$i];
+    if ( $argc == 1 ) {
+        $showusage = true;
+    } else {
+        for ($i = 1; $i < $argc; $i++) {
+            if ( $argv[$i][0] == '-' ) {
+                if ( ($argv[$i] == '-V') || (strcasecmp($argv[$i], '--version') == 0) ) {
+                    $showversion = true;
+                } else if ( strcasecmp($argv[$i], '--usage') == 0 ) {
+                    $showusage = true;
+                } else if ( ($argv[$i] == '-h') || ($argv[$i] == '-?') || (strcasecmp($argv[$i], '--help') == 0) ) {
+                    $showhelp = true;
+                } else if ( ($argv[$i] == '-v') || (strcasecmp($argv[$i], '--verbose') == 0) ) {
+                    $verbose = true;
+                    $silent = false; 
+                    echo "\tVerbose mode on.\n";
+                } else if ( ($argv[$i] == '-s') || (strcasecmp($argv[$i], '--silent') == 0) ) {
+                    $silent = true;
+                    $verbose = false;
+                } else if ( ($argv[$i] == '-c') || (strcasecmp($argv[$i], '--cron') == 0) ) {
+                    $silent = true;
+                    $cron = true;
+                    $verbose = false;
+                } else if ( ($argv[$i] == '-d') || (strcasecmp($argv[$i], '--debug') == 0) ) {
+                    $debug = true;
+                    if ( !$silent )
+                        echo "\tDebug mode on.\n";
+                } else if ( ($argv[$i] == '-o') || (strcasecmp($argv[$i], '--output') == 0) ) {
+                    if ( $argv[$i+1][0] != '-' )
+                        $outputdir = $argv[++$i];
+                } else if ( ($argv[$i] == '-i') || (strcasecmp($argv[$i], '--input') == 0) ) {
+                    if ( $argv[$i+1][0] != '-' )
+                        $filename = $argv[++$i];
+                } else if ( ($argv[$i] == '-l') || (strcasecmp($argv[$i], '--locale') == 0) ) {
+                    if ( $argv[$i+1][0] != '-' )
+                        $locale = $argv[++$i];
+                } else if ( (strcasecmp($argv[$i], '--numdays') == 0) ) {
+                    if ( $argv[$i+1][0] != '-' )
+                        $num_days = $argv[++$i];
+                }
+            } else {
+                if ( $i == $argc-1 ) {
+                    $filename = $argv[$i];
+                } else if ( !$silent )
+                    echo "\tError: Unknown option '$argv[$i]'\n";
             }
-        } else {
-            if ( $i == $argc-1 ) {
-                $filename = $argv[$i];
-            } else if ( !$silent )
-                echo "\tError: Unknown option '$argv[$i]'\n";
+        }
+    }
+    
+    if ( !$silent && !$cron ) {
+        echo
+            "\n\tInfoScreen substitution table conversion script\n" .
+            "\tCopyright (c) 2009 Patrick Lehner <lehner.patrick@gmx.de>\n\n" .
+            "  This program is distributed in the hope that it will be useful,\n" .
+            "  but WITHOUT ANY WARRANTY; without even the implied warranty of\n" .
+            "  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n" .
+            "  GNU General Public License for more details.\n\n";
+        if ( $showversion ) {
+            echo
+                "\tInfoScreen v$version\n" .
+                "\tConversion script v0.8\n" .
+                "\thttp://infoscreen.sourceforge.net\n" .
+                "\thttps://sourceforge.net/projects/infoscreen/\n";
+            exit( 0 );
+        } else if ( $showusage ) {
+            echo
+                "  Conversion script usage:\n" . 
+                "    php convert_substtable.php -V|-u|-h\n" .
+                "   OR\n" .
+                "    php convert_substtable.php [[-v] [-d] | [-s] | [-c]] [-l <locale string>] [-o <output dir>] -i <input file>\n" .
+                "   OR\n" .
+                "    php convert_substtable.php [[-v] [-d] | [-s] | [-c]] [-l <locale string>] [-o <output dir>] <input file>\n\n" .
+                "  For more information use the -h switch or see the documentation.\n";
+            exit( 0 );
+        } else if ( $showhelp ) {
+            echo
+                "Conversion script help:\n\n" .
+                "  On most systems you will call this script by entering this on the console:\n" .
+                "    php convert_substtable.php [options] <input file>\n\n".
+                "  The above call is correct if your CWD is the script's directory; otherwise\n" .
+                "  you will have to add the relative or absolute path to the script file. If\n" .
+                "  you do not add any parameters, the script will display usage info (the same\n" .
+                "  as when you enter --usage).\n\n" .
+                "  All options start with one or two dashes (- or --, short or long option\n" .
+                "  names respectively); if an option takes a parameter, separate that param\n" .
+                "  by a space (don't start it with a dash).\n" .
+                "  Note: Short options are case-sensitive; long options are not.\n\n" .
+                "  List of options:\n" .
+                "  -V,--version\n" .
+                "     --usage\n" .
+                "  -h,--help,-?\n" .
+                "  -v,--verbose     Excludes --silent and --cron\n" .
+                "  -s,--silent      Excludes --verbose\n" .
+                "  -c,--cron        Implies --silent, excludes --verbose\n" .
+                "  -d,--debug       Recommended to include --verbose with this\n" .
+                "  -o,--output      Output file\n" .
+                "  -i,--input       Input file\n" .
+                "  -l,--locale      Locale string to be used for weekday names\n" .
+                "     --numdays     Number of days to display, default is 2\n" .
+                "     --date        Date for which to start creating the table\n" .             //TODO: convert script: create display for a different date
+                "     --laterthan   Only displays classes later than a certain number\n" .      //TODO: convert script: only display classes after a certain time (cut off earlier)
+                "\n" .
+                "  If you are using a non-scrollable terminal, it is recommended you refer to\n" .
+                "  the documentation file or website to see the full help.";
+            exit( 0 );
         }
     }
 
@@ -138,6 +205,7 @@
         global $outputdir;
         global $debug;
         global $today;
+        global $num_days;
     
         if ( empty( $filename ) ) {
             echo "\tError: Empty filename\n";
@@ -203,7 +271,7 @@
         foreach ($table as $date => $thisDate) {
             $_date = strtotime(str_replace(".", "-", $date) . date("Y")); //modify time stamp so we can compare it
             if ( $debug ) echo "date=$date; _date=$_date (" . date("Y-m-d", $_date) . ")";
-            if ( ( $_date >= $today ) && ( count( $_table ) < 2 ) ) {
+            if ( ( $_date >= $today ) && ( count( $_table ) < $num_days ) ) {
                 $_table[$_date] = $table[$date];
                 if ( $debug ) echo " -- accepted";
             }
@@ -453,7 +521,7 @@
         }                                                                                                           //TODO: convert script: move template to file
 
     if ( !$cron ) {
-        echo "Success.\n\n";
+        echo "\n  Success.\n\n";
     } else {
         $log = sprintf("[%s] Input file: '%s'; wrote %d pages; Success.\n", date("Y-m-d h:n:s"), $filename, $j);
         file_put_contents( dirname($argv[0]) . "/../logs/convert_substtable.log", $log, FILE_APPEND );
