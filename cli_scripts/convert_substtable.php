@@ -4,6 +4,7 @@
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      CLI script to convert the substitution table to displayable HTML
+ * @note        this script is customized for gpUntis database output
  * 
  * @license     This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU General Public License as published by
@@ -35,19 +36,19 @@
         
     setlocale(LC_TIME, 'de_DE', 'de_DE', 'deu_deu', 'de', 'ge'); //set locale (to get week day names in german)
     
-    $today = strtotime(date("Y-m-d") . " 00:00:00");
-    
+    //initialize variables
     $outputdir = dirname(__FILE__) . "/.." . getValueByNameD("com_substtable_options", "default_output_dir", "/cli_scripts"); //remember where to put the output files
     $tempdir =   dirname(__FILE__) . "/.." . getValueByNameD("com_substtable_options", "default_temp_dir", "/temp/convert_substtable") . "/";  //remember where to put temporary stuff
-    
-    if ( !file_exists( $tempdir ) )
-        mkdir( $tempdir, 0777, true );
-    
     $verbose = false;
     $silent = false;
     $cron = false;
     $debug = false;
-    $num_days = 2;
+    $numDays = 2;
+    $displayDate = $today = strtotime(date("Y-m-d") . " 00:00:00");
+    $firstClass = 1;
+    
+    if ( !file_exists( $tempdir ) )
+        mkdir( $tempdir, 0777, true );    
     
     if ( $argc == 1 ) {
         $showusage = true;
@@ -86,7 +87,13 @@
                         $locale = $argv[++$i];
                 } else if ( (strcasecmp($argv[$i], '--numdays') == 0) ) {
                     if ( $argv[$i+1][0] != '-' )
-                        $num_days = $argv[++$i];
+                        $numDays = $argv[++$i];
+                } else if ( (strcasecmp($argv[$i], '--date') == 0) ) {
+                    if ( $argv[$i+1][0] != '-' )
+                        $displayDate = strtotime($argv[++$i] . " 00:00:00"); //TODO: convert script: check for right format; maybe also suport more different (distict) formats
+                } else if ( (strcasecmp($argv[$i], '--firstclass') == 0) ) {
+                    if ( $argv[$i+1][0] != '-' )
+                        $firstClass = $argv[++$i];
                 }
             } else {
                 if ( $i == $argc-1 ) {
@@ -97,9 +104,11 @@
         }
     }
     
+    
+    //display info if necessary: (Short) License, version, usage, help
     if ( !$silent && !$cron ) {
         echo
-            "\n\tInfoScreen substitution table conversion script\n" .
+            "\n\tInfoScreen substitution table conversion script for gpUntis data\n" .
             "\tCopyright (c) 2009 Patrick Lehner <lehner.patrick@gmx.de>\n\n" .
             "  This program is distributed in the hope that it will be useful,\n" .
             "  but WITHOUT ANY WARRANTY; without even the implied warranty of\n" .
@@ -136,19 +145,25 @@
                 "  by a space (don't start it with a dash).\n" .
                 "  Note: Short options are case-sensitive; long options are not.\n\n" .
                 "  List of options:\n" .
-                "  -V,--version\n" .
-                "     --usage\n" .
-                "  -h,--help,-?\n" .
-                "  -v,--verbose     Excludes --silent and --cron\n" .
-                "  -s,--silent      Excludes --verbose\n" .
-                "  -c,--cron        Implies --silent, excludes --verbose\n" .
-                "  -d,--debug       Recommended to include --verbose with this\n" .
-                "  -o,--output      Output file\n" .
-                "  -i,--input       Input file\n" .
-                "  -l,--locale      Locale string to be used for weekday names\n" .
-                "     --numdays     Number of days to display, default is 2\n" .
-                "     --date        Date for which to start creating the table\n" .             //TODO: convert script: create display for a different date
-                "     --laterthan   Only displays classes later than a certain number\n" .      //TODO: convert script: only display classes after a certain time (cut off earlier)
+                "  -V,--version     Displays info about the version of this script\n" .
+                "     --usage       Displays short info on how to use this script\n" .
+                "  -h,--help,-?     Displays this help\n" .
+                "  -v,--verbose     Verbose output mode. Excludes --silent and --cron\n" .
+                "  -s,--silent      Silent - no output. Excludes --verbose\n" .
+                "  -c,--cron        Creates log at default log location. Useful when running\n" .
+                "                   this script as cron job or by other automated means.\n".
+                "                   Implies --silent, excludes --verbose\n" .
+                "  -d,--debug       Outputs debug information. Recommended to include --verbose\n".
+                "                   with this\n" .
+                "  -o,--output PATH Output directory\n" .
+                "  -i,--input PATH  Input file\n" .
+                "  -l,--locale XX   Locale string to be used for weekday names. Note: this is\n".
+                "                   system-dependent. Try out until you find the one that works\n".
+                "                   for you\n" .
+                "     --numdays X   Displays the substitution for X days; default is 2\n" .
+                "     --date YYYY-MM-DD  Date from which to start creating the table. Default is\n" .
+                "                   \"today\" (current date of this system)\n" .
+                "     --firstclass  Only displays classes later than a certain number\n" .
                 "\n" .
                 "  If you are using a non-scrollable terminal, it is recommended you refer to\n" .
                 "  the documentation file or website to see the full help.";
@@ -187,6 +202,11 @@
         return strcasecmp($a, $b);
     }
     
+    /**
+     * @function check_if_ignore
+     * @param $line
+     * @return TRUE if the line should be ignored, FALSE if it should be included
+     */
     function check_if_ignore($line) {  //TODO: convert script: make blacklist configurable (backend, database)
         if ( in_array( $line["Art"], array("Freisetzung", "Pausenaufsicht") ) )
             return true;
@@ -200,12 +220,20 @@
         return false;
     }
     
+    /**
+     * @function read_file
+     * @param $filename
+     * @return The sorted and filtered substitution table in a multi-dimensional array
+     * @note Depends on $outputdir, $debug, $today, $firstClass, $displayDate and $numDays
+     */
     function read_file ($filename) {
         
         global $outputdir;
         global $debug;
         global $today;
-        global $num_days;
+        global $displayDate;
+        global $numDays;
+        global $firstClass;
     
         if ( empty( $filename ) ) {
             echo "\tError: Empty filename\n";
@@ -243,20 +271,23 @@
         //create the array of columns we have to delete
         $unwanted_cols = array_diff($col_names, $wanted_cols);
         
+        //sort out unwanted columns and put data into multi-dimensional array
         for ($i = 1; $i < count($subst_file); $i++) {
-            $line = $line_ = array_combine($col_names, explode("\t", rtrim($subst_file[$i], "\r\n\0"))); //create an associative array from the headres and the values
+            $line = $line_ = array_combine($col_names, explode("\t", rtrim($subst_file[$i], "\r\n\0"))); //create an associative array from the headers and the values
             foreach ( $unwanted_cols as $value )         //delete all unwanted items
                 unset( $line[$value] );
             foreach ($line as $key => $entry)           //remove the place-holder string placed in empty cells
                 if ( $entry == "'---" )
                     $line[$key] = "";
-            if ( !check_if_ignore( $line_ ) )        //remove some items we dont want to display (actually, add only those we want)
-                if ( strpos($line_["Klasse(n)"], ",") !== false ) {
-                    $classes = explode(", ", $line_["Klasse(n)"]);
-                    foreach ($classes as $class)
-                        $table[$line_["Datum"]][strtoupper($class)][$line_["Stunde"]][] = $line;
-                } else {
-                    $table[$line_["Datum"]][strtoupper($line_["Klasse(n)"])][$line_["Stunde"]][] = $line;     //create our actual multi-dimensional array
+            if ( !check_if_ignore( $line_ ) )        //remove some items we dont want to display (actually, add only those we want into a new array)
+                if ( !preg_match('/^\d+$/i', $line_["Stunde"]) || $line_["Stunde"] >= $firstClass ) {
+                    if ( strpos($line_["Klasse(n)"], ",") !== false ) {
+                        $classes = explode(", ", $line_["Klasse(n)"]);
+                        foreach ($classes as $class)
+                            $table[strtotime(str_replace(".", "-", $line_["Datum"]) . date("Y"))][strtoupper($class)][$line_["Stunde"]][] = $line;
+                    } else {
+                        $table[strtotime(str_replace(".", "-", $line_["Datum"]) . date("Y"))][strtoupper($line_["Klasse(n)"])][$line_["Stunde"]][] = $line;     //create our actual multi-dimensional array
+                    }
                 }
         }
         
@@ -266,20 +297,21 @@
         //if ( $debug )
             //var_dump(array_keys($table));
         
-        if ( $debug ) echo "time=".time()." (".date("Y-m-d").")\n";
-        //pick only two days to display
+        ksort($table);
+        
+        if ( $debug ) echo "time=".time()." (".date("Y-m-d").") / displayDate=$displayDate (".date("Y-m-d",$displayDate).")\n";
+        //pick only the requested number of days to display and copy them into a new array
         foreach ($table as $date => $thisDate) {
-            $_date = strtotime(str_replace(".", "-", $date) . date("Y")); //modify time stamp so we can compare it
-            if ( $debug ) echo "date=$date; _date=$_date (" . date("Y-m-d", $_date) . ")";
-            if ( ( $_date >= $today ) && ( count( $_table ) < $num_days ) ) {
-                $_table[$_date] = $table[$date];
+            if ( $debug ) echo "date=$date; (" . date("Y-m-d", $date) . ")";
+            if ( ( $date >= $displayDate ) && ( count( $_table ) < $numDays ) ) {
+                $_table[$date] = $table[$date]; //copy the data from the old table with the old timestamp to the new table with the integer timestamp
                 if ( $debug ) echo " -- accepted";
             }
             if ( $debug ) echo "\n";
         }
         
         if ( empty( $_table ) ) {
-            echo "\tError: The input file ($filename) contained no data for today or a later day.\n";
+            echo "\tError: The input file ($filename) contained no data for ".date("Y-m-d",$displayDate)." or a later date.\n";
             return false;
         }
     
@@ -290,39 +322,59 @@
         return $_table;
     
     }
+    
+    if ( !$silent ) {
+        if ( $firstClass > 1 )
+            echo "\tDisplaying only class $firstClass and later.\n";
+        if ( $displayDate != $today )
+            echo "\tDisplaying substitution for custom date " . date("Y-m-d",$displayDate) . ".\n";
+        if ( $numDays != 2 )
+            echo "\tDisplaying substitution for a custom number of $numDays days.\n";
+    }
         
     $table = read_file( $filename );
     if ( $table === false ) {
         echo "Quitting.\n\n";
         exit(1);
     }
-    if ( time() < strtotime(date("Y-m-d") . " " . getValueByNameD("com_substtable_options", "highlight_changes_after", "06:00:00")) ) {
-        echo "\tCopying backup to check for changes later\n";
-        copy( $filename, $tempdir . basename( $filename ) );
-    } else if ( file_exists( $tempdir . basename( $filename ) ) ) {
-        echo "\tComparing with backup\n";
-        $old_table = read_file( $tempdir . basename( $filename ) );
-        
-        //compare backup and new table, and highlight changes, if any
-        $newclasses = 0;
-        $newlessons = 0;
-        $newsubjects = 0;
-        foreach ($table as $date => $thisDate) {
-            if ( ($date == $today) && (isset( $old_table[$date] )) ) {
-                foreach ($thisDate as $class => $thisClass) {
-                    if ( empty( $old_table[$date][$class] ) ) {
-                        $isnew[$date][$class]["new"] = true;
-                        $newclasses++;
-                    } else {
-                        foreach ($thisClass as $lesson => $thisLesson) {
-                            if ( empty( $old_table[$date][$class][$lesson] ) ) {
-                                $isnew[$date][$class][$lesson]["new"] = true;
-                                $newlessons++;
-                            } else {
-                                foreach ($thisLesson as $key => $value) {
-                                    if ( empty( $old_table[$date][$class][$lesson][$key] ) ) {
-                                        $isnew[$date][$class][$lesson][$key]["new"] = true;
-                                        $newsubjects++;
+    
+    if ( $firstClass > 1 ) {
+        if ( !$silent ) 
+            echo "\tFirst displayed class is not 1. Not checking for new changes.\n";
+    } else if ( $displayDate != $today ) {
+        if ( !$silent )
+            echo "\tCreating output for another date. Not checking for new changes.\n";
+    } else {
+        if ( time() < strtotime(date("Y-m-d") . " " . getValueByNameD("com_substtable_options", "highlight_changes_after", "06:00:00")) ) {
+            if ( !$silent )
+                echo "\tCopying backup to check for changes later\n";
+            copy( $filename, $tempdir . basename( $filename ) );
+        } else if ( file_exists( $tempdir . basename( $filename ) ) ) {
+            if ( !$silent )
+                echo "\tComparing with backup\n";
+            $old_table = read_file( $tempdir . basename( $filename ) );
+            
+            //compare backup and new table, and highlight changes, if any
+            $newclasses = 0;
+            $newlessons = 0;
+            $newsubjects = 0;
+            foreach ($table as $date => $thisDate) {
+                if ( ($date == $today) && (isset( $old_table[$date] )) ) {
+                    foreach ($thisDate as $class => $thisClass) {
+                        if ( empty( $old_table[$date][$class] ) ) {
+                            $isnew[$date][$class]["new"] = true;
+                            $newclasses++;
+                        } else {
+                            foreach ($thisClass as $lesson => $thisLesson) {
+                                if ( empty( $old_table[$date][$class][$lesson] ) ) {
+                                    $isnew[$date][$class][$lesson]["new"] = true;
+                                    $newlessons++;
+                                } else {
+                                    foreach ($thisLesson as $key => $value) {
+                                        if ( empty( $old_table[$date][$class][$lesson][$key] ) ) {
+                                            $isnew[$date][$class][$lesson][$key]["new"] = true;
+                                            $newsubjects++;
+                                        }
                                     }
                                 }
                             }
@@ -330,12 +382,12 @@
                     }
                 }
             }
+            if ( $verbose ) {
+                echo "\t\t" . ($newclasses + $newlessons + $newsubjects) . " found ($newclasses new classes, $newlessons new lessons, $newsubjects new subjects)\n";
+            }
+        } else {
+            echo "\tNo backup found. Cannot check for changes\n";
         }
-        if ( $verbose ) {
-            echo "\t\t" . ($newclasses + $newlessons + $newsubjects) . " found ($newclasses new classes, $newlessons new lessons, $newsubjects new subjects)\n";
-        }
-    } else {
-        echo "\tNo backup found. Cannot check for changes\n";
     }
     
     
