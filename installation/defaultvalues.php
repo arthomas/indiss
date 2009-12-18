@@ -25,25 +25,53 @@
 
 $DV = array (
     "global_options" => array (
-        array ( "name" => "display_new_errors",     "value" => "admin", "comment" => "" )
+        array ( "display_new_errors",       "admin", "" )
     ),
     "global_view_options" => array (
-        array ( "name" => "screenDimensionX",       "value" => "1920",  "comment" => "" ),
-        array ( "name" => "screenDimensionY",       "value" => "1080",  "comment" => "" )
+        array ( "screenDimensionX",         "1920",  "" ),
+        array ( "screenDimensionY",         "1080",  "" )
     ),
     "view_default_view" => array (
-        array ( "name" => "topBarHeight",           "value" => "30",    "comment" => "" ),
-        array ( "name" => "bottomBarHeight",        "value" => "30",    "comment" => "" ),
-        array ( "name" => "leftMainColumnWidth",    "value" => "60%",   "comment" => "" )
+        array ( "topBarHeight",             "30",    "" ),
+        array ( "bottomBarHeight",          "30",    "" ),
+        array ( "leftMainColumnWidth",      "60%",   "" )
     ),
     "com_content_options" => array (
-        array ( "name" => "default_display_time",   "value" => "120",   "comment" => "" ),
-        array ( "name" => "error_display_time",     "value" => "30",    "comment" => "" ),
-        array ( "name" => "max_width",              "value" => "auto",  "comment" => "" ),
-        array ( "name" => "max_height",             "value" => "auto",  "comment" => "" )
-    )
+        array ( "default_display_time",     "120",   "" ),
+        array ( "error_display_time",       "30",    "" ),
+        array ( "max_width",                "auto",  "" ),
+        array ( "max_height",               "auto",  "" )
+    ),
+    "com_substtable_options" => array (
+        array ( "html_options_path",        "/cli_scripts",                                 "not sure what this was supposed to do :/" ),
+        array ( "display_time",             "15",                                           "" ),
+        array ( "max_lines",                "27",                                           "Maximum number of lines per page, including headers" ),
+        array ( "start_lines",              "3",                                            "Lines of header on each page" ),
+        array ( "html_template",            "/cli_scripts/substtable_template.html",        "" ),
+        array ( "default_output_dir",       "/cli_scripts",                                 "" ),
+        array ( "default_temp_dir",         "/temp/convert_substtable",                     "" ),
+        array ( "color_today_even",         "#FFFFDD",                                      "" ),
+        array ( "color_today_odd",          "#FFF3AE",                                      "" ),
+        array ( "color_today_new",          "yellow",                                       "" ),
+        array ( "color_tomorrow_even",      "#DDFFDD",                                      "" ),
+        array ( "color_tomorrow_odd",       "#BEFFBE",                                      "" ),
+        array ( "color_other_day_even",     "#DDEEFF",                                      "" ),
+        array ( "color_other_day_odd",      "#D4E5F6",                                      "" ),
+        array ( "error_display_time",       "10",                                           "" ),
+        array ( "highlight_changes_after",  "07:00:00",                                     "" )
+    ),
+    "com_tickers_options" => array ()
 );
- 
-    
+
+
+$keys = array ( "name", "value", "comment" );
+
+foreach ( $DV as $key => $values ) {
+    foreach ( $values as $key2 => $value ) {
+        $DV[$key][$key2] = array_combine($keys, $value);
+    }
+}
+
+//var_dump($DV);
 
 ?>
