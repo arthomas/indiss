@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-12-12
+ * @version     2009-12-23
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      CLI script to convert the substitution table to displayable HTML
@@ -46,6 +46,7 @@
     $numDays = 2;
     $displayDate = $today = strtotime(date("Y-m-d") . " 00:00:00");
     $firstClass = 1;
+    $firstClassAll = 1;
     
     if ( !file_exists( $tempdir ) )
         mkdir( $tempdir, 0777, true );    
@@ -94,6 +95,9 @@
                 } else if ( (strcasecmp($argv[$i], '--firstclass') == 0) ) {
                     if ( $argv[$i+1][0] != '-' )
                         $firstClass = $argv[++$i];
+                } else if ( (strcasecmp($argv[$i], '--firstclassall') == 0) ) {
+                    if ( $argv[$i+1][0] != '-' )
+                        $firstClassAll = $argv[++$i];
                 }
             } else {
                 if ( $i == $argc-1 ) {
@@ -234,6 +238,7 @@
         global $displayDate;
         global $numDays;
         global $firstClass;
+        global $firstClassAll;
     
         if ( empty( $filename ) ) {
             echo "\tError: Empty filename\n";
@@ -280,22 +285,14 @@
                 if ( $entry == "'---" )
                     $line[$key] = "";
             if ( !check_if_ignore( $line_ ) )        //remove some items we dont want to display (actually, add only those we want into a new array)
-                if ( !preg_match('/^\d+$/i', $line_["Stunde"]) || $line_["Stunde"] >= $firstClass ) {
-                    if ( strpos($line_["Klasse(n)"], ",") !== false ) {
-                        $classes = explode(", ", $line_["Klasse(n)"]);
-                        foreach ($classes as $class)
-                            $table[strtotime(str_replace(".", "-", $line_["Datum"]) . date("Y"))][strtoupper($class)][$line_["Stunde"]][] = $line;
-                    } else {
-                        $table[strtotime(str_replace(".", "-", $line_["Datum"]) . date("Y"))][strtoupper($line_["Klasse(n)"])][$line_["Stunde"]][] = $line;     //create our actual multi-dimensional array
-                    }
+                if ( strpos($line_["Klasse(n)"], ",") !== false ) {
+                    $classes = explode(", ", $line_["Klasse(n)"]);
+                    foreach ($classes as $class)
+                        $table[strtotime(str_replace(".", "-", $line_["Datum"]) . date("Y"))][strtoupper($class)][$line_["Stunde"]][] = $line;
+                } else {
+                    $table[strtotime(str_replace(".", "-", $line_["Datum"]) . date("Y"))][strtoupper($line_["Klasse(n)"])][$line_["Stunde"]][] = $line;     //create our actual multi-dimensional array
                 }
         }
-        
-        //if ( $debug )
-            //var_dump(array_keys($table));
-        //ksort($table);
-        //if ( $debug )
-            //var_dump(array_keys($table));
         
         ksort($table);
         
@@ -314,6 +311,46 @@
             echo "\tError: The input file ($filename) contained no data for ".date("Y-m-d",$displayDate)." or a later date.\n";
             return false;
         }
+        
+        unset ( $table );
+        $table = $_table;
+        unset ( $_table );
+        
+        foreach ($table as $date => $thisDate) {
+            if ($debug)
+                echo "sorting through classes for date $date\n";
+            if ( $date == $displayDate ) {
+                if ( $firstClass > 1 || $firstClassAll > $firstClass ) {
+                    foreach ($thisDate as $class => $thisClass)
+                        foreach ($thisClass as $lesson => $thisLesson) {
+                            if ( preg_match("/(\d+)$/i", $lesson, $matches) == 1 ) {
+                                if ($debug) echo "matches[1]=" . $matches[1] . "; ";
+                                if ( $matches[1] >= ( ($firstClassAll > $firstClass) ? $firstClassAll : $firstClass ) ) {
+                                    if ($debug) echo "accepted\n";
+                                    $_table[$date][$class][$lesson] = $thisLesson;
+                                } else
+                                    if ($debug) echo "denied\n";
+                            }
+                        }
+                } else {
+                    $_table[$date] = $thisDate;
+                }
+            } else if ( $firstClassAll > 1 ) {
+                foreach ($thisDate as $class => $thisClass)
+                    foreach ($thisClass as $lesson => $thisLesson) {
+                        if ( preg_match("/(\d+)$/i", $lesson, $matches) == 1 ) {
+                            if ($debug) echo "matches[1]=" . $matches[1] . "; ";
+                            if ( $matches[1] >= $firstClassAll ) {
+                                if ($debug) echo "accepted\n";
+                                $_table[$date][$class][$lesson] = $thisLesson;
+                            } else
+                                if ($debug) echo "denied\n";
+                        }
+                    }
+            } else {
+                $_table[$date] = $thisDate;
+            }
+        }
     
         //sort the sub-arrays by class
         foreach ($_table as $date => $thisDate)
@@ -325,7 +362,9 @@
     
     if ( !$silent ) {
         if ( $firstClass > 1 )
-            echo "\tDisplaying only class $firstClass and later.\n";
+            echo "\tDisplaying only class $firstClass and later for date " . date("Y-m-d",$displayDate) . ".\n";
+        if ( $firstClassAll > 1 )
+            echo "\tDisplaying only class $firstClassAll and later for all dates.\n";
         if ( $displayDate != $today )
             echo "\tDisplaying substitution for custom date " . date("Y-m-d",$displayDate) . ".\n";
         if ( $numDays != 2 )
