@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-12-23
+ * @version     2009-12-25
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      CLI script to convert the substitution table to displayable HTML
@@ -47,6 +47,22 @@
     $displayDate = $today = strtotime(date("Y-m-d") . " 00:00:00");
     $firstClass = 1;
     $firstClassAll = 1;
+    
+    if ( $trimTimes = getValueByName("com_substtable_options", "trim_times") ) {
+        $trimTimes = explode(";", $trimTimes);
+        foreach ($trimTimes as $item) {
+            $item = explode("-", $item);
+            if ( count($item) != 2 )
+                break;
+            $trimArray[$item[0]] = $item[1];
+        }
+        if ( !empty( $trimArray ) ) {
+            foreach ($trimArray as $ttime => $tclass) {
+                if ( time() > strtotime(date("Y-m-d") . " $ttime") ) 
+                    $firstClass = $tclass;
+            }
+        }
+    }
     
     if ( !file_exists( $tempdir ) )
         mkdir( $tempdir, 0777, true );    
