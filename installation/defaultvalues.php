@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-11-26
+ * @version     2009-12-26
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      Array containing the default values for various settings, used in installation script
@@ -58,7 +58,8 @@ $DV = array (
         array ( "color_other_day_even",     "#DDEEFF",                                      "" ),
         array ( "color_other_day_odd",      "#D4E5F6",                                      "" ),
         array ( "error_display_time",       "10",                                           "" ),
-        array ( "highlight_changes_after",  "07:00:00",                                     "" )
+        array ( "highlight_changes_after",  "07:00:00",                                     "" ),
+        array ( "trim_times",               "",                                             "" )
     ),
     "com_tickers_options" => array ()
 );

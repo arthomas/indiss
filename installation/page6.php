@@ -1,8 +1,8 @@
 <?php
 /**
- * @version     2009-12-12
+ * @version     2010-01-03
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
- * @copyright   Copyright (C) 2009 Patrick Lehner
+ * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Installation script, page 6: Installation and install report
  * 
  * @license     This program is free software: you can redistribute it and/or modify
@@ -38,7 +38,17 @@
     }
     
     if ( empty( $errors ) ) {
-        $db_list = mysql_list_dbs($link);
+        $configFile = file_get_contents("config.php-dist");
+        if (!$configFile) {
+            $errors[] = $log[] = "Opening template for config file failed.";
+            $fatal = true;
+        } else {
+            $log[] = "Opening template for config file successful.";
+        }
+    }
+    
+    if ( empty( $errors ) ) {
+        $db_list = mysql_list_dbs();
         $dbname = $_POST["dbname"];
         $dbfound = false;
         for ( $i = 0; $i < mysql_num_rows($db_list); $i++ ) {
@@ -145,6 +155,8 @@
             
                 $log[] = "Creating standard name-value tables and saving default values:";
                 
+                
+                include_once ("defaultvalues.php");
                 /*Create standard name-value tables and create default values*/
                 foreach ($DV as $key => $values) {
                     $query = makeNameValueTableQuery($key);
@@ -171,6 +183,18 @@
                             $log[] = $msg;
                         }
                     }
+                }
+                
+                $configFile = str_replace("%defaultlang%", $lang, $configFile);
+                $configFile = str_replace("%dbhost%", $_POST["dbhost"], $configFile);
+                $configFile = str_replace("%dbuser%", $_POST["dbuser"], $configFile);
+                $configFile = str_replace("%dbpass%", $_POST["dbpass1"], $configFile);
+                $configFile = str_replace("%dbname%", $_POST["dbname"], $configFile);
+                
+                if (file_put_contents("../config/config.php", $configFile)) {
+                    $log[] = "Config file written to disk successfully.";
+                } else {
+                    $errors[] = $log[] = "Writing config file to disk failed.";
                 }
             
             } else {

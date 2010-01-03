@@ -1,8 +1,8 @@
 <?php
 /**
- * @version     2009-12-03
+ * @version     2010-01-03
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
- * @copyright   Copyright (C) 2009 Patrick Lehner
+ * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Installation script, page 4: Setup and default settings
  * 
  * @license     This program is free software: you can redistribute it and/or modify
@@ -93,7 +93,7 @@
                 <div style="float:right;font-size:80%;padding-top:5px;padding-right:20px;"><a href="javascript:toggleDVT();" id="togglelink">[Show default values table]</a></div>
                 <h2 style="margin-top: 5px;">Default values</h2>
                 <div><b>Important:</b> Only change these values if you know what you are doing! They will not be checked for correctness and thus can seriously break your installation!</div>
-                <table summary="" border="0" cellpadding="0" cellspacing="0" id="dvt" style="display: hidden;">
+                <table summary="" border="0" cellpadding="0" cellspacing="0" id="dvt" style="display: none;">
                     <tbody>
                         <tr>
                             <th style="width: 25%">Setting</th><th style="width: 25%;">Value</th><th style="width: 50%;">Comment/Description</th>

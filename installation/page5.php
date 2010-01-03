@@ -1,8 +1,8 @@
 <?php
 /**
- * @version     2009-12-03
+ * @version     2010-01-03
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
- * @copyright   Copyright (C) 2009 Patrick Lehner
+ * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Installation script, page 5: Pre-Installation summary
  * 
  * @license     This program is free software: you can redistribute it and/or modify
@@ -68,7 +68,7 @@
                         </ul>
                     </li>
                     <li><div style="float:right; font-size: 80%;"><a id="togglelink" href="javascript:toggleDVT();">[Show default values]</a></div>Default values
-                        <ul class="level2" id="dvt" style="display: hidden;">
+                        <ul class="level2" id="dvt" style="display: none;">
 <?php include ("defaultvalues.php"); 
     foreach ($DV as $key => $values) { ?>
                             <li><?php lang_echo("DV_$key"); ?>
