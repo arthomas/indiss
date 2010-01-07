@@ -1,8 +1,8 @@
 <?php
 /**
- * @version     2009-09-24
+ * @version     2010-01-07
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
- * @copyright   Copyright (C) 2009 Patrick Lehner
+ * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      
  * 
  * @license     This program is free software: you can redistribute it and/or modify
@@ -21,8 +21,8 @@
 
     defined("__MAIN") or die("Restricted access.");
     
-    include_once("../config/config.php");
-    include_once("../includes/database.php");
+    include_once("config/config.php");
+    include_once("includes/database.php");
     
     
     unset( $files ); //just to be sure

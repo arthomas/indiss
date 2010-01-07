@@ -21,10 +21,10 @@
 
     defined("__MAIN") or die("Restricted access.");
     
-    $topsrc = "modules/top.php";
-    $bottomsrc = "modules/bottom.php";
-    $leftsrc = "modules/left.php";
-    $rightsrc = "modules/right.php";
+    $topsrc = "views/default_view/modules/top.php";
+    $bottomsrc = "views/default_view/modules/bottom.php";
+    $leftsrc = "views/default_view/modules/left.php";
+    $rightsrc = "views/default_view/modules/right.php";
     
 ?>
 <iframe id="top" name="top" src="<?php echo $topsrc;?>"></iframe>

@@ -1,8 +1,8 @@
 <?php
 /**
- * @version     2009-09-24
- * @author      Patrick Lehner
- * @copyright   Copyright (C) 2009 Patrick Lehner
+ * @version     2010-01-07
+ * @author      Patrick Lehner <lehner.patrick@gmx.de>
+ * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      tickers_front -- Display tickers in the frontend
  * 
  * @note        The JavaScript for the scrolling ticker is based off one of the scripts from www.dynmicdrive.com .
@@ -29,8 +29,8 @@
 
     defined("__MAIN") or die("Restricted access.");
     
-    include_once("../config/config.php");
-    include_once("../includes/database.php");
+    include_once("config/config.php");
+    include_once("includes/database.php");
     
     
     //TODO: ticker: read ticker parameters from database

@@ -1,8 +1,8 @@
 <?php
 /**
- * @version     2009-09-10
- * @author      Patrick Lehner
- * @copyright   Copyright (C) 2009 Patrick Lehner
+ * @version     2010-01-07
+ * @author      Patrick Lehner <lehner.patrick@gmx.de>
+ * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      the bottom frame of the default view
  * 
  * @license     This program is free software: you can redistribute it and/or modify
@@ -21,6 +21,7 @@
 
     define("__MAIN", 1);
     
-    include("../components/com_tickers/main.php")
+    chdir("../../..");
+    include("components/com_tickers/main.php")
 
 ?>
