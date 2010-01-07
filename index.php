@@ -1,8 +1,8 @@
 <?php 
 /**
- * @version     2009-09-10
+ * @version     2010-01-07
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
- * @copyright   Copyright (C) 2009 Patrick Lehner
+ * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module
  * 
  * @license     This program is free software: you can redistribute it and/or modify
@@ -25,6 +25,11 @@
     //include_once("includes/database.php");
     
     $view = "default_view";
+    if ( !empty( $_GET["view"] ) ) {
+        if ( file_exists( "views/".$_GET["view"]."/main.php" ) ) {
+            $view = $_GET["view"];
+        }
+    }
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
