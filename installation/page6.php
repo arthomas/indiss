@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-01-03
+ * @version     2010-01-06
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Installation script, page 6: Installation and install report
@@ -108,9 +108,10 @@
                     `caption` VARCHAR( 255 ) NOT NULL ,
                     `content` VARCHAR( 255 ) NOT NULL ,
                     `start` DATETIME NOT NULL ,
-                    `end` DATETIME NOT NULL,
-                    `enabled` BOOL NOT NULL,
-                    `deleted` BOOL NOT NULL
+                    `end` DATETIME NOT NULL ,
+                    `enabled` BOOL NOT NULL ,
+                    `deleted` BOOL NOT NULL ,
+                    `tags` VARCHAR( 255 ) NOT NULL
                     )";
                 $msg = "Create table 'users' for user login data... ";
                 if ( db_commit2( $query, $errors ) )
@@ -127,9 +128,11 @@
                     `url` VARCHAR( 255 ) NOT NULL ,
                     `displaytime` INT NOT NULL,
                     `start` DATETIME NOT NULL ,
-                    `end` DATETIME NOT NULL,
-                    `enabled` BOOL NOT NULL,
-                    `deleted` BOOL NOT NULL
+                    `end` DATETIME NOT NULL ,
+                    `type` enum('LocalPage','ExternalPage','LocalImage','ExternalImage','LocalPDF','ExternalPDF','LocalFlash','ExternalFlash','LocalOther','ExternalOther','Component','Unknown') NOT NULL DEFAULT 'Unknown',
+                    `enabled` BOOL NOT NULL ,
+                    `deleted` BOOL NOT NULL ,
+                    `tags` VARCHAR( 255 ) NOT NULL
                     )";
                 $msg = "Create table 'com_content' for content data... ";
                 if ( db_commit2( $query, $errors ) )
@@ -238,6 +241,7 @@
                 <?php
                 if ( empty( $errors ) && !$fatal ) { 
                     lang_echo("6Success");
+                    echo "<br />\n";
                 } else {
                     if ( $fatal ) {
                         echo "Es trat ein fataler Fehler auf. Die Installation wurde abgebrochen.<br />\n";
@@ -267,15 +271,10 @@
 <?php } ?>
                 </ul>
             </div>
-            <div>
-                <table id="buttonbar" summary="" cellpadding="0" cellspacing="0" border="0">
-                    <tbody>
-                        <tr>
-                            <td id="leftbox"><input type="button" name="back" value="< <?php lang_echo("genBack"); ?>" id="backbutton" onclick="this.form.action='?step=<?php echo ($step - 1); ?>'; this.form.submit();" /></td>
-                            <td id="rightbox"><input type="submit" name="next" value="<?php lang_echo("genInstall"); ?> >" id="nextbutton" /></td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div style="text-align: center;">
+                <?php lang_echo("6DelInstallFolder");?><br />
+                <a href="../"><?php lang_echo("6GoFrontPage"); ?></a>
+                <a href="../admin/"><?php lang_echo("6GoAdminInterface");?></a>
             </div>
 <?php /* foreach ($_POST as $key => $value)
         if ( !in_array($key, array("next", "back")) ) { ?>

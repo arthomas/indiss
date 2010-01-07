@@ -1,8 +1,8 @@
 <?php
 /**
- * @version     2009-12-07
+ * @version     2010-01-04
  * @author      Patrick Lehner
- * @copyright   Copyright (C) 2009 Patrick Lehner
+ * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      English language file for installation
  * 
  * @license     This program is free software: you can redistribute it and/or modify
@@ -53,7 +53,15 @@
     $_LANG["4PageTitle"]                    = "InfoScreen Installation - Step 4: Setup and default settings";
     $_LANG["4EnterSettings"]                = "Here you can set important settings for your InfoScreen installation. Please select and/or enter values for all settings in the <i>Mandatory settings</i> section. If you want to, you can change default settings by expanding the section <i>Default values</i>.";
     
+    $_LANG["5PageTitle"]                    = "InfoScreen Installation - Step 5: Pre-installation summary";
+    $_LANG["5Summary"]                      = "In the following box, all settings you entered so far will be listed. Please check them again and make sure that especially the database connection data is correct.";
+    $_LANG["5LastChance"]                   = "This is your last chance to cancel the installation or change any data. After clicking \"Install\" below, modifications to the database and the file system will be committed and cannot be stopped until the installation is complete or encounters a fatal error.";
     
+    $_LANG["6PageTitle"]                    = "InfoScreen Installation - Step 6: Installation summary";
+    $_LANG["6Success"]                      = "The installation completed successfully!";
+    $_LANG["6DelInstallFolder"]             = "As a security measure, you will have to delete the installation folder before you can continue. After you have deleted the directory, you can click the following links.";
+    $_LANG["6GoFrontPage"]                  = "Go to front page";
+    $_LANG["6GoAdminInterface"]             = "Go to administrative interface";
     
     $_LANG["6ErrMySQLConnFailed"]           = "Error: Cannot connect to MySQL server; MySQL said: ";
     $_LANG["6ErrMySQLTableSelFailed"]       = "Error: Cannot select database; MySQL said: ";
