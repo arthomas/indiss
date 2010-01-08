@@ -243,7 +243,7 @@
         </div>
     </div>
     <div id="footer">
-        Layout und Umsetzung &copy; 2009 Patrick Lehner &nbsp; | &nbsp; InfoScreen ist freie Software unter der GNU GPLv3
+        Layout und Umsetzung &copy; 2009 Patrick Lehner &nbsp; | &nbsp; INDISS ist freie Software unter der GNU GPLv3
     </div>
 </body>
 </html>

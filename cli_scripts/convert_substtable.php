@@ -138,8 +138,8 @@
             echo
                 "\tInfoScreen v$version\n" .
                 "\tConversion script v0.8\n" .
-                "\thttp://infoscreen.sourceforge.net\n" .
-                "\thttps://sourceforge.net/projects/infoscreen/\n";
+                "\thttp://indiss.sourceforge.net\n" .
+                "\thttps://sourceforge.net/projects/indiss/\n";
             exit( 0 );
         } else if ( $showusage ) {
             echo

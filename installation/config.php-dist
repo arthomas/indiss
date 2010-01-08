@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-01-03
+ * @version     2010-01-08
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
@@ -21,8 +21,8 @@
     $configfile    = true;
 
     /*General config*/
-    $basepath      = "/InfoScreen";
-	$sitename      = "InfoScreen";
+    $basepath      = "/indiss";
+	$sitename      = "indiss";
 	$defaultlang   = "%defaultlang%";
 	
 	/*Database config*/

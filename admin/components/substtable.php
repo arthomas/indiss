@@ -20,7 +20,7 @@
 
     defined("__MAIN") or die("Restricted access.");
     
-    $subst_file = file("c:/xampp/htdocs/infoscreen/upload/substitution.txt");
+    $subst_file = file("c:/xampp/htdocs/indiss/upload/substitution.txt");
     
     $heading = explode("\t", rtrim($subst_file[0], "\r\n\0"));
     $wanted_heads = array(/*"Datum", "Stunde",*/ "(Fach)", "Fach", "(Lehrer)", "Vertreter", /*"(Klasse(n))",*/ "(Raum)", "Raum", "Art", "Vertretungs-Text");
