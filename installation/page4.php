@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-01-03
+ * @version     2010-02-20
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Installation script, page 4: Setup and default settings
@@ -39,6 +39,31 @@
             <p style="margin-top: 0;"><?php lang_echo("4EnterSettings"); ?></p>
             <div class="enterdata">
                 <h2 style="margin-top: 5px;">Mandatory settings</h2>
+                <table summary="" border="0" cellpadding="0" cellspacing="0" style="margin: 0; width: 100%;">
+                    <tbody>
+                        <tr>
+                            <td colspan="4"><h3 style="display:inline;">Admin password</h3> Enter a password for administrator account</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 20%;">&nbsp;</td>
+                            <td style="width: 20%;">Username:</td>
+                            <td style="width: 40%;">admin</td>
+                            <td style="width: 20%;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 20%;">&nbsp;</td>
+                            <td style="width: 20%;">Password:</td>
+                            <td style="width: 40%;"><input type="password" name="adminpw1"  maxlength="100" value="<?php echo $_POST["adminpw1"]; ?>" /></td>
+                            <td style="width: 20%;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 20%;">&nbsp;</td>
+                            <td style="width: 20%;">Repeat password:</td>
+                            <td style="width: 40%;"><input type="password" name="adminpw2"  maxlength="100" value="<?php echo $_POST["adminpw2"]; ?>" /></td>
+                            <td style="width: 20%;">&nbsp;</td>
+                        </tr>
+                    </tbody>
+                </table>
                 <table summary="" border="0" cellpadding="0" cellspacing="0">
                     <tbody>
                         <tr>

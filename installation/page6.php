@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-01-06
+ * @version     2010-02-20
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Installation script, page 6: Installation and install report
@@ -101,6 +101,17 @@
                     $msg .= "Error!";
                 $log[] = $msg;
                 
+                /*Create entry for admin account*/
+                $query =
+                    "INSERT INTO `users` (`username`, `password`, `type`)
+                    VALUES ('admin', '" . sha1($_POST["adminpw1"]) . "', 'admin')";
+                $msg = "Create admin account... ";
+                if ( db_commit2( $query, $errors ) )
+                    $msg .= "Success!";
+                else
+                    $msg .= "Error!";
+                $log[] = $msg;
+                
                 /*Create Table for ticker data*/
                 $query = 
                     "CREATE TABLE `com_tickers` (
@@ -113,7 +124,7 @@
                     `deleted` BOOL NOT NULL ,
                     `tags` VARCHAR( 255 ) NOT NULL
                     )";
-                $msg = "Create table 'users' for user login data... ";
+                $msg = "Create table 'com_tickers' for ticker data... ";
                 if ( db_commit2( $query, $errors ) )
                     $msg .= "Success!";
                 else
