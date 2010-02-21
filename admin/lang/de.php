@@ -1,8 +1,8 @@
 <?php
 /**
- * @version     2009-09-29
+ * @version     2010-01-09
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
- * @copyright   Copyright (C) 2009 Patrick Lehner
+ * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
  * @license     This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU General Public License as published by
@@ -19,11 +19,11 @@
  */
 
     /*errors & general status messages:  err*, msg*  */
-    $_LANG["errDBQryFailed"]                = "The database query failed.";
-    $_LANG["errGeneralParamError"]          = "There was an error in the parameters passed on.<br />Please <a href=\"index.php\">go back to the index</a>.";
-    $_LANG["errCantLogout"]                 = "Error: You are not logged in. You cannot log out.";
-    $_LANG["errComNotFound"]                = "Error: The component you tried to open was not found.";
-    $_LANG["errDBError"]                    = "Database error: %s";     //%s: The MySQL error message
+    $_LANG["errDBQryFailed"]                = "Die Datenbankanfrage ist fehlgeschlagen.";
+    $_LANG["errGeneralParamError"]          = "Die &uuml;bergebenen Parameter enthielten einen Fehler.<br />Bitte <a href=\"index.php\">gehen Sie zur&uuml;ck zum Index</a>.";
+    $_LANG["errCantLogout"]                 = "Fehler: Sie sind nicht angemeldet. Sie k&ouml;nnen sich nicht abmelden.";
+    $_LANG["errComNotFound"]                = "Fehler: Die aufgerufene Komponente wurde nicht gefunden.";
+    $_LANG["errDBError"]                    = "Datenbankfehler: %s";     //%s: The MySQL error message
     $_LANG["errDBErrorQry"]                 = "Query: <pre>%s</pre>";   //%s: The DB Query
     
     $_LANG["msgWrongPWorUN"]                = "Passwort oder Benutzername falsch.";
@@ -137,7 +137,8 @@
     
     $_LANG["conName"]                       = "Name";
     $_LANG["conURL"]                        = "URL";
-    $_LANG["conDispTime"]                   = "Angezeigt f&uuml;r";
+    $_LANG["conTags"]                       = "Tags";
+    $_LANG["conDispTime"]                   = "T";
     $_LANG["conDispFrom"]                   = "Angezeigt von";
     $_LANG["conDispUntil"]                  = "Angezeigt bis";
     $_LANG["conType"]                       = "Typ";

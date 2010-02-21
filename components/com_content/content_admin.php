@@ -1,8 +1,8 @@
 <?php
 /**
- * @version     2009-10-27
+ * @version     2010-01-09
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
- * @copyright   Copyright (C) 2009 Patrick Lehner
+ * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      content_admin -- HTML page manager (backend)
  * 
  * @license     This program is free software: you can redistribute it and/or modify
@@ -98,12 +98,12 @@
     }
     switch ($_POST["postview"]) {
         case "create":
-            $query = "INSERT INTO `com_content` (`name`, `url`, `displaytime`, `start`, `end`, `type`, `enabled`, `deleted`)
+            $query = "INSERT INTO `com_content` (`name`, `url`, `displaytime`, `start`, `end`, `type`, `enabled`, `deleted`, `tags`)
                         VALUES ";
             $c = 0; //counter for actual number of added pages
             //var_dump($_POST);
             for ($i = 0; $i < $_POST["new_pages"]; $i++) {
-                if (!empty($_POST["URL$i"])) {
+                if ( !empty($_POST["URL$i"]) && !empty($_POST["tags$i"]) ) {
                     //determine the link type
                     
                     $URL = $_POST["URL$i"];
@@ -145,7 +145,8 @@
                             $_POST["start".$i."result"] . "', '" .
                             $_POST["end".$i."result"] . "', '" .
                             $type . "', " .
-                            ( ($_POST["enabled$i"]) ? "TRUE" : "FALSE" ) . ", FALSE)";
+                            ( ($_POST["enabled$i"]) ? "TRUE" : "FALSE" ) . ", FALSE, " .
+                            $_POST["tags$i"] . ")";
                         $c++;
                     }
                 }
@@ -196,25 +197,27 @@
             if ($_POST["editcount"] > 0) {
                 $c = 0;
                 for ($i = 0; $i < $_POST["editcount"]; $i++) {
-                    $query = "UPDATE `com_content` SET ";
-                    if (isset($_POST["name$i"])) $query .= "`name`='" . $_POST["name$i"] . "',";
-                    if (isset($_POST["URL$i"])) $query .= "`url`='" . $_POST["URL$i"] . "',";
-                    if (isset($_POST["disptime$i"])) $query .= "`displaytime`='" . $_POST["disptime$i"] . "',";
-                    if (isset($_POST["start".$i."result"])) $query .= "`start`='" . $_POST["start".$i."result"] . "',";
-                    if (isset($_POST["end".$i."result"])) $query .= "`end`='" . $_POST["end".$i."result"] . "',";
-                    if (isset($_POST["enabled$i"])) $query .= "`enabled`=" . ( ($_POST["enabled$i"]) ? "TRUE" : "FALSE" ) . ",";
-                    if (isset($_POST["wasdeleted$i"])) {
-                        $query .= "`deleted`=";
-                        $query .= (isset($_POST["deleted$i"])) ? "TRUE" : "FALSE";
-                    }
-                    $query = rtrim($query, ",");
-                    $query .= " WHERE `id`=" . $_POST["id$i"];
-                    $result = mysql_query($query);
-                    if (!$result) {
-                        $message .= sprintf(lang("errDBError") . "<br />\n", mysql_error());      //  <<-----  $_LANG
-                        $message .= sprintf(lang("errDBErrorQry") . "<br />\n", $query);          //  <<-----  $_LANG
-                    } else {
-                        $c++;
+                    if ( !empty($_POST["URL$i"]) && !empty($_POST["tags$i"]) && !empty($_POST["disptime$i"]) && !empty($_POST["start".$i."result"]) && !empty($_POST["end".$i."result"]) ) {
+                        $query = "UPDATE `com_content` SET ";
+                        $query .= "`name`='" . $_POST["name$i"] . "',";
+                        $query .= "`url`='" . $_POST["URL$i"] . "',";
+                        $query .= "`displaytime`='" . $_POST["disptime$i"] . "',";
+                        $query .= "`start`='" . $_POST["start".$i."result"] . "',";
+                        $query .= "`end`='" . $_POST["end".$i."result"] . "',";
+                        $query .= "`enabled`=" . ( ($_POST["enabled$i"]) ? "TRUE" : "FALSE" ) . ",";
+                        $query .= "`tags`=" . $_POST["tags$i"];
+                        if ( isset($_POST["wasdeleted$i"])) {
+                            $query .= ",`deleted`=";
+                            $query .= (isset($_POST["deleted$i"])) ? "TRUE" : "FALSE";
+                        }
+                        $query .= " WHERE `id`=" . $_POST["id$i"];
+                        $result = mysql_query($query);
+                        if (!$result) {
+                            $message .= sprintf(lang("errDBError") . "<br />\n", mysql_error());      //  <<-----  $_LANG
+                            $message .= sprintf(lang("errDBErrorQry") . "<br />\n", $query);          //  <<-----  $_LANG
+                        } else {
+                            $c++;
+                        }
                     }
                 }
                 $message .= sprintf(lang("conEditSaveSuccess") . "<br />\n", $c);    //  <<-----  $_LANG
@@ -267,6 +270,7 @@
             "$space<tr>\n" .
             "$space    <th class=\"tName\">" . lang("conName") . "</th>\n" .                                                                    //  <<-----  $_LANG
             "$space    <th class=\"tURL\">" . lang("conURL") . "</th>\n" .                                                                      //  <<-----  $_LANG
+            "$space    <th class=\"tTags\">" . lang("conTags") . "</th>\n" .                                                                    //  <<-----  $_LANG
             "$space    <th class=\"tType\">" . lang("conType") . "</th>\n" .                                                                    //  <<-----  $_LANG
             "$space    <th class=\"tDispTime\">" . lang("conDispTime") . "</th>\n" .                                                            //  <<-----  $_LANG
             "$space    <th class=\"tFrom\">" . lang("conDispFrom") . "</th>\n" .                                                                //  <<-----  $_LANG
@@ -281,13 +285,14 @@
     function contentmanOutputList($list, $indent=0, $withselect=1) {
         for ($i = 0; $i < $indent; $i++) $output .= " ";
         if  (!isset($GLOBALS[$list]))
-            echo $output . "<tr class=\"none\"><td colspan=\"" . (($withselect == 2) ? 10 : 9) . "\">". lang("genNone") . "</td></tr>\n";
+            echo $output . "<tr class=\"none\"><td colspan=\"" . (($withselect == 2) ? 11 : 10) . "\">". lang("genNone") . "</td></tr>\n";
         else
             foreach ($GLOBALS[$list] as $value) {
                 unset($output);
                 $output .= "<tr class=\"$list\">" .
                     "<td class=\"tName\">$value->name</td>" .
                     "<td class=\"tURL\">$value->url</td>" .
+                    "<td class=\"tTags\">$value->tags</td>" .
                     "<td class=\"tType\">" . lang("conType" . ( (empty($value->type)) ? "Unknown": $value->type ) ) . "</td>" .
                     "<td class=\"tDispTime\">$value->displaytime s</td>" .
                     "<td class=\"tFrom\">$value->start</td>" .
@@ -329,6 +334,14 @@
 //----LIST------------------------------------------------------------------------------------------------------------------------------------------
 
 if ($view == "list") { ?>
+                <script type="text/javascript">
+                function str_width (str) {
+                	var rulerSpan = document.getElementById('ruler');
+                	rulerSpan.firstChild.nodeValue = str;
+                	return rulerSpan.offsetWidth;
+                }
+                </script>
+                <span id="ruler" style="visibility: hidden;">&nbsp;</span>
                 <fieldset id="contentList"><legend><?php lang_echo("conExistingPages");?></legend>
                     <form id="contentListForm" action="?component=content" method="post">
                         <div id="contentListButtons">
@@ -341,11 +354,11 @@ if ($view == "list") { ?>
 <?php contentmanOutputTableHead(32); ?>
                             </thead>
                             <tbody>
-                                <tr class="category"><td colspan="9"><?php lang_echo("conPresentPages");?></td></tr>
+                                <tr class="category"><td colspan="10"><?php lang_echo("conPresentPages");?></td></tr>
 <?php contentmanOutputList("present", 32);?>
-                                <tr class="category"><td colspan="9"><?php lang_echo("conFuturePages");?></td></tr>
+                                <tr class="category"><td colspan="10"><?php lang_echo("conFuturePages");?></td></tr>
 <?php contentmanOutputList("future", 32);?>
-                                <tr class="category"><td colspan="9"><?php lang_echo("conPastPages");?></td></tr>
+                                <tr class="category"><td colspan="10"><?php lang_echo("conPastPages");?></td></tr>
 <?php contentmanOutputList("past", 32);?>
                             </tbody>
                             <tfoot>
@@ -503,6 +516,7 @@ else if ( ( $create = ($view == "create") ) || ( $edit = ($view == "edit") ) ) {
                                             </tr>
                                             <tr><td><label for="URL<?php echo $i;?>"><?php lang_echo("conURL");?>:</label></td><td><input type="text" class="URLInput" name="URL<?php echo $i;?>" id="URL<?php echo $i;?>" onchange="determineType(this, <?php echo $i; ?>);" <?php if ($edit) { echo 'value="' . $toEdit[$i]->url . '" '; } ?>/></td></tr>
                                             <tr><td><label for="disptime<?php echo $i;?>"><?php lang_echo("conDispTime"); ?>:</label></td><td><input type="text" class="timeInput" name="disptime<?php echo $i;?>" onchange="checkDispTime(this, <?php echo $i; ?>);" value="<?php echo ($edit) ? $toEdit[$i]->displaytime : getValueByNameD("com_content_options", "default_display_time", 120); ?>" />s</td></tr>
+                                            <tr><td><label for="tags<?php echo $i;?>"><?php lang_echo("conTags"); ?>:</label></td><td><input type="text" class="tagsInput" name="tags<?php echo $i;?>" value="<?php echo ($edit) ? $toEdit[$i]->tags : "default"; ?>" /></td></tr>
                                             <tr>
                                                 <td class="vertMiddle"><label><?php lang_echo("conDispFrom");?>:</label></td>
                                                 <td rowspan="2">

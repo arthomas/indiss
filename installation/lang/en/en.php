@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-01-08
+ * @version     2010-02-21
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      English language file for installation
@@ -52,6 +52,8 @@
     
     $_LANG["4PageTitle"]                    = "INDISS Installation - Step 4: Setup and default settings";
     $_LANG["4EnterSettings"]                = "Here you can set important settings for your INDISS installation. Please select and/or enter values for all settings in the <i>Mandatory settings</i> section. If you want to, you can change default settings by expanding the section <i>Default values</i>.";
+    $_LANG["4JSAdminPWEmpty"]               = "Empty password is not allowed.";
+    $_LANG["4JSPassNotMatch"]               = "Passwords do not match.";
     
     $_LANG["5PageTitle"]                    = "INDISS Installation - Step 5: Pre-installation summary";
     $_LANG["5Summary"]                      = "In the following box, all settings you entered so far will be listed. Please check them again and make sure that especially the database connection data is correct.";

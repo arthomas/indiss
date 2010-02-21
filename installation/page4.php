@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-02-20
+ * @version     2010-02-21
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Installation script, page 4: Setup and default settings
@@ -32,6 +32,31 @@
     
     <title><?php lang_echo("4PageTitle"); ?></title>
     
+    <script type="text/javascript" language="Javascript">
+    function checkForm() {
+        var r = true;
+        if (document.getElementById('adminpw1').value == "") {
+            document.getElementById('adminpw1row').style.backgroundColor = "#FFBBBB";
+            document.getElementById('adminpw1note').firstChild.nodeValue = "<?php lang_echo("4JSAdminPWEmpty"); ?>";
+            document.getElementById('adminpw2note').firstChild.nodeValue = "";
+            r = false;
+        } else if (document.getElementById('adminpw1').value != document.getElementById('adminpw2').value) {
+            document.getElementById('adminpw1row').style.backgroundColor = "#FFBBBB";
+            document.getElementById('adminpw2row').style.backgroundColor = "#FFBBBB";
+            document.getElementById('adminpw1note').firstChild.nodeValue = "";
+            document.getElementById('adminpw2note').firstChild.nodeValue = "<?php lang_echo("4JSPassNotMatch"); ?>";
+            r = false;
+        } else {
+            document.getElementById('adminpw1row').style.backgroundColor = "transparent";
+            document.getElementById('adminpw2row').style.backgroundColor = "transparent";
+            document.getElementById('adminpw1note').firstChild.nodeValue = "";
+            document.getElementById('adminpw2note').firstChild.nodeValue = "";
+        }
+
+        return r;
+    }
+    </script>
+    
 </head>
 <body>
     <fieldset id="container"><legend><?php lang_echo("4PageTitle"); ?></legend>
@@ -50,16 +75,16 @@
                             <td style="width: 40%;">admin</td>
                             <td style="width: 20%;">&nbsp;</td>
                         </tr>
-                        <tr>
+                        <tr id="adminpw1row">
                             <td style="width: 20%;">&nbsp;</td>
                             <td style="width: 20%;">Password:</td>
-                            <td style="width: 40%;"><input type="password" name="adminpw1"  maxlength="100" value="<?php echo $_POST["adminpw1"]; ?>" /></td>
+                            <td style="width: 40%;"><input type="password" name="adminpw1" id="adminpw1" maxlength="100" value="<?php echo $_POST["adminpw1"]; ?>" /> <span id="adminpw1note" style="color: red;" class="small">&nbsp;</span></td>
                             <td style="width: 20%;">&nbsp;</td>
                         </tr>
-                        <tr>
+                        <tr id="adminpw2row">
                             <td style="width: 20%;">&nbsp;</td>
                             <td style="width: 20%;">Repeat password:</td>
-                            <td style="width: 40%;"><input type="password" name="adminpw2"  maxlength="100" value="<?php echo $_POST["adminpw2"]; ?>" /></td>
+                            <td style="width: 40%;"><input type="password" name="adminpw2" id="adminpw2" maxlength="100" value="<?php echo $_POST["adminpw2"]; ?>" /> <span id="adminpw2note" style="color: red;" class="small">&nbsp;</span></td>
                             <td style="width: 20%;">&nbsp;</td>
                         </tr>
                     </tbody>
@@ -145,7 +170,7 @@
                         <tr>
                             <td id="leftbox"><input type="button" name="back" value="< <?php lang_echo("genBack"); ?>" id="backbutton" onclick="this.form.action='?step=<?php echo ($step - 1); ?>'; this.form.submit();" /></td>
                             <td id="rightbox">
-                                <input type="submit" name="next" value="<?php lang_echo("genNext"); ?> >" id="nextbutton" />
+                                <input type="button" name="next" value="<?php lang_echo("genNext"); ?> >" id="nextbutton" onclick="if (checkForm()) {this.form.submit();}" />
                             </td>
                         </tr>
                     </tbody>

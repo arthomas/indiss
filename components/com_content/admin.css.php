@@ -1,8 +1,8 @@
 <?php
 /**
- * @version     2009-09-29
+ * @version     2010-01-09
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
- * @copyright   Copyright (C) 2009 Patrick Lehner
+ * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      content manager (backend) style definitions
  * 
  * @license     This program is free software: you can redistribute it and/or modify
@@ -45,7 +45,11 @@ div#content table#contentTable td {
 }
 
 div#content table#contentTable .tName {
-    width: 250px;
+    width: 150px;
+}
+
+div#content table#contentTable .tTags {
+    width: 100px;
 }
 
 div#content table#contentTable .tType {
@@ -54,7 +58,7 @@ div#content table#contentTable .tType {
 }
 
 div#content table#contentTable .tDispTime {
-    width: 100px;
+    width: 50px;
     text-align: center;
 }
 
@@ -69,11 +73,13 @@ div#content table#contentTable .tDelete,
 div#content table#contentTable .tRestore {
     width: 15px;
     text-align: center;
+    padding: 1px 2px;
 }
 
 div#content table#contentTable .tCheck {
     width: 20px;
     text-align: center;
+    padding: 1px 2px;
 }
 
 div#content table#contentTable tr.none td {
@@ -141,6 +147,10 @@ div#content form#contentCreateForm input.URLInput {
 div#content form#contentCreateForm input.timeInput {
     text-align: right;
     width: 40px;
+}
+
+div#content form#contentCreateForm input.tagsInput {
+    width: 99%;
 }
 
 div#content table.contentCreateTable tr.TypeLine td {
