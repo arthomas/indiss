@@ -1,8 +1,8 @@
 <?php
 /**
- * @version     2009-12-26
+ * @version     2010-02-21
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
- * @copyright   Copyright (C) 2009 Patrick Lehner
+ * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Array containing the default values for various settings, used in installation script
  * 
  * @license     This program is free software: you can redistribute it and/or modify
@@ -44,7 +44,7 @@ $DV = array (
     ),
     "com_substtable_options" => array (
         array ( "html_options_path",        "/cli_scripts",                                 "not sure what this was supposed to do :/" ),
-        array ( "display_time",             "15",                                           "" ),
+        array ( "display_time",             "15",                                           "time in seconds for which one page is displayed" ),
         array ( "max_lines",                "27",                                           "Maximum number of lines per page, including headers" ),
         array ( "start_lines",              "3",                                            "Lines of header on each page" ),
         array ( "html_template",            "/cli_scripts/substtable_template.html",        "" ),

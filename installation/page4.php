@@ -38,24 +38,54 @@
         if (document.getElementById('adminpw1').value == "") {
             document.getElementById('adminpw1row').style.backgroundColor = "#FFBBBB";
             document.getElementById('adminpw1note').firstChild.nodeValue = "<?php lang_echo("4JSAdminPWEmpty"); ?>";
-            document.getElementById('adminpw2note').firstChild.nodeValue = "";
+            document.getElementById('adminpw2note').firstChild.nodeValue = " ";
             r = false;
         } else if (document.getElementById('adminpw1').value != document.getElementById('adminpw2').value) {
             document.getElementById('adminpw1row').style.backgroundColor = "#FFBBBB";
             document.getElementById('adminpw2row').style.backgroundColor = "#FFBBBB";
-            document.getElementById('adminpw1note').firstChild.nodeValue = "";
+            document.getElementById('adminpw1note').firstChild.nodeValue = " ";
             document.getElementById('adminpw2note').firstChild.nodeValue = "<?php lang_echo("4JSPassNotMatch"); ?>";
             r = false;
         } else {
             document.getElementById('adminpw1row').style.backgroundColor = "transparent";
             document.getElementById('adminpw2row').style.backgroundColor = "transparent";
-            document.getElementById('adminpw1note').firstChild.nodeValue = "";
-            document.getElementById('adminpw2note').firstChild.nodeValue = "";
+            document.getElementById('adminpw1note').firstChild.nodeValue = " ";
+            document.getElementById('adminpw2note').firstChild.nodeValue = " ";
+        }
+
+        test1 = String(document.getElementById('screenresx').value).search(/[^\d]/i);
+        test2 = String(document.getElementById('screenresy').value).search(/[^\d]/i);
+        if ( document.getElementById('screenresx').value == "" || document.getElementById('screenresy').value == "" ) {
+            document.getElementById('screenresrow').style.backgroundColor = "#FFBBBB";
+            document.getElementById('screenresnote').firstChild.nodeValue = "<?php lang_echo("4JSResEmpty"); ?>";
+            r = false;
+        } else if ( String(document.getElementById('screenresx').value).search(/[^\d]/i) != -1 || String(document.getElementById('screenresy').value).search(/[^\d]/i) != -1 ) {
+            document.getElementById('screenresrow').style.backgroundColor = "#FFBBBB";
+            document.getElementById('screenresnote').firstChild.nodeValue = "<?php lang_echo("4JSResOnlyNumbers"); ?>";
+            r = false;
+        } else {
+            document.getElementById('screenresrow').style.backgroundColor = "transparent";
+            document.getElementById('screenresnote').firstChild.nodeValue = " ";
         }
 
         return r;
     }
     </script>
+    
+    <style type="text/css">
+    <!--
+        hr {
+            border: none;
+            border-top: 1px solid gray;
+            margin: 10px 0;
+        }
+        
+        div.enterdata table {
+            margin: 0;
+            width: 100%;
+        }
+    --> 
+    </style>
     
 </head>
 <body>
@@ -64,7 +94,7 @@
             <p style="margin-top: 0;"><?php lang_echo("4EnterSettings"); ?></p>
             <div class="enterdata">
                 <h2 style="margin-top: 5px;">Mandatory settings</h2>
-                <table summary="" border="0" cellpadding="0" cellspacing="0" style="margin: 0; width: 100%;">
+                <table summary="" border="0" cellpadding="0" cellspacing="0">
                     <tbody>
                         <tr>
                             <td colspan="4"><h3 style="display:inline;">Admin password</h3> Enter a password for administrator account</td>
@@ -89,6 +119,25 @@
                         </tr>
                     </tbody>
                 </table>
+                <hr />
+                <table summary="" border="0" cellpadding="0" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td colspan="3"><h3 style="display:inline;">Screen resolution</h3> Enter the resolution of the screen that INDISS will be viewed on</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 20%;">&nbsp;</td>
+                            <td style="width: 60%;">Please note: At the moment, only one screen resolution and one view at a time are supported.</td>
+                            <td style="width: 20%;">&nbsp;</td>
+                        </tr>
+                        <tr id="screenresrow">
+                            <td style="width: 20%;">&nbsp;</td>
+                            <td style="width: 60%; text-align: center;">Resolution: <input type="text" name="screenresx" id="screenresx" maxlength="6" size="5" value="<?php echo (!empty($_POST["screenresx"])) ? $_POST["screenresx"] : "1920"; ?>" /> x <input type="text" name="screenresy" id="screenresy" maxlength="6" size="5" value="<?php echo (!empty($_POST["screenresy"])) ? $_POST["screenresy"] : "1080"; ?>" /> pixels (<i>width</i> x <i>height</i>)<br /><span id="screenresnote" style="color: red;" class="small">&nbsp;</span><span class="small">&nbsp;</span></td>
+                            <td style="width: 20%;">&nbsp;</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <hr />
                 <table summary="" border="0" cellpadding="0" cellspacing="0">
                     <tbody>
                         <tr>
