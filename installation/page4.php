@@ -20,6 +20,8 @@
  */
  
     defined("__INSTALL") or die("Restricted access.");
+    
+    include_once ("defaultvalues.php");
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -52,9 +54,7 @@
             document.getElementById('adminpw1note').firstChild.nodeValue = " ";
             document.getElementById('adminpw2note').firstChild.nodeValue = " ";
         }
-
-        test1 = String(document.getElementById('screenresx').value).search(/[^\d]/i);
-        test2 = String(document.getElementById('screenresy').value).search(/[^\d]/i);
+        
         if ( document.getElementById('screenresx').value == "" || document.getElementById('screenresy').value == "" ) {
             document.getElementById('screenresrow').style.backgroundColor = "#FFBBBB";
             document.getElementById('screenresnote').firstChild.nodeValue = "<?php lang_echo("4JSResEmpty"); ?>";
@@ -132,7 +132,7 @@
                         </tr>
                         <tr id="screenresrow">
                             <td style="width: 20%;">&nbsp;</td>
-                            <td style="width: 60%; text-align: center;">Resolution: <input type="text" name="screenresx" id="screenresx" maxlength="6" size="5" value="<?php echo (!empty($_POST["screenresx"])) ? $_POST["screenresx"] : "1920"; ?>" /> x <input type="text" name="screenresy" id="screenresy" maxlength="6" size="5" value="<?php echo (!empty($_POST["screenresy"])) ? $_POST["screenresy"] : "1080"; ?>" /> pixels (<i>width</i> x <i>height</i>)<br /><span id="screenresnote" style="color: red;" class="small">&nbsp;</span><span class="small">&nbsp;</span></td>
+                            <td style="width: 60%; text-align: center;">Resolution: <input type="text" name="screenresx" id="screenresx" maxlength="6" size="5" value="<?php echo (!empty($_POST["screenresx"])) ? $_POST["screenresx"] : $DV2["global_view_options"]["screenDimensionX"]; ?>" /> x <input type="text" name="screenresy" id="screenresy" maxlength="6" size="5" value="<?php echo (!empty($_POST["screenresy"])) ? $_POST["screenresy"] : $DV2["global_view_options"]["screenDimensionY"]; ?>" /> pixels (<i>width</i> x <i>height</i>)<br /><span id="screenresnote" style="color: red;" class="small">&nbsp;</span><span class="small">&nbsp;</span></td>
                             <td style="width: 20%;">&nbsp;</td>
                         </tr>
                     </tbody>
@@ -197,7 +197,7 @@
                         <tr>
                             <th style="width: 25%">Setting</th><th style="width: 25%;">Value</th><th style="width: 50%;">Comment/Description</th>
                         </tr>
-<?php include ("defaultvalues.php"); 
+<?php 
     foreach ($DV as $key => $values) { ?>
                         <tr>
                             <td colspan="3" style="font-style: italic; padding-left: 3em;"><?php lang_echo("DV_$key"); ?></td>

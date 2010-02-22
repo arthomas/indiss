@@ -199,6 +199,17 @@
                     }
                 }
                 
+                /*Save screen resolution to database*/
+                $msg = "Save screen resolution to database... ";
+                $query = 
+                    "UPDATE `global_view_options` SET `value`='" . $_POST["screenresx"] . "' WHERE `name`='screenDimensionX';
+                    UPDATE `global_view_options` SET `value`='" . $_POST["screenresy"] . "' WHERE `name`='screenDimensionY';";
+                if ( db_commit2( $query, $errors ) )
+                    $msg .= "Success!";
+                else
+                    $msg .= "Error!";
+                $log[] = $msg;
+                
                 $configFile = str_replace("%defaultlang%", $lang, $configFile);
                 $configFile = str_replace("%dbhost%", $_POST["dbhost"], $configFile);
                 $configFile = str_replace("%dbuser%", $_POST["dbuser"], $configFile);

@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-02-21
+ * @version     2010-02-22
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Array containing the default values for various settings, used in installation script
@@ -23,13 +23,14 @@
 // DO NOT CHANGE THESE VALUES UNLESS YOU KNOW WHAT YOU ARE DOING!!!
 
 
+//this array contains the default values for array-processing
 $DV = array (
     "global_options" => array (
         array ( "display_new_errors",       "admin", "" )
     ),
     "global_view_options" => array (
-        array ( "screenDimensionX",         "1920",  "" ),
-        array ( "screenDimensionY",         "1080",  "" )
+        array ( "screenDimensionX",         "1920",    "" ),
+        array ( "screenDimensionY",         "1080",   "" )
     ),
     "view_default_view" => array (
         array ( "topBarHeight",             "30",    "" ),
@@ -62,6 +63,15 @@ $DV = array (
         array ( "trim_times",               "",                                             "" )
     ),
     "com_tickers_options" => array ()
+);
+
+
+//this array conains further default values which are incorporated otherwise
+$DV2 = array (
+    "global_view_options" => array (
+        "screenDimensionX" => "1920",
+        "screenDimensionY" => "1080"
+    )
 );
 
 
