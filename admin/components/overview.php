@@ -1,8 +1,8 @@
 <?php
 /**
- * @version     2009-09-10
+ * @version     2010-02-25
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
- * @copyright   Copyright (C) 2009 Patrick Lehner
+ * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
  * @license     This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU General Public License as published by
@@ -24,15 +24,15 @@
                     <li><strong>Global:</strong>
                         <ul>
                             <li><a href="?component=settings">General settings</a> <i>WIP</i></li>
-                            <li><a href="?component=viewman">View manager</a> <i>n/a</i></li>
-                            <li><a href="?component=layout">Style and layout</a> <i>n/a</i></li>
-                            <li><a href="?component=userman">User manager</a> <i>n/a</i></li>
-                            <li><a href="?component=errlog">Error log</a> <i>n/a</i></li>
+                            <li><!--<a href="?component=viewman">-->View manager<!--</a>--> <i>n/a</i></li>
+                            <li><!--<a href="?component=layout">-->Style and layout<!--</a>--> <i>n/a</i></li>
+                            <li><!--<a href="?component=userman">-->User manager<!--</a>--> <i>n/a</i></li>
+                            <li><!--<a href="?component=errlog">-->Error log<!--</a>--> <i>n/a</i></li>
                         </ul>
                     </li>
                     <li><strong>Headline:</strong>
                         <ul>
-                            <li><a href="?component=headlineman">Headline manager</a> <i>n/a</i></li>
+                            <li><!--<a href="?component=headlineman">-->Headline manager<!--</a>--> <i>n/a</i></li>
                         </ul>
                     </li>
                     <li><strong>Tickers:</strong>
@@ -43,12 +43,11 @@
                     <li><strong>Content:</strong>
                         <ul>
                             <li><a href="?component=content">Content manager</a> <i>WIP</i></li>
-                            <!-- <li><a href="?component=fckeditor">FCKeditor</a> <i>temporary</i></li> -->
                         </ul>
                     </li>
                     <li><strong>Substitution table:</strong>
                         <ul>
-                            <li><a href="?component=substtable">View substitution table</a> <i>temporary</i></li>
+                            <li><!--<a href="?component=substtable">-->Substitution table options<!--</a>--> <i>n/a</i></li>
                         </ul>
                     </li>
                 </ul>

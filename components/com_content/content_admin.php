@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-01-09
+ * @version     2010-02-25
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      content_admin -- HTML page manager (backend)
@@ -145,8 +145,8 @@
                             $_POST["start".$i."result"] . "', '" .
                             $_POST["end".$i."result"] . "', '" .
                             $type . "', " .
-                            ( ($_POST["enabled$i"]) ? "TRUE" : "FALSE" ) . ", FALSE, " .
-                            $_POST["tags$i"] . ")";
+                            ( ($_POST["enabled$i"]) ? "TRUE" : "FALSE" ) . ", FALSE, '" .
+                            $_POST["tags$i"] . "')";
                         $c++;
                     }
                 }

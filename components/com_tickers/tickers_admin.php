@@ -1,8 +1,8 @@
 <?php
 /**
- * @version     2009-09-28
+ * @version     2010-02-25
  * @author      Patrick Lehner
- * @copyright   Copyright (C) 2009 Patrick Lehner
+ * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      tickers_admin -- Ticker Manager (backend)
  * 
  * @license     This program is free software: you can redistribute it and/or modify
@@ -182,6 +182,7 @@
         default:
             break;
     }
+    
     $query = "SELECT * FROM `com_tickers`";
 
     $result = mysql_query($query);
@@ -196,15 +197,17 @@
         }
         
         unset($past, $preset, $future); //just to be sure
-        foreach ($rows as $value) {
-            if ($value->deleted)
-               $deleted[] = $value;
-            else if ( strtotime($value->end) < time() )
-               $past[] = $value;
-            else if ( strtotime($value->start) > time() )
-               $future[] = $value;
-            else
-               $present[] = $value;
+        if (!empty($rows)) {
+            foreach ($rows as $value) {
+                if ($value->deleted)
+                   $deleted[] = $value;
+                else if ( strtotime($value->end) < time() )
+                   $past[] = $value;
+                else if ( strtotime($value->start) > time() )
+                   $future[] = $value;
+                else
+                   $present[] = $value;
+            }
         }
     }
     
