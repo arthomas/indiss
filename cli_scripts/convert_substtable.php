@@ -300,14 +300,17 @@
             foreach ($line as $key => $entry)           //remove the place-holder string placed in empty cells
                 if ( $entry == "'---" )
                     $line[$key] = "";
-            if ( !check_if_ignore( $line_ ) )        //remove some items we dont want to display (actually, add only those we want into a new array)
+            if ( !check_if_ignore( $line_ ) ) {       //remove some items we dont want to display (actually, add only those we want into a new array)
+                $date = explode(" ", $line_["Datum"]);
+                $date = strtotime(str_replace(".", "-", $date[0] . date("Y")));
                 if ( strpos($line_["Klasse(n)"], ",") !== false ) {
                     $classes = explode(", ", $line_["Klasse(n)"]);
                     foreach ($classes as $class)
-                        $table[strtotime(str_replace(".", "-", $line_["Datum"]) . date("Y"))][strtoupper($class)][$line_["Stunde"]][] = $line;
+                        $table[$date][strtoupper($class)][$line_["Stunde"]][] = $line;
                 } else {
-                    $table[strtotime(str_replace(".", "-", $line_["Datum"]) . date("Y"))][strtoupper($line_["Klasse(n)"])][$line_["Stunde"]][] = $line;     //create our actual multi-dimensional array
+                    $table[$date][strtoupper($line_["Klasse(n)"])][$line_["Stunde"]][] = $line;     //create our actual multi-dimensional array
                 }
+            }
         }
         
         ksort($table);
