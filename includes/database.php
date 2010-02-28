@@ -1,8 +1,8 @@
 <?php
 /**
- * @version     2009-12-07
+ * @version     2010-02-28
  * @author      Patrick Lehner
- * @copyright   Copyright (C) 2009 Patrick Lehner
+ * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
  * @license     This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU General Public License as published by
@@ -19,11 +19,9 @@
  */
 
 	defined("__MAIN") or die("Restricted access.");
+	defined("__CONFIGFILE") or die("Config file not included [database.php]");
 	
-	//include_once("../config/config.php");
-	if (!$configfile) {
-	    die("Config file not included [database.php]");
-	}
+	define("__DATABASE", 1);
 	
 	// Open connection to MySQL server
     if(!mysql_connect($dbhost, $dbuser, $dbpass)) { 
