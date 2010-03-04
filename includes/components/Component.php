@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-02-28
+ * @version     2010-03-04
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that holds info about installed components
@@ -61,6 +61,7 @@ class Component {
     
     public static function cached($cached) {
         if (!is_bool($cached)) {
+            trigger_error("Component::cached(): first argument must be of type bool", E_USER_WARNING);
             return false;
         }
         self::$cached = $cached;
@@ -72,8 +73,10 @@ class Component {
     }
     
     public static function setCommonPath($path) {
-        if (!is_string($path))
+        if (!is_string($path)) {
+            trigger_error("Component::setCommonPath(): first argument must be of type string", E_USER_WARNING);
             return false;
+        }
         if ($path[0] != '/') {
             $path = "/" . $path;
         }
@@ -83,13 +86,15 @@ class Component {
     }
     
     public static function readDB($table) {
-        if (!is_string($table))
+        if (!is_string($table)) {
+            trigger_error("Component::readDB(): first argument must be of type string", E_USER_WARNING);
             return false;
+        }
         self::$dbTable = $table;
         $query = "SELECT * FROM `$table`";
         $result = mysql_query($query);
         if (!$result) {
-            trigger_error("Database error: " . mysql_error(), E_USER_WARNING);
+            trigger_error("Component::readDB(): database error: " . mysql_error(), E_USER_WARNING);
             return false;
         }
         while ($row = mysql_fetch_assoc($result)) { //fetch all resulting rows
@@ -103,20 +108,77 @@ class Component {
         }
     }
     
-    public static function add($name = "", $temporary = false) {
+    private static function install() {
         
     }
     
-    public static function addNotInstall($name = "", $temporary = false) {
+    public static function add($name, $xmlFile, $temporary = false) {
+        if (!is_string($name)) {
+            trigger_error("Component::add(): first argument must be of type string", E_USER_WARNING);
+            return false;
+        }
+        if (!is_string($xmlFile)) {
+            trigger_error("Component::add(): second argument must be of type string", E_USER_WARNING);
+            return false;
+        }
+        if (!is_bool($temporary)) {
+            trigger_error("Component::add(): third argument must be of type bool", E_USER_WARNING);
+            return false;
+        }
+        return addNotInstall($name, $xmlFile, $temporary);
+    }
+    
+    public static function addNotInstall($name, $xmlFile, $temporary = false) {
+        if (!is_string($name)) {
+            trigger_error("Component::addNotInstall(): first argument must be of type string", E_USER_WARNING);
+            return false;
+        }
+        if (!is_string($xmlFile)) {
+            trigger_error("Component::addNotInstall(): second argument must be of type string", E_USER_WARNING);
+            return false;
+        }
+        if (!is_bool($temporary)) {
+            trigger_error("Component::addNotInstall(): third argument must be of type bool", E_USER_WARNING);
+            return false;
+        }
         
+        $xml = simplexml_load_file($xmlFile);
     }
     
     public static function remove($id) {
-        
+        if (!is_int($id)) {
+            trigger_error("Component::remove(): first argument must be of type int", E_USER_WARNING);
+            return false;
+        }
+        $found = false;
+        foreach (self::$components as $com)
+            if ($com->getId() == $id) {
+                $found = true;
+                break;
+            }
+        if (!$found) {
+            trigger_error("Component::remove(): component id '$id' was not found", E_USER_WARNING);
+            return false;
+        }
     }
     
     public static function removeByName($name) {
-        
+        if (!is_string($name)) {
+            trigger_error("Component::removeByName(): first argument must be of type string", E_USER_WARNING);
+            return false;
+        }
+        $found = 0;
+        foreach (self::$components as $com)
+            if ($com->getName() == $name)
+                $found++;
+        if ($found == 0) {
+            trigger_error("Component::removeByName(): component named '$name' was not found", E_USER_WARNING);
+            return false;
+        }
+        if ($found > 1) {
+            trigger_error("Component::removeByName(): found $found components named '$name'", E_USER_WARNING);
+            return false;
+        }
     }
     
     
@@ -166,13 +228,13 @@ class Component {
     
     public function enable($enabled) {
         if (!is_bool($enabled)) {
-            trigger_error("component::enable(), first argument must be of type bool", E_USER_WARNING);
+            trigger_error("Component::enable(): first argument must be of type bool", E_USER_WARNING);
             return false;
         }
         if (!$this->cached) {
             $result = mysql_query("UPDATE `" . self::$dbTable . "` SET `enabled`=" . (($enabled) ? "TRUE" : "FALSE") . " WHERE `id`='" . $this->id . "'");
             if (!$result) {
-                trigger_error("Database error: " . mysql_error(), E_USER_WARNING);
+                trigger_error("Component::enable(): database error: " . mysql_error(), E_USER_WARNING);
                 return false;
             }
         }
@@ -186,13 +248,13 @@ class Component {
     
     public function setName($name) {
         if (!is_string($enabled)) {
-            trigger_error("component::setName(), first argument must be of type string", E_USER_WARNING);
+            trigger_error("Component::setName(): first argument must be of type string", E_USER_WARNING);
             return false;
         }
         if (!$this->cached) {
             $result = mysql_query("UPDATE `" . self::$dbTable . "` SET `name`='$name' WHERE `id`='" . $this->id . "'");
             if (!$result) {
-                trigger_error("Database error: " . mysql_error(), E_USER_WARNING);
+                trigger_error("Component::setName(): database error: " . mysql_error(), E_USER_WARNING);
                 return false;
             }
         }
@@ -206,7 +268,7 @@ class Component {
     
     public function setPath($path) {
         if (!is_string($enabled)) {
-            trigger_error("component::setPath(), first argument must be of type string", E_USER_WARNING);
+            trigger_error("Component::setPath(): first argument must be of type string", E_USER_WARNING);
             return false;
         }
         if ($path[0] != '/') {
@@ -216,7 +278,7 @@ class Component {
         if (!$this->cached) {
             $result = mysql_query("UPDATE `" . self::$dbTable . "` SET `path`='$path' WHERE `id`='" . $this->id . "'");
             if (!$result) {
-                trigger_error("Database error: " . mysql_error(), E_USER_WARNING);
+                trigger_error("Component::setPath(): database error: " . mysql_error(), E_USER_WARNING);
                 return false;
             }
         }
