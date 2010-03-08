@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-03-04
+ * @version     2010-03-08
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      Live error message handler
@@ -21,7 +21,7 @@
  
 class LiveErrorHandler {
     
-    //---- Class Contents ---------------------------------------------------------------
+    //---- Class Constants --------------------------------------------------------------
     
     const EK_DEBUG   = 1;
     const EK_NOTICE  = 2;
@@ -40,6 +40,7 @@ class LiveErrorHandler {
         "#FFDDDD",
         "#DDFFDD"
         );
+    private static $lastHandler;
     
     
     //---- Object properties ------------------------------------------------------------
@@ -77,11 +78,17 @@ class LiveErrorHandler {
             return false;
         }
         self::$defaultColors = $defaultColors;
+        return true;
     }
     
-    public static function add($name = "") {
-        $handler = new LiveErrorHandler();
+    public static function getLastHandler() {
+        return self::$lastHandler;
+    }
+    
+    public static function add($name = "", $colors = null) {
+        $handler = new LiveErrorHandler($name, $colors);
         self::$handlers[] = $handler;
+        self::$lastHandler = $handler;
         return $handler;
     }
     
@@ -138,9 +145,10 @@ class LiveErrorHandler {
             $this->colors = $colors;
     }
     
+    /*
     private function __destruct() {
         
-    }
+    }*/
     
     
     //---- Object methods ---------------------------------------------------------------
@@ -163,6 +171,7 @@ class LiveErrorHandler {
             return false;
         }
         $this->colors = $colors;
+        return true;
     }
     
     public function addMsg($origin, $message, $kind = self::EK_NOTICE) {
@@ -206,6 +215,20 @@ class LiveErrorHandler {
             trigger_error("LiveErrorHandler::getMsg(): first argument must be NULL or of type string", E_USER_WARNING);
             return false;
         }
+        $str  = "<div class=\"messagebox\" id=\"LiveErrorHandler_" . ((empty($this->name)) ? $this->index() : $this->name) . "\">\n";
+        $str .= "<table summary=\"\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"messagetable\"><tbody>\n";
+        if (count($this->messages) == 0) {
+            $str .= "<tr><td class=\"noMessages\">(No messages)</td></tr>\n";
+        } else {
+            foreach ($this->messages as $msg) {
+                $str .= "<tr style=\"background-color: " . $this->colors[$msg["kind"]] . ";\">";
+                $str .= "<td class=\"origin" . ((empty($msg["origin"])) ? " noOrigin" : "" ) . "\">" . $msg["origin"] . ((empty($msg["origin"])) ? "" : ":" ) . "</td>";
+                $str .= "<td class=\"message\">" . $msg["message"] . "</td>";
+                $str .= "</tr>\n";
+            }
+        }
+        $str .= "</tbody></table>\n";
+        $str .= "</div>\n";
     }
     
     public function clear() {

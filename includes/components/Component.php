@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-03-04
+ * @version     2010-03-08
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that holds info about installed components
@@ -24,6 +24,11 @@ defined("__DIRAWARE") or die("Directory awareness not included [component.php]")
 defined("__DATABASE") or die("Database connection not included [component.php]");
 
 define("__COMPONENT", 1);
+
+include_once($FULL_BASEPATH . "/includes/error_handling/LiveErrorHandler.php");
+$handler = LiveErrorHandler::getLastHandler();
+if (!$handler)
+    $handler = LiveErrorHandler::add("Component");
  
 class Component {
     
@@ -125,7 +130,7 @@ class Component {
             trigger_error("Component::add(): third argument must be of type bool", E_USER_WARNING);
             return false;
         }
-        return addNotInstall($name, $xmlFile, $temporary);
+        return self::addNotInstall($name, $xmlFile, $temporary);
     }
     
     public static function addNotInstall($name, $xmlFile, $temporary = false) {
@@ -142,7 +147,25 @@ class Component {
             return false;
         }
         
+        global $handler;
+        
         $xml = simplexml_load_file($xmlFile);
+        if ((string)$xml["type"] != "component") {
+            $handler->addMsg("Component manager", "This is not a component", LiveErrorHandler::EK_ERROR);
+            return false;
+        }
+        $type = (bool)$xml->type;
+        $version = (bool)$xml->version;
+        $desc = (bool)$xml->description;
+        $files = (bool)$xml->files;
+        if ( !$type || !$version || !$desc || !$files || count($xml->files->filename) < 1 ) {
+            $handler->addMsg("Component manager", "XML file is not valid", LiveErrorHandler::EK_ERROR);
+            return false;
+        }
+        /*var_dump($type);
+        var_dump($version);
+        var_dump($desc);
+        var_dump($files);*/
     }
     
     public static function remove($id) {
