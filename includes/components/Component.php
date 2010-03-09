@@ -46,12 +46,10 @@ class Component {
     private $installed = false;
     private $enabled = false;
     private $name = "";
-    private $type = "";
+    private $comName = "";
     private $installedAt = 0;
     private $installedBy = 0;
     private $path = "";
-    
-    private $temporary;
     
 
     //---- Static methods ---------------------------------------------------------------
@@ -90,6 +88,38 @@ class Component {
         return true;
     }
     
+    public static function getCom($index) {
+        if (!is_int($index)) {
+            trigger_error("Component::getCom(): first argument must be of type int", E_USER_WARNING);
+            return false;
+        }
+        return self::$components[$i];
+    }
+    
+    public static function getComById($id) {
+        if (!is_int($id)) {
+            trigger_error("Component::getComById(): first argument must be of type int", E_USER_WARNING);
+            return false;
+        }
+        foreach (self::$components as $com)
+            if ($com->id == $id)
+                return $com;
+        trigger_error("Component::getComById(): no component with id '$id' was found", E_USER_WARNING);
+        return false;
+    }
+    
+    public static function getComByName($name) {
+        if (!is_string($name)) {
+            trigger_error("Component::getComByName(): first argument must be of type string", E_USER_WARNING);
+            return false;
+        }
+        foreach (self::$components as $com)
+            if ($com->name == $name)
+                return $com;
+        trigger_error("Component::getComByName(): no component named '$name' was found", E_USER_WARNING);
+        return false;
+    }
+    
     public static function readDB($table) {
         if (!is_string($table)) {
             trigger_error("Component::readDB(): first argument must be of type string", E_USER_WARNING);
@@ -107,65 +137,99 @@ class Component {
         }
         if (!empty($rows)) {
             foreach ($rows as $row) {
-                $com = new Component($row["id"], $row["name"], $row["type"], $row["installedAt"], $row["installedBy"], $row["path"], $row["enabled"]);
+                $com = new Component($row["id"], $row["name"], $row["comName"], $row["installedAt"], $row["installedBy"], $row["path"], $row["enabled"]);
                 self::$components[] = $com;
             }
         }
     }
     
-    private static function install() {
-        
+    private static function generatePath($comName) {
+        $p = $FULL_BASEPATH . self::$commonPath;
+        if (!file_exists($p . "/$comName"))
+            return "$comName";
+        $i = 1;
+        while (file_exists(sprintf("%s/%s_%03d", $p, $comName, $i)))
+            $i++;
+        return sprintf("%s_%03d", $comName, $i);
     }
     
-    public static function add($name, $xmlFile, $temporary = false) {
-        if (!is_string($name)) {
+    public static function add($xmlFile, $name = null, $path = null) {
+        if (!is_string($xmlfile)) {
             trigger_error("Component::add(): first argument must be of type string", E_USER_WARNING);
             return false;
         }
-        if (!is_string($xmlFile)) {
-            trigger_error("Component::add(): second argument must be of type string", E_USER_WARNING);
+        if (!(is_null($name) || is_string($name))) {
+            trigger_error("Component::add(): second argument must be NULL or of type string", E_USER_WARNING);
             return false;
         }
-        if (!is_bool($temporary)) {
-            trigger_error("Component::add(): third argument must be of type bool", E_USER_WARNING);
-            return false;
-        }
-        return self::addNotInstall($name, $xmlFile, $temporary);
-    }
-    
-    public static function addNotInstall($name, $xmlFile, $temporary = false) {
-        if (!is_string($name)) {
-            trigger_error("Component::addNotInstall(): first argument must be of type string", E_USER_WARNING);
-            return false;
-        }
-        if (!is_string($xmlFile)) {
-            trigger_error("Component::addNotInstall(): second argument must be of type string", E_USER_WARNING);
-            return false;
-        }
-        if (!is_bool($temporary)) {
-            trigger_error("Component::addNotInstall(): third argument must be of type bool", E_USER_WARNING);
+        if (!(is_null($path) || is_string($path))) {
+            trigger_error("Component::add(): third argument must be NULL or of type string", E_USER_WARNING);
             return false;
         }
         
         global $handler;
         
         $xml = simplexml_load_file($xmlFile);
+        if ( !$xml ) {
+            $handler->addMsg("Component manager", "XML file is not valid XML ($xmlFile)", LiveErrorHandler::EK_ERROR);
+            return false;
+        }
         if ((string)$xml["type"] != "component") {
-            $handler->addMsg("Component manager", "This is not a component", LiveErrorHandler::EK_ERROR);
+            $handler->addMsg("Component manager", "This is not a component ($xmlFile)", LiveErrorHandler::EK_ERROR);
             return false;
         }
-        $type = (bool)$xml->type;
-        $version = (bool)$xml->version;
-        $desc = (bool)$xml->description;
-        $files = (bool)$xml->files;
-        if ( !$type || !$version || !$desc || !$files || count($xml->files->filename) < 1 ) {
-            $handler->addMsg("Component manager", "XML file is not valid", LiveErrorHandler::EK_ERROR);
+        if ( !(bool)$xml->comName || !(bool)$xml->version || !(bool)$xml->description || !(bool)$xml->files || count($xml->files->filename) < 1 ) {
+            $handler->addMsg("Component manager", "XML file is not a valid component information file ($xmlFile)", LiveErrorHandler::EK_ERROR);
             return false;
         }
-        /*var_dump($type);
-        var_dump($version);
-        var_dump($desc);
-        var_dump($files);*/
+        $comName = (string)$xml->comName;
+        $version = (string)$xml->version;
+        $desc = (string)$xml->description;
+        $files = $xml->files->filename;
+        $path = ltrim($path, "/\\");
+        if (empty($path))
+            $path = generatePath($comName);
+        if (empty($name))
+            $name = ucfirst($path);
+        
+        if (self::getComByName($name) !== false) {
+            $handler->addMsg("Component manager", "A component named '$name' already exists", LiveErrorHandler::EK_ERROR);
+            return false;
+        }
+        
+        $p = $FULL_BASEPATH . $commonPath . "/" . $path;
+        if (file_exists($p)) {
+            $handler->addMsg("Component manager", "Directory already exists ($p)", LiveErrorHandler::EK_ERROR);
+            return false;
+        }
+        mkdir($p);
+        $s = dirname($xmlFile);
+        foreach ($files as $filename) {
+            if ( strpos($filename, "/") !== false || strpos($filename, "\\") !== false) {
+                if (!file_exists(dirname("$p/$filename")))
+                    mkdir(dirname("$p/$filename"), 0777, true);
+            }
+            copy("$s/$filename", "$p/$filename");
+        }
+        
+        $installedAt = date("Ymdhis");
+        
+        $query = "INSERT INTO `" . self::$dbTable . "` (`name`, `comName`, `installedAt`, `installedBy`, `path`, `enabled`) 
+            VALUES ('$name', '$comName', '$installedAt', NULL, '$path', TRUE)";
+        if (!mysql_query($query)) {
+            $handler->addMsg("Component manager", "Database error while installing component $name\nDatabase said: " . mysql_error() . "\nQuery: <pre>$query</pre>", LiveErrorHandler::EK_ERROR);
+            return false;
+        }
+        if (!($id = mysql_insert_id())) {
+            $handler->addMsg("Component manager", "Could not retrieve database entry ID", LiveErrorHandler::EK_ERROR);
+            return false;
+        }
+        
+        $com = new Component($id, $name, $comName, $installedAt, null, $path, true);
+        self::$components[] = $com;
+        
+        $handler->addMsg("Component manager", "Component $name successfully installed", LiveErrorHandler::EK_SUCCESS);
+        return true;
     }
     
     public static function remove($id) {
@@ -207,10 +271,10 @@ class Component {
     
     //---- Constructors & destructors ---------------------------------------------------
     
-    private function __construct($id, $name, $type, $installedAt, $installedBy, $path, $enabled) {
+    private function __construct($id, $name, $comName, $installedAt, $installedBy, $path, $enabled) {
         $this->id = $id;
         $this->name = $name;
-        $this->type = $type;
+        $this->comName = $comName;
         $this->installedAt = $installedAt;
         $this->installedBy = $installedBy;
         $this->path = $path;
@@ -225,16 +289,12 @@ class Component {
         return $this->installed;
     }
     
-    public function isTemporary() {
-        return $this->temporary;
-    }
-    
     public function getId() {
         return $this->id;
     }
     
-    public function getType() {
-        return $this->type;
+    public function getComName() {
+        return $this->comName;
     }
     
     public function getInstalledAt() {
@@ -307,6 +367,10 @@ class Component {
         }
         $this->path = $path;
         return true;
+    }
+    
+    public function duplicate($name = null, $path = null) {
+        
     }
     
 }

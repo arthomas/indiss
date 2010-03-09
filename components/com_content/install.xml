@@ -2,7 +2,7 @@
 <!-- Insert DTD info here! -->
 <install type="component">
     <name>Content</name>
-    <type>content</type>
+    <comName>com_content</comName>
     <created>2009-09-11</created>
     <author>Patrick Lehner</author>
     <authorEmail>lehner.patrick@gmx.de</authorEmail>
