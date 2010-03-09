@@ -153,8 +153,8 @@ class Component {
         return sprintf("%s_%03d", $comName, $i);
     }
     
-    public static function add($xmlFile, $name = null, $path = null) {
-        if (!is_string($xmlfile)) {
+    public static function add($source, $name = null, $dest = null) {
+        if (!is_string($source)) {
             trigger_error("Component::add(): first argument must be of type string", E_USER_WARNING);
             return false;
         }
@@ -162,60 +162,61 @@ class Component {
             trigger_error("Component::add(): second argument must be NULL or of type string", E_USER_WARNING);
             return false;
         }
-        if (!(is_null($path) || is_string($path))) {
+        if (!(is_null($dest) || is_string($dest))) {
             trigger_error("Component::add(): third argument must be NULL or of type string", E_USER_WARNING);
             return false;
         }
         
         global $handler;
         
-        $xml = simplexml_load_file($xmlFile);
+        $source = rtrim($source, "/\\");
+        
+        $xml = simplexml_load_file($source . "/install.xml");
         if ( !$xml ) {
-            $handler->addMsg("Component manager", "XML file is not valid XML ($xmlFile)", LiveErrorHandler::EK_ERROR);
+            $handler->addMsg("Component manager", "XML file is not valid XML ($source/install.xml)", LiveErrorHandler::EK_ERROR);
             return false;
         }
         if ((string)$xml["type"] != "component") {
-            $handler->addMsg("Component manager", "This is not a component ($xmlFile)", LiveErrorHandler::EK_ERROR);
+            $handler->addMsg("Component manager", "This is not a component ($source/install.xml)", LiveErrorHandler::EK_ERROR);
             return false;
         }
         if ( !(bool)$xml->comName || !(bool)$xml->version || !(bool)$xml->description || !(bool)$xml->files || count($xml->files->filename) < 1 ) {
-            $handler->addMsg("Component manager", "XML file is not a valid component information file ($xmlFile)", LiveErrorHandler::EK_ERROR);
+            $handler->addMsg("Component manager", "XML file is not a valid component information file ($source/install.xml)", LiveErrorHandler::EK_ERROR);
             return false;
         }
         $comName = (string)$xml->comName;
         $version = (string)$xml->version;
         $desc = (string)$xml->description;
         $files = $xml->files->filename;
-        $path = ltrim($path, "/\\");
-        if (empty($path))
-            $path = generatePath($comName);
+        $dest = trim($dest, "/\\");
+        if (empty($dest))
+            $dest = generatePath($comName);
         if (empty($name))
-            $name = ucfirst($path);
+            $name = ucfirst($dest);
         
         if (self::getComByName($name) !== false) {
             $handler->addMsg("Component manager", "A component named '$name' already exists", LiveErrorHandler::EK_ERROR);
             return false;
         }
         
-        $p = $FULL_BASEPATH . $commonPath . "/" . $path;
+        $p = $FULL_BASEPATH . $commonPath . "/" . $dest;
         if (file_exists($p)) {
             $handler->addMsg("Component manager", "Directory already exists ($p)", LiveErrorHandler::EK_ERROR);
             return false;
         }
         mkdir($p);
-        $s = dirname($xmlFile);
         foreach ($files as $filename) {
             if ( strpos($filename, "/") !== false || strpos($filename, "\\") !== false) {
                 if (!file_exists(dirname("$p/$filename")))
                     mkdir(dirname("$p/$filename"), 0777, true);
             }
-            copy("$s/$filename", "$p/$filename");
+            copy("$source/$filename", "$p/$filename");
         }
         
         $installedAt = date("Ymdhis");
         
         $query = "INSERT INTO `" . self::$dbTable . "` (`name`, `comName`, `installedAt`, `installedBy`, `path`, `enabled`) 
-            VALUES ('$name', '$comName', '$installedAt', NULL, '$path', TRUE)";
+            VALUES ('$name', '$comName', '$installedAt', NULL, '$dest', TRUE)";
         if (!mysql_query($query)) {
             $handler->addMsg("Component manager", "Database error while installing component $name\nDatabase said: " . mysql_error() . "\nQuery: <pre>$query</pre>", LiveErrorHandler::EK_ERROR);
             return false;
@@ -225,7 +226,7 @@ class Component {
             return false;
         }
         
-        $com = new Component($id, $name, $comName, $installedAt, null, $path, true);
+        $com = new Component($id, $name, $comName, $installedAt, null, $dest, true);
         self::$components[] = $com;
         
         $handler->addMsg("Component manager", "Component $name successfully installed", LiveErrorHandler::EK_SUCCESS);
@@ -369,8 +370,8 @@ class Component {
         return true;
     }
     
-    public function duplicate($name = null, $path = null) {
-        
+    public function duplicate($name = null, $dest = null) {
+        return self::add($FULL_BASEPATH . self::$commonPath . $this->path, $name, $dest);
     }
     
 }
