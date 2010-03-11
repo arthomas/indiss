@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-03-09
+ * @version     2010-03-11
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that holds info about installed components
@@ -80,10 +80,7 @@ class ComMan {
             trigger_error("ComMan::setCommonPath(): first argument must be of type string", E_USER_WARNING);
             return false;
         }
-        if ($path[0] != '/') {
-            $path = "/" . $path;
-        }
-        $path = rtrim($path, "/");
+        $path = "/" . trim($path, "/\\");
         self::$commonPath = $path;
         return true;
     }
@@ -144,6 +141,10 @@ class ComMan {
     }
     
     private static function generatePath($comName) {
+        if (!is_string($comName)) {
+            trigger_error("ComMan::generatePath(): first argument must be of type string", E_USER_WARNING);
+            return false;
+        }
         $p = $FULL_BASEPATH . self::$commonPath;
         if (!file_exists($p . "/$comName"))
             return "$comName";
@@ -233,21 +234,26 @@ class ComMan {
         return true;
     }
     
-    public static function remove($id) {
+    public static function remove(ComMan $com) {
+        
+    }
+    
+    public static function removeById($id) {
         if (!is_int($id)) {
-            trigger_error("ComMan::remove(): first argument must be of type int", E_USER_WARNING);
+            trigger_error("ComMan::removeById(): first argument must be of type int", E_USER_WARNING);
             return false;
         }
         $found = false;
         foreach (self::$components as $com)
-            if ($com->getId() == $id) {
+            if ($com->id == $id) {
                 $found = true;
                 break;
             }
         if (!$found) {
-            trigger_error("ComMan::remove(): component id '$id' was not found", E_USER_WARNING);
+            trigger_error("ComMan::removeById(): component id '$id' was not found", E_USER_WARNING);
             return false;
         }
+        return remove($com);
     }
     
     public static function removeByName($name) {
@@ -257,7 +263,7 @@ class ComMan {
         }
         $found = 0;
         foreach (self::$components as $com)
-            if ($com->getName() == $name)
+            if ($com->name == $name)
                 $found++;
         if ($found == 0) {
             trigger_error("ComMan::removeByName(): component named '$name' was not found", E_USER_WARNING);
@@ -267,6 +273,7 @@ class ComMan {
             trigger_error("ComMan::removeByName(): found $found components named '$name'", E_USER_WARNING);
             return false;
         }
+        return remove($com);
     }
     
     
@@ -318,7 +325,7 @@ class ComMan {
         if (!$this->cached) {
             $result = mysql_query("UPDATE `" . self::$dbTable . "` SET `enabled`=" . (($enabled) ? "TRUE" : "FALSE") . " WHERE `id`='" . $this->id . "'");
             if (!$result) {
-                trigger_error("ComMan::enable(): database error: " . mysql_error(), E_USER_WARNING);
+                $handler->addMsg("Component manager", "Database error while " . (($enabled) ? "enabling" : "disabling") . " component $this->name\nDatabase said: " . mysql_error() . "\nQuery: <pre>$query</pre>", LiveErrorHandler::EK_ERROR);
                 return false;
             }
         }
@@ -338,7 +345,7 @@ class ComMan {
         if (!$this->cached) {
             $result = mysql_query("UPDATE `" . self::$dbTable . "` SET `name`='$name' WHERE `id`='" . $this->id . "'");
             if (!$result) {
-                trigger_error("ComMan::setName(): database error: " . mysql_error(), E_USER_WARNING);
+                $handler->addMsg("Component manager", "Database error while renaming component $this->name\nDatabase said: " . mysql_error() . "\nQuery: <pre>$query</pre>", LiveErrorHandler::EK_ERROR);
                 return false;
             }
         }
@@ -351,7 +358,7 @@ class ComMan {
     }
     
     public function setPath($path) {
-        if (!is_string($enabled)) {
+        if (!is_string($path)) {
             trigger_error("ComMan::setPath(): first argument must be of type string", E_USER_WARNING);
             return false;
         }
@@ -362,7 +369,7 @@ class ComMan {
         if (!$this->cached) {
             $result = mysql_query("UPDATE `" . self::$dbTable . "` SET `path`='$path' WHERE `id`='" . $this->id . "'");
             if (!$result) {
-                trigger_error("ComMan::setPath(): database error: " . mysql_error(), E_USER_WARNING);
+                $handler->addMsg("Component manager", "Database error while changing path for component $this->name\nDatabase said: " . mysql_error() . "\nQuery: <pre>$query</pre>", LiveErrorHandler::EK_ERROR);
                 return false;
             }
         }
@@ -371,7 +378,20 @@ class ComMan {
     }
     
     public function duplicate($name = null, $dest = null) {
-        return self::add($FULL_BASEPATH . self::$commonPath . $this->path, $name, $dest);
+        if (!(is_null($name) || is_string($name))) {
+            trigger_error("ComMan::duplicate(): first argument must be NULL or of type string", E_USER_WARNING);
+            return false;
+        }
+        if (!(is_null($dest) || is_string($dest))) {
+            trigger_error("ComMan::duplicate(): second argument must be NULL or of type string", E_USER_WARNING);
+            return false;
+        }
+        $com = self::add($FULL_BASEPATH . self::$commonPath . $this->path, $name, $dest);
+        if (!$com)
+            $handler->addMsg("Component manager", "Duplicating component $this->name failed", LiveErrorHandler::EK_ERROR);
+        else
+            $handler->addMsg("Component manager", "Component $this->name was successfully duplicated to $com->name", LiveErrorHandler::EK_SUCCESS);
+        return $com; 
     }
     
 }
