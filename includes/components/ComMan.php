@@ -45,6 +45,9 @@ class ComMan {
     private $id = 0;
     private $installed = false;
     private $enabled = false;
+    private $oneOfAKind = false;    //means that this component cannot be duplicated
+    private $alwaysOn = false;      //means that this component cannot be disabled
+    private $core = false;          //means that this component cannot be removed
     private $name = "";
     private $comName = "";
     private $installedAt = 0;
@@ -134,7 +137,7 @@ class ComMan {
         }
         if (!empty($rows)) {
             foreach ($rows as $row) {
-                $com = new ComMan($row["id"], $row["name"], $row["comName"], $row["installedAt"], $row["installedBy"], $row["path"], $row["enabled"]);
+                $com = new ComMan($row["id"], $row["name"], $row["comName"], $row["installedAt"], $row["installedBy"], $row["path"], $row["enabled"], $row["oneOfAKind"], $row["alwaysOn"], $row["core"]);
                 self::$components[] = $com;
             }
         }
@@ -235,7 +238,10 @@ class ComMan {
     }
     
     public static function remove(ComMan $com) {
-        
+        if ($com->core) {
+            $handler->addMsg("Component manager", "Component $this->name cannot be removed", LiveErrorHandler::EK_ERROR);
+            return false;
+        }
     }
     
     public static function removeById($id) {
@@ -261,16 +267,14 @@ class ComMan {
             trigger_error("ComMan::removeByName(): first argument must be of type string", E_USER_WARNING);
             return false;
         }
-        $found = 0;
+        $found = false;
         foreach (self::$components as $com)
-            if ($com->name == $name)
-                $found++;
-        if ($found == 0) {
+            if ($com->name == $name) {
+                $found = true;
+                break;
+            }
+        if (!$found) {
             trigger_error("ComMan::removeByName(): component named '$name' was not found", E_USER_WARNING);
-            return false;
-        }
-        if ($found > 1) {
-            trigger_error("ComMan::removeByName(): found $found components named '$name'", E_USER_WARNING);
             return false;
         }
         return remove($com);
@@ -279,7 +283,7 @@ class ComMan {
     
     //---- Constructors & destructors ---------------------------------------------------
     
-    private function __construct($id, $name, $comName, $installedAt, $installedBy, $path, $enabled) {
+    private function __construct($id, $name, $comName, $installedAt, $installedBy, $path, $enabled = true, $oneOfAKind = false, $alwaysOn = false, $core = false) {
         $this->id = $id;
         $this->name = $name;
         $this->comName = $comName;
@@ -287,6 +291,9 @@ class ComMan {
         $this->installedBy = $installedBy;
         $this->path = $path;
         $this->enabled = $enabled;
+        $this->oneOfAKind = $oneOfAKind;
+        $this->alwaysOn = $alwaysOn;
+        $this->core = $core;
         $this->installed = true;
     }
     
@@ -295,6 +302,18 @@ class ComMan {
     
     public function isInstalled() {
         return $this->installed;
+    }
+    
+    public function isOneOfAKind() {
+        return $this->oneOfAKind;
+    }
+    
+    public function isAlwaysOn() {
+        return $this->alwaysOne;
+    }
+    
+    public function isCore() {
+        return $this->core;
     }
     
     public function getId() {
@@ -320,6 +339,10 @@ class ComMan {
     public function enable($enabled) {
         if (!is_bool($enabled)) {
             trigger_error("ComMan::enable(): first argument must be of type bool", E_USER_WARNING);
+            return false;
+        }
+        if ($this->alwaysOn) {
+            $handler->addMsg("Component manager", "Component $this->name cannot be disabled", LiveErrorHandler::EK_ERROR);
             return false;
         }
         if (!$this->cached) {
@@ -357,6 +380,7 @@ class ComMan {
         return $this->path;
     }
     
+    //Note: this function is deprecated! It will only change the path but will not move the files!
     public function setPath($path) {
         if (!is_string($path)) {
             trigger_error("ComMan::setPath(): first argument must be of type string", E_USER_WARNING);
@@ -384,6 +408,10 @@ class ComMan {
         }
         if (!(is_null($dest) || is_string($dest))) {
             trigger_error("ComMan::duplicate(): second argument must be NULL or of type string", E_USER_WARNING);
+            return false;
+        }
+        if ($this->oneOfAKind) {
+            $handler->addMsg("Component manager", "Component $this->name cannot be duplicated", LiveErrorHandler::EK_ERROR);
             return false;
         }
         $com = self::add($FULL_BASEPATH . self::$commonPath . $this->path, $name, $dest);
