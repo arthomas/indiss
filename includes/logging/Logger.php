@@ -1,10 +1,12 @@
 <?php
 /**
- * @version     2010-03-03
+ * @version     2010-03-14
  * @author      Myriam Leggieri <myriam.leggieri@gmail.com>
- * @copyright   Copyright (C) 2010 Myriam Leggieri
+ * @author      Patrick Lehner <lehner.patrick@gmx.de>
+ * @copyright   Copyright (C) 2010 Myriam Leggieri, Patrick Lehner
  * @module      Log events manager: stores log events to csv file or to Mysql db and allows
- * to perform searches over them by specify one or more values for any of their fields.
+ *              to perform searches over them by specify one or more values for any of their
+ *              fields.
  *
  * @license     This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU General Public License as published by
@@ -21,34 +23,57 @@
  *
  */
 
+defined("__CONFIGFILE") or die("Config file not included [Logger.php]");
+defined("__DIRAWARE") or die("Directory awareness not included [Logger.php]");
+defined("__DATABASE") or die("Database connection not included [Logger.php]");
+
+define("__LOGGER", 1);
+
 class Logger {
+    
+    //---- Class constants --------------------------------------------------------------
 
-	const filesize = 100;
+	const filesize = 104857600;            //maximum file size of log file, in bytes
 	const searchQueryDelimiter = ",";
-	const baseName = "logEvents";
+	const fileNamePrefix = "indiss_";
 	const fileNameDelimiter = "_";
-	const csvDelimiter = ";";
+	const fileNameSuffix = ".log";
+	const tablePrefix = "logs_";
+	const csvDelimiter = ";";              //cell delimiter for the CSV file; Note: changing this will make all previously created log files unreadable!
+	
+	
+    //---- Static properties ------------------------------------------------------------
 
-	public static $parameters = array('Date_and_Time', 'UserId', 'Origin', 'Type', 'Info');
+	public static $parameters = array('when', 'uid', 'origin', 'type', 'message');  //these are the values inserted below for $col_datetime, $col_user, $col_origin, $col_type and $col_info, respectively
+	
+	
+    //---- Object properties ------------------------------------------------------------
+	
 	private $tablename = "logs";
 	private $col_key = "id";
-	private $col_user = null;
 	private $col_datetime = null;
+    private $col_user = null;
 	private $col_origin = null;
 	private $col_type = null;
 	private $col_info = null;
+	private $name;
+	private $logToFile = true;
+	private $logToDb = true;
+	
+	
+    //---- Object methods ---------------------------------------------------------------
 
 	private function renameOldLogFile(){
-		$i = 0;
-		while (file_exists(sprintf("%s".Logger::fileNameDelimiter."%03d.log", Logger::baseName, $i))){
+		$i = 1;
+		while (file_exists($fn = sprintf("%s%s%s%03d%s", self::fileNamePrefix, $this->name, self::fileNameDelimiter, $i, self::fileNameSuffix))){
 			$i++;
 		}
-		rename($this->constructLogFileCompletePath(), sprintf("%s".Logger::fileNameDelimiter."%03d.log", getcwd()."/".Logger::baseName, $i));
-		return true;
+		return rename($this->constructLogFileCompletePath(), $fn);
 	}
+	
 	/**
-	 * when the file exceedes the max number of lines a new one is created
-	 * @return unknown_type
+	 * @desc When the file exceeds the maximum file size, a new one is created
+	 * @return (bool) True on success or false on failure.
 	 */
 	private function createNewLogFile(){
 		$ret = true;
@@ -63,14 +88,15 @@ class Logger {
 	}
 
 	private function constructLogFileCompletePath(){
-		return getcwd()."/".Logger::baseName.".log";
+	    global $FULL_BASEPATH;
+		return $FULL_BASEPATH . "/logs" . self::fileNamePrefix . $this->name . self::fileNameSuffix;
 	}
 
 	/**
-	 * Append a new event to the log file after checking if a new log file
+	 * @desc Append a new event to the log file after checking if a new log file
 	 * needs to be created becuase of file size exceeding.
-	 * @param unknown_type $row
-	 * @return unknown_type
+	 * @param $row
+	 * @return (bool)
 	 */
 	private function appendEventToCsv($row){
 		$ret = true;
@@ -84,7 +110,7 @@ class Logger {
 		if (!$f) {
 			$ret = false;
 		} else {
-			if (!fputcsv($f, $row, Logger::csvDelimiter)){
+			if (!fputcsv($f, $row, self::csvDelimiter)){
 				$ret = false;
 			}
 		}
@@ -95,58 +121,64 @@ class Logger {
 
 
 	/**
-	 * The default constructor does nothing while if an argument is passed
-	 * to it then it would be the name of the table that would include logs
-	 * into the db. If this table doesnt' already exist it's created.
-	 * @return unknown_type
+	 * @desc Constructor for logger objects. Each concurrently used logger should get a unique name
+	 * which determines db table name and file name; the name must thus be compatible with db
+	 * and file system naming conventions, i.e. lower-case letters, numbers and underscore only.
+	 * @param <i>string</i> <b>$name</b>: The name of this logger, will determine db table name and 
+	 * file name. Due to PHP's auto-casting feature, this can theoretically also be a number
+	 * (int/float) -- no promises though.
+	 * @return void
 	 */
-	public function __construct() {
-		$argv = func_get_args();
-		switch( func_num_args() )
-		{
-			case 0:
-				if (!file_exists($this->constructLogFileCompletePath())){
-					$this->createNewLogFile();
-				}
-				break;
-			case 1:
+	public function __construct($name, $logToFile = true, $logToDb = true) {
+        if (!is_string($name)) {
+            trigger_error("Logger::__construct(): first argument must be of type string", E_USER_WARNING);
+            return false;
+        }
+        if (!is_bool($logToFile)) {
+            trigger_error("Logger::__construct(): second argument must be of type bool", E_USER_WARNING);
+            return false;
+        }
+        if (!is_bool($logToDb)) {
+            trigger_error("Logger::__construct(): third argument must be of type bool", E_USER_WARNING);
+            return false;
+        }
+        if ( !$logToFile && !$logToDb ) {
+            trigger_error("Logger::__construct(): this logger will do nothing (log neither to file nor to DB)", E_USER_WARNING);
+        }
+	    $this->name = $name;
+	    $this->logToFile = $logToFile;
+	    $this->logToDb = $logToDb;
+		if ($logToFile) {
+			if (!file_exists($this->constructLogFileCompletePath())){
+				$this->createNewLogFile();
+			}
+		}
+		if ($logToDb) {
 				$this->col_datetime = self::$parameters[0];
 				$this->col_user = self::$parameters[1];
 				$this->col_origin = self::$parameters[2];
 				$this->col_type = self::$parameters[3];
 				$this->col_info = self::$parameters[4];
-				self::__construct1($argv[0]);
-				break;
-			default:
-				break;
-		}
-	}
-
-
-	/**
-	 * Create a table for logs in the db if it doesn't exist
-	 * @return unknown_type
-	 */
-	private function __construct1($tablename){
-		$this->tablename = $tablename;
-
-		$query = "CREATE TABLE IF NOT EXISTS `$this->tablename` (`$this->col_key` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-		`$this->col_datetime` DATETIME NOT NULL,
-            `$this->col_user` INT NOT NULL ,
-            `$this->col_origin` VARCHAR( 255 ) NOT NULL ,
-            `$this->col_type` VARCHAR( 255 ) NOT NULL,
-            `$this->col_info` VARCHAR( 255 ) NOT NULL
-            )";
-		if (!mysql_query($query)){
-			trigger_error("Logger::__construct1(): Cannot create the $this->tablename table into the db.".$file."-\nmysql error:".mysql_error(), E_USER_ERROR);
+				$tablename = self::tablePrefix . $name;
+				$query = "CREATE TABLE IF NOT EXISTS `$tablename` (
+                    `$this->col_key` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                    `$this->col_datetime` DATETIME NOT NULL,
+                    `$this->col_user` INT DEFAULT NULL ,
+                    `$this->col_origin` VARCHAR( 255 ) NOT NULL,
+                    `$this->col_type` VARCHAR( 255 ) NOT NULL,
+                    `$this->col_info` VARCHAR( 1023 ) NOT NULL
+                    )";
+                if (!mysql_query($query)){
+                    trigger_error("Logger::__construct(): Cannot create the db table '$tablename'.\nmysql error:".mysql_error(), E_USER_ERROR);
+                }
 		}
 	}
 
 	/**
-	 * format the date passed as parameter or the current one if NULL is passed.
-	 * The resulting date is in the format accepted by mysql.
-	 * @param unknown_type $time
-	 * @return unknown_type
+	 * @desc Formats the date passed as $time or the current time() if NULL is passed
+	 * to be used in a mysql query.
+	 * @param $time
+	 * @return Formatted DATETIME string
 	 */
 	private function datetimeFormatter($time=NULL){
 		if (!is_null($time)){
@@ -156,54 +188,38 @@ class Logger {
 		}
 		return $ret;
 	}
-
-
+	
 	/**
-	 * store a log event into the csv file.
-	 * @param unknown_type $origin
-	 * @param unknown_type $type
-	 * @param unknown_type $info
-	 * @param unknown_type $userId
-	 * @return unknown_type
+	 * @desc Log an event.
+	 * @param $origin
+	 * @param $type
+	 * @param $message
+	 * @param $userId
+	 * @return (bool)
 	 */
-	public function logToCsv($origin, $type, $info, $userId){
-		$when = $this->datetimeFormatter();
-		$str = array($when, $userId, $origin, $type, $info);
-		return $this->appendEventToCsv($str);
+	public function log($origin, $type, $message, $userId = 0) {
+        $ret = true;
+        $when = $this->datetimeFormatter();
+        if ($this->logToFile) {
+            $str = array($when, $userId, $origin, $type, $info);
+            $ret = $ret && $this->appendEventToCsv($str);
+        }
+        if ($this->logToDb) {
+            $tablename = self::tablePrefix . $this->name;
+            if ($userId)
+                $uid = "'$userId'";
+            else
+                $uid = "NULL";
+            $query = "INSERT INTO `$tablename` (`$this->col_datetime`, `$this->col_user`, `$this->col_origin`, `$this->col_type`, `$this->col_info`)
+                     VALUES ('$when', $uid, '$origin', '$type', '$info')";
+    
+            if (!mysql_query($query)){
+                trigger_error("Logger::log(): Cannot insert log event into db table '$tablename'.\nmysql error:".mysql_error(), E_USER_WARNING);
+                $ret = false;
+            }
+        }
+        return $ret;
 	}
-
-	/**
-	 * store a log event into the db.
-	 * @param unknown_type $origin
-	 * @param unknown_type $type
-	 * @param unknown_type $info
-	 * @param unknown_type $userId
-	 * @return unknown_type
-	 */
-	public function logToDb($origin, $type, $info, $userId){
-		$ret = true;
-		$when = $this->datetimeFormatter(NULL);
-		$query = "INSERT INTO `$this->tablename` (`$this->col_datetime`, `$this->col_user`, `$this->col_origin`, `$this->col_type`, `$this->col_info`)
-                                    VALUES (
-                                        '$when',
-                                        '$userId', '$origin', '$type', '$info'
-                                    )";
-
-		if (!mysql_query($query)){
-			trigger_error("Logger::logToDb(): Cannot execute the insertion of values into the db. ".$file."-\nmysql error:".mysql_error(), E_USER_ERROR);
-			$ret = false;
-		}
-		return $ret;
-	}
-
-
-
-
-
-
-
-
-
 
 	/**
 	 * split a string that contains values separated by a specific delimiter
@@ -215,22 +231,17 @@ class Logger {
 	 * @param unknown_type $column
 	 * @return unknown_type
 	 */
-	private function splitIntoQuery($toSplit, $bool=" OR ", $column, $useLikeOp=false){
-		$splitted = explode(Logger::searchQueryDelimiter, $toSplit);
-		$cnt = count($splitted);
-		$ret = "(";
-		for ($i=0; $i<$cnt ;$i++){
-			if($useLikeOp){
-				$ret .= " $column like '%$splitted[$i]%' ";
-			}else{
-				$ret .= " $column = '$splitted[$i]' ";
-			}
-			if ($i+1<$cnt){
-				$ret .= $bool;
-			}
+	private function splitIntoQuery($toSplit, $connector = " OR ", $column, $useLikeOp=false){
+		$splitted = explode(self::searchQueryDelimiter, $toSplit);
+		foreach ($splitted as &$item) {
+            if ($useLikeOp) {
+                $item = " $column like '%$item%' ";
+            } else {
+                $item = " $column = '$item' ";
+            }
 		}
-		$ret .= ") ";
-		return $ret;
+		$glued = implode($connector, $splitted);
+		return "($glued) ";
 	}
 
 	/**
@@ -246,48 +257,35 @@ class Logger {
 	 */
 	public function searchDb($timebefore, $timeafter, $users, $origins, $types, $keywords, $bool_keywords){
 		$query = "SELECT * FROM `$this->tablename` WHERE ";
-		$entered = false;
-		if (!is_null($timebefore)){
-			$entered = true;
-			$query .= "$this->col_datetime < '".$this->datetimeFormatter($timebefore)."' ";
+		$items = array();
+		if (!is_null($timebefore)) {
+			$items[] = "$this->col_datetime < '".$this->datetimeFormatter($timebefore)."' ";
 		}
-		if (!is_null($timeafter)){
-			if ($entered)$query .= " AND "; else $entered=true;
-			$query .= "$this->col_datetime > '".$this->datetimeFormatter($timeafter)."' ";
+		if (!is_null($timeafter)) {
+			$items[] = "$this->col_datetime > '".$this->datetimeFormatter($timeafter)."' ";
 		}
-		if (!is_null($users)){
-			if ($entered)$query .= " AND "; else $entered=true;
-			$query .= $this->splitIntoQuery($users, " OR ", $this->col_user);
+		if (!is_null($users)) {
+			$items[] = $this->splitIntoQuery($users, " OR ", $this->col_user);
 		}
-
 		if (!is_null($origins)){
-			if ($entered)$query .= " AND "; else $entered=true;
-			$query .= $this->splitIntoQuery($origins, " OR ", $this->col_origin);
+			$items[] = $this->splitIntoQuery($origins, " OR ", $this->col_origin);
 		}
 		if (!is_null($types)){
-			if ($entered)$query .= " AND "; else $entered=true;
-			$query .= $this->splitIntoQuery($types, " OR ", $this->col_type);
+			$items[] = $this->splitIntoQuery($types, " OR ", $this->col_type);
 		}
 		if (!is_null($keywords)){
-			if ($entered)$query .= " AND "; else $entered=true;
-			$query .= $this->splitIntoQuery($keywords, $bool_keywords, $this->col_info, true);
+			$items[] = $this->splitIntoQuery($keywords, $bool_keywords, $this->col_info, true);
 		}
+		$query .= implode(" AND ", $items);
 		$result_array = array(array());
-		if (($result = mysql_query($query)) === false){
-			trigger_error("Logger::searchDb(): Cannot execute query to search for log events into the db. ".$file."-\nmysql error:".mysql_error(), E_USER_ERROR);
+		if (($result = mysql_query($query)) === false) {
+			trigger_error("Logger::searchDb(): Cannot execute query to search for log events in the db.\nmysql error:".mysql_error(), E_USER_ERROR);
 			$result_array = null;
-		}else{
-			for ($ind=0; ($fetched = mysql_fetch_array($result)) ;$ind++){
-				$tmp = array();
-				foreach ($fetched as $key => $value){
-					//the first field is omitted because it's just the auto increment key of the current record
-					if (is_int($key) && $key !== 0){ 
-						$tmp[$key-1] = $fetched[$key];
-					}
-				}
-				$result_array[$ind] = $tmp;
+		} else {
+			while ($fetched = mysql_fetch_assoc($result)) {
+				unset($fetched[$this->col_key]);
+				$result_array[] = $fetched;
 			}
-			
 		}
 		return $result_array;
 	}
@@ -434,11 +432,11 @@ class Logger {
 	 */
 	private function getAllCsvFilesContent(){
 		$result_array = array();
-		for ($i=0 ; file_exists($file=sprintf("%s".Logger::fileNameDelimiter."%03d.log", Logger::baseName, $i)); $i++)
+		for ($i=0 ; file_exists($file=sprintf("%s".Logger::fileNameDelimiter."%03d.log", Logger::prefix, $i)); $i++)
 		{
 			$result_array[] = $this->getCsvFileContent($file);
 		}
-		$result_array[] = $this->getCsvFileContent(Logger::baseName.".log");
+		$result_array[] = $this->getCsvFileContent(Logger::prefix.".log");
 		return $result_array;
 	}
 

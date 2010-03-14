@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-03-11
+ * @version     2010-03-14
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that holds info about installed components
@@ -19,16 +19,28 @@
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-defined("__CONFIGFILE") or die("Config file not included [component.php]");
-defined("__DIRAWARE") or die("Directory awareness not included [component.php]");
-defined("__DATABASE") or die("Database connection not included [component.php]");
+defined("__CONFIGFILE") or die("Config file not included [ComMan.php]");
+defined("__DIRAWARE") or die("Directory awareness not included [ComMan.php]");
+defined("__DATABASE") or die("Database connection not included [ComMan.php]");
 
 define("__COMMAN", 1);
 
 include_once($FULL_BASEPATH . "/includes/error_handling/LiveErrorHandler.php");
+include_once($FULL_BASEPATH . "/includes/logging/Logger.php");
+
 $handler = LiveErrorHandler::getLastHandler();
 if (!$handler)
     $handler = LiveErrorHandler::add("ComMan");
+    
+if (!$logError) {
+    $logError = new Logger("logs_error");
+}
+if ($debug) {
+    if (!$logDebug) {
+        $logDebug = new Logger();
+    }
+}
+
  
 class ComMan {
     
