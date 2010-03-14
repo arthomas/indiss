@@ -364,7 +364,10 @@ class Logger {
 	}
 
 	/**
-	 * search all the saved log files to find the requested log events.
+	 * @desc Searches all the existing log files by entered criteria. Note that, if there is a
+	 * large number of logs, this function might reach the memory limit of PHP and cause a fatal error.
+	 * This error should be caught and somehow handled -- probably by asking the user to select a smaller
+	 * time frame or increasing PHP's memory limit.
 	 * @param unknown_type $timebefore
 	 * @param unknown_type $timeafter
 	 * @param unknown_type $users
@@ -379,97 +382,65 @@ class Logger {
 	public function searchCsv($timebefore, $timeafter, $users, $origins, $types, $keywords, $bool_keywords){
 		$search_result = array();
 		$csv_data = $this->getAllCsvFilesContent();
-		//for each file
-		for ($ind=0; $ind<count($csv_data); $ind++){
-			$file_array = $csv_data[$ind];
-			//for each line of the current file
-			for ($ind_line=0; $ind_line<count($file_array) ;$ind_line++){
-				$eligible = true; //each line is potentially eligible initially
-				$line_array = $file_array[$ind_line];
-				//for each field of the current line
-				for ($ind_field=0; $ind_field<count($line_array) ;$ind_field++){
-					if ($eligible){
-						switch($ind_field) {
-							case 0: //when
-								$eligible = $this->checkTimeMatch($line_array[$ind_field], $timebefore, $timeafter);
-								break;
-							case 1: //users
-								if (!is_null($users)){
-									$eligible = $this->checkUsersMatch($line_array[$ind_field], $users);
-								}
-								break;
-							case 2: //origins
-								if (!is_null($origins)){
-									$eligible = $this->checkOriginsMatch($line_array[$ind_field], $origins);
-								}
-								break;
-							case 3: //types
-								if (!is_null($types)){
-									$eligible = $this->checkTypesMatch($line_array[$ind_field], $types);
-								}
-								break;
-							case 4: //info
-								if (!is_null($keywords)){
-									$eligible = $this->checkInfoMatch($line_array[$ind_field], $keywords, $bool_keywords);
-								}
-								break;
-						}
-					}
-				} //all the fields of the current line have been processed
-				if ($eligible){
-					//append the current line/event log to the search results
-					$search_result[] = $line_array;
-				}
-			}
+		
+		//check every line of the complete log array against our search criteria
+		foreach ($csv_data as $line_array) {
+		    //note that we do not have to concatenate later checks with && because we check 
+		    //  after each function-call if we still want to continue
+		    $eligible = $this->checkTimeMatch($line_array[0], $timebefore, $timeafter);
+            if (!is_null($users)){
+                $eligible = $eligible && $this->checkUsersMatch($line_array[1], $users);
+            }
+            if (!is_null($origins)){
+                $eligible = $eligible && $this->checkOriginsMatch($line_array[2], $origins);
+            }
+            if (!is_null($types)){
+                $eligible = $eligible && $this->checkTypesMatch($line_array[3], $types);
+            }
+            if (!is_null($keywords)){
+                $eligible = $eligible && $this->checkInfoMatch($line_array[4], $keywords, $bool_keywords);
+            }
+            
+            if ($eligible){
+                //append the current line/event log to the search results
+                $search_result[] = $line_array;
+            }
 		}
 		return $search_result;
 	}
 
 	/**
 	 *
-	 * @return array that contains an entry for each file, each one being an
-	 * array that contains an entry for each line of the file
+	 * @return One big array with all existing log files appended one after another
 	 */
 	private function getAllCsvFilesContent(){
 		$result_array = array();
-		for ($i=0 ; file_exists($file=sprintf("%s".Logger::fileNameDelimiter."%03d.log", Logger::prefix, $i)); $i++)
+		$i = 1;
+		while ( file_exists($fn=sprintf("%s%s%s%03d%s", self::fileNamePrefix, $this->name, self::fileNameDelimiter, $i++, self::fileNameSuffix)) )
 		{
-			$result_array[] = $this->getCsvFileContent($file);
+			$result_array[] = array_merge($result_array, $this->getCsvFileContent($fn));
 		}
-		$result_array[] = $this->getCsvFileContent(Logger::prefix.".log");
+		$result_array[] = array_merge($result_array, $this->getCsvFileContent(self::fileNamePrefix . $this->name . self::fileNameSuffix));
 		return $result_array;
 	}
 
 	/**
 	 *
 	 * @param unknown_type $file
-	 * @return array of arrays each one containing info from one of the lines of the specified file.
+	 * @return 2-D array, where the first dimension is the line and the second dimension is the column in the CSV file.
 	 */
 	private function getCsvFileContent($file){
 		$ret = array();
 		if (!$f = fopen($file, "r")) {
-			trigger_error("Logger::getCsvFileContent(): Cannot open in read mode the file ".$file, E_USER_ERROR);
+			trigger_error("Logger::getCsvFileContent(): Cannot open in read mode the file ($file)", E_USER_ERROR);
 			$ret = null;
 		} else {
-			while (($csv_line = fgetcsv($f, 1000, Logger::csvDelimiter)) !== FALSE) {
+			while (($csv_line = fgetcsv($f, 1000, self::csvDelimiter)) !== FALSE) {
 				$ret[] = $csv_line;
 			}
 		}
 		fclose($f);
 		return $ret;
-		//$row = 1;
-		//if (($handle = fopen($file, "r")) !== FALSE) {
-		//    while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-		//        $num = count($data);
-		//        echo "<p> $num fields in line $row: <br /></p>\n";
-		//        $row++;
-		//        for ($c=0; $c < $num; $c++) {
-		//            echo $data[$c] . "<br />\n";
-		//        }
-		//    }
-		//    fclose($handle);
-		//}
-
 	}
 
 }
