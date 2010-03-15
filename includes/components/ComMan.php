@@ -35,10 +35,8 @@ if (!$handler)
 if (!$logError) {
     $logError = new Logger("logs_error");
 }
-if ($debug) {
-    if (!$logDebug) {
-        $logDebug = new Logger();
-    }
+if (!$logDebug) {
+    $logDebug = new Logger();
 }
 
  
@@ -79,7 +77,9 @@ class ComMan {
     
     public static function cached($cached) {
         if (!is_bool($cached)) {
-            trigger_error("ComMan::cached(): first argument must be of type bool", E_USER_WARNING);
+            trigger_error($dmsg = "ComMan::cached(): first argument must be of type bool", E_USER_WARNING);
+            global $logDebug;
+            $logDebug->debuglog("Component manager", "Error", $dmsg);
             return false;
         }
         self::$cached = $cached;
@@ -92,7 +92,9 @@ class ComMan {
     
     public static function setCommonPath($path) {
         if (!is_string($path)) {
-            trigger_error("ComMan::setCommonPath(): first argument must be of type string", E_USER_WARNING);
+            trigger_error($dmsg = "ComMan::setCommonPath(): first argument must be of type string", E_USER_WARNING);
+            global $logDebug;
+            $logDebug->debuglog("Component manager", "Error", $dmsg);
             return false;
         }
         $path = "/" . trim($path, "/\\");
@@ -102,27 +104,34 @@ class ComMan {
     
     public static function getCom($index) {
         if (!is_int($index)) {
-            trigger_error("ComMan::getCom(): first argument must be of type int", E_USER_WARNING);
+            trigger_error($dmsg = "ComMan::getCom(): first argument must be of type int", E_USER_WARNING);
+            global $logDebug;
+            $logDebug->debuglog("Component manager", "Error", $dmsg);
             return false;
         }
         return self::$components[$i];
     }
     
     public static function getComById($id) {
+        global $logDebug;
         if (!is_int($id)) {
-            trigger_error("ComMan::getComById(): first argument must be of type int", E_USER_WARNING);
+            trigger_error($dmsg = "ComMan::getComById(): first argument must be of type int", E_USER_WARNING);
+            $logDebug->debuglog("Component manager", "Error", $dmsg);
             return false;
         }
         foreach (self::$components as $com)
             if ($com->id == $id)
                 return $com;
-        trigger_error("ComMan::getComById(): no component with id '$id' was found", E_USER_WARNING);
+        trigger_error($dmsg = "ComMan::getComById(): no component with id '$id' was found", E_USER_WARNING);
+        $logDebug->debuglog("Component manager", "Warning", $dmsg);
         return false;
     }
     
     public static function getComByName($name) {
         if (!is_string($name)) {
-            trigger_error("ComMan::getComByName(): first argument must be of type string", E_USER_WARNING);
+            trigger_error($dmsg = "ComMan::getComByName(): first argument must be of type string", E_USER_WARNING);
+            global $logDebug;
+            $logDebug->debuglog("Component manager", "Error", $dmsg);
             return false;
         }
         foreach (self::$components as $com)

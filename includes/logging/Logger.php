@@ -40,6 +40,7 @@ class Logger {
 	const fileNameSuffix = ".log";
 	const tablePrefix = "logs_";
 	const csvDelimiter = ";";              //cell delimiter for the CSV file; Note: changing this will make all previously created log files unreadable!
+	const logsFolder = "/logs";             //directory within the INDISS folder to place the log files in; it is assumed this folder already exists
 	
 	
     //---- Static properties ------------------------------------------------------------
@@ -62,34 +63,117 @@ class Logger {
 	
 	
     //---- Object methods ---------------------------------------------------------------
+    
+	
+	// Constructor:
+	
+    /**
+     * @desc Constructor for logger objects. Each concurrently used logger should get a unique name
+     * which determines db table name and file name; the name must thus be compatible with db
+     * and file system naming conventions, i.e. lower-case letters, numbers and underscore only.
+     * @param <i>string</i> <b>$name</b>: The name of this logger, will determine db table name and 
+     * file name. Due to PHP's auto-casting feature, this can theoretically also be a number
+     * (int/float) -- no promises though.
+     * @return void
+     */
+    public function __construct($name, $logToFile = true, $logToDb = true) {
+        if (!is_string($name)) {
+            trigger_error("Logger::__construct(): first argument must be of type string", E_USER_WARNING);
+            return false;
+        }
+        if (!is_bool($logToFile)) {
+            trigger_error("Logger::__construct(): second argument must be of type bool", E_USER_WARNING);
+            return false;
+        }
+        if (!is_bool($logToDb)) {
+            trigger_error("Logger::__construct(): third argument must be of type bool", E_USER_WARNING);
+            return false;
+        }
+        if ( !$logToFile && !$logToDb ) {
+            trigger_error("Logger::__construct(): this logger will do nothing (log neither to file nor to DB)", E_USER_WARNING);
+        }
+        $this->name = $name;
+        $this->logToFile = $logToFile;
+        $this->logToDb = $logToDb;
+        if ($logToFile) {
+            if (!file_exists($this->constructLogFileCompletePath())){
+                $this->createNewLogFile();
+            }
+        }
+        if ($logToDb) {
+                $this->col_datetime = self::$parameters[0];
+                $this->col_user = self::$parameters[1];
+                $this->col_origin = self::$parameters[2];
+                $this->col_type = self::$parameters[3];
+                $this->col_info = self::$parameters[4];
+                $tablename = self::tablePrefix . $name;
+                $query = "CREATE TABLE IF NOT EXISTS `$tablename` (
+                    `$this->col_key` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                    `$this->col_datetime` DATETIME NOT NULL,
+                    `$this->col_user` INT DEFAULT NULL ,
+                    `$this->col_origin` VARCHAR( 255 ) NOT NULL,
+                    `$this->col_type` VARCHAR( 255 ) NOT NULL,
+                    `$this->col_info` VARCHAR( 1023 ) NOT NULL
+                    )";
+                if (!mysql_query($query)){
+                    trigger_error("Logger::__construct(): Cannot create the db table '$tablename'.\nmysql error:".mysql_error(), E_USER_ERROR);
+                }
+        }
+    }
+    
+    
+    
+    
+    // General utility functions:
+
+    /**
+     * @desc Formats the date passed as $time or the current time() if NULL is passed
+     * to be used in a mysql query.
+     * @param $time
+     * @return Formatted DATETIME string
+     */
+    private function datetimeFormatter($time=NULL){
+        if (!is_null($time)){
+            $ret = date("Y-m-d H:i:s", strtotime($time));
+        }else{
+            $ret = date("Y-m-d H:i:s");
+        }
+        return $ret;
+    }
+    
+    
+    
+    
+    // CSV-related utility functions:
+
+    private function constructLogFileCompletePath($index = null){
+        global $FULL_BASEPATH;
+        $indexbit = (is_null($index)) ? "" : self::fileNameDelimiter . sprintf("%03d", $index);
+        return $FULL_BASEPATH . self::logsFolder . self::fileNamePrefix . $this->name . $indexbit . self::fileNameSuffix;
+    }
+    
+    /**
+     * @desc When the file exceeds the maximum file size, a new one is created
+     * @return (bool) True on success or false on failure.
+     */
+    private function createNewLogFile(){
+        $ret = true;
+
+        $f = fopen($this->constructLogFileCompletePath(), "w");
+        if (!$f) {
+            trigger_error("Logger::createNewLogFile(): Cannot create new log file", E_USER_ERROR);
+            $ret = false;
+        }
+        fclose($f);
+        return $ret;
+    }
 
 	private function renameOldLogFile(){
 		$i = 1;
-		while (file_exists($fn = sprintf("%s%s%s%03d%s", self::fileNamePrefix, $this->name, self::fileNameDelimiter, $i, self::fileNameSuffix))){
+		while (file_exists($fn = constructLogFileCompletePath($i))){
 			$i++;
 		}
 		return rename($this->constructLogFileCompletePath(), $fn);
-	}
-	
-	/**
-	 * @desc When the file exceeds the maximum file size, a new one is created
-	 * @return (bool) True on success or false on failure.
-	 */
-	private function createNewLogFile(){
-		$ret = true;
-
-		$f = fopen($this->constructLogFileCompletePath(), "w");
-		if (!$f) {
-			trigger_error("Logger::createNewLogFile(): Cannot create new log file", E_USER_ERROR);
-			$ret = false;
-		}
-		fclose($f);
-		return $ret;
-	}
-
-	private function constructLogFileCompletePath(){
-	    global $FULL_BASEPATH;
-		return $FULL_BASEPATH . "/logs" . self::fileNamePrefix . $this->name . self::fileNameSuffix;
 	}
 
 	/**
@@ -118,76 +202,147 @@ class Logger {
 		return $ret;
 	}
 
+    /**
+     *
+     * @param <i>string</i> <b>$filename</b>: the log file's name, without the path
+     * @return 2-D array, where the first dimension is the line and the second dimension is the column in the CSV file.
+     */
+    private function getCsvFileContent($filename){
+        $ret = array();
+        global $FULL_BASEPATH;
+        $filename = $FULL_BASEPATH . self::logsFolder . $filename;
+        if (!$f = fopen($filename, "r")) {
+            trigger_error("Logger::getCsvFileContent(): Cannot open in read mode the file ($filename)", E_USER_ERROR);
+            $ret = null;
+        } else {
+            while (($csv_line = fgetcsv($f, 1000, self::csvDelimiter)) !== FALSE) {
+                $ret[] = $csv_line;
+            }
+        }
+        fclose($f);
+        return $ret;
+    }
 
+    /**
+     *
+     * @return One big array with all existing log files appended one after another
+     */
+    private function getAllCsvFilesContent(){
+        $result_array = array();
+        $i = 1;
+        while ( file_exists($fn=sprintf("%s%s%s%03d%s", self::fileNamePrefix, $this->name, self::fileNameDelimiter, $i++, self::fileNameSuffix)) )
+        {
+            $result_array[] = array_merge($result_array, $this->getCsvFileContent($fn));
+        }
+        $result_array[] = array_merge($result_array, $this->getCsvFileContent(self::fileNamePrefix . $this->name . self::fileNameSuffix));
+        return $result_array;
+    }
 
-	/**
-	 * @desc Constructor for logger objects. Each concurrently used logger should get a unique name
-	 * which determines db table name and file name; the name must thus be compatible with db
-	 * and file system naming conventions, i.e. lower-case letters, numbers and underscore only.
-	 * @param <i>string</i> <b>$name</b>: The name of this logger, will determine db table name and 
-	 * file name. Due to PHP's auto-casting feature, this can theoretically also be a number
-	 * (int/float) -- no promises though.
-	 * @return void
-	 */
-	public function __construct($name, $logToFile = true, $logToDb = true) {
-        if (!is_string($name)) {
-            trigger_error("Logger::__construct(): first argument must be of type string", E_USER_WARNING);
-            return false;
+    private function checkTimeMatch($csv_time, $timebefore, $timeafter){
+        $eligible = true;
+        $csv_time = strtotime($csv_time);
+        if ($eligible && !is_null($timebefore)){
+            if ($csv_time > strtotime($timebefore)){
+                $eligible = false;
+            }
         }
-        if (!is_bool($logToFile)) {
-            trigger_error("Logger::__construct(): second argument must be of type bool", E_USER_WARNING);
-            return false;
+        if ($eligible && !is_null($timeafter)){
+            if ($csv_time < strtotime($timeafter)){
+                $eligible = false;
+            }
         }
-        if (!is_bool($logToDb)) {
-            trigger_error("Logger::__construct(): third argument must be of type bool", E_USER_WARNING);
-            return false;
-        }
-        if ( !$logToFile && !$logToDb ) {
-            trigger_error("Logger::__construct(): this logger will do nothing (log neither to file nor to DB)", E_USER_WARNING);
-        }
-	    $this->name = $name;
-	    $this->logToFile = $logToFile;
-	    $this->logToDb = $logToDb;
-		if ($logToFile) {
-			if (!file_exists($this->constructLogFileCompletePath())){
-				$this->createNewLogFile();
-			}
-		}
-		if ($logToDb) {
-				$this->col_datetime = self::$parameters[0];
-				$this->col_user = self::$parameters[1];
-				$this->col_origin = self::$parameters[2];
-				$this->col_type = self::$parameters[3];
-				$this->col_info = self::$parameters[4];
-				$tablename = self::tablePrefix . $name;
-				$query = "CREATE TABLE IF NOT EXISTS `$tablename` (
-                    `$this->col_key` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                    `$this->col_datetime` DATETIME NOT NULL,
-                    `$this->col_user` INT DEFAULT NULL ,
-                    `$this->col_origin` VARCHAR( 255 ) NOT NULL,
-                    `$this->col_type` VARCHAR( 255 ) NOT NULL,
-                    `$this->col_info` VARCHAR( 1023 ) NOT NULL
-                    )";
-                if (!mysql_query($query)){
-                    trigger_error("Logger::__construct(): Cannot create the db table '$tablename'.\nmysql error:".mysql_error(), E_USER_ERROR);
+        return $eligible;
+    }
+
+    private function checkInfoMatch($info, $keywords, $bool_keywords){
+        $eligible = true;
+        $splitted = explode(Logger::searchQueryDelimiter, $keywords);
+        switch(strtolower($bool_keywords)){
+            case "and":
+                for ($i=0; $i<count($splitted)&&$eligible ;$i++){
+                    if (!strstr($info, $splitted[$i])){
+                        $eligible = false;
+                    }
                 }
-		}
-	}
+                break;
+            case "or":
+                $eligible = false;
+                for ($i=0; $i<count($splitted)&&!$eligible ;$i++){
+                    if (stristr($info, $splitted[$i]) !== false){
+                        $eligible = true;
+                    }
+                }
+                break;
+        }
 
-	/**
-	 * @desc Formats the date passed as $time or the current time() if NULL is passed
-	 * to be used in a mysql query.
-	 * @param $time
-	 * @return Formatted DATETIME string
-	 */
-	private function datetimeFormatter($time=NULL){
-		if (!is_null($time)){
-			$ret = date("Y-m-d H:i:s", strtotime($time));
-		}else{
-			$ret = date("Y-m-d H:i:s");
-		}
-		return $ret;
-	}
+        return $eligible;
+    }
+
+    private function checkUsersMatch($field, $users){
+        $eligible = false;
+        $splitted = explode(Logger::searchQueryDelimiter, $users);
+        for ($i=0; $i<count($splitted)&&!$eligible ;$i++){
+            if (strcmp($field, $splitted[$i]) == 0){
+                $eligible = true;
+            }
+        }
+        return $eligible;
+    }
+
+    private function checkOriginsMatch($field, $origins){
+        $eligible = false;
+        $splitted = explode(Logger::searchQueryDelimiter, $origins);
+        for ($i=0; $i<count($splitted)&&!$eligible ;$i++){
+            if (strcmp($field, $splitted[$i]) == 0){
+                $eligible = true;
+            }
+        }
+        return $eligible;
+    }
+
+    private function checkTypesMatch($field, $types){
+        $eligible = false;
+        $splitted = explode(Logger::searchQueryDelimiter, $csv_data[$ind]);
+        for ($i=0; $i<count($splitted)&&!$eligible ;$i++){
+            if (strcmp($field, $splitted[$i]) == 0){
+                $eligible = true;
+            }
+        }
+        return $eligible;
+    }
+    
+    
+    
+    
+    // Database-related utility functions
+
+    /**
+     * split a string that contains values separated by a specific delimiter
+     * each value is included in a boolean expression using the specified
+     * boolean operator and is related to a column of the logs mysql table.
+     * @param unknown_type $toSplit
+     * @param unknown_type $delimiter
+     * @param unknown_type $bool
+     * @param unknown_type $column
+     * @return unknown_type
+     */
+    private function splitIntoQuery($toSplit, $connector = " OR ", $column, $useLikeOp=false){
+        $splitted = explode(self::searchQueryDelimiter, $toSplit);
+        foreach ($splitted as &$item) {
+            if ($useLikeOp) {
+                $item = " $column like '%$item%' ";
+            } else {
+                $item = " $column = '$item' ";
+            }
+        }
+        $glued = implode($connector, $splitted);
+        return "($glued) ";
+    }
+    
+    
+    
+    
+    // Publicly relevant functions:
 	
 	/**
 	 * @desc Log an event.
@@ -220,28 +375,13 @@ class Logger {
         }
         return $ret;
 	}
-
-	/**
-	 * split a string that contains values separated by a specific delimiter
-	 * each value is included in a boolean expression using the specified
-	 * boolean operator and is related to a column of the logs mysql table.
-	 * @param unknown_type $toSplit
-	 * @param unknown_type $delimiter
-	 * @param unknown_type $bool
-	 * @param unknown_type $column
-	 * @return unknown_type
-	 */
-	private function splitIntoQuery($toSplit, $connector = " OR ", $column, $useLikeOp=false){
-		$splitted = explode(self::searchQueryDelimiter, $toSplit);
-		foreach ($splitted as &$item) {
-            if ($useLikeOp) {
-                $item = " $column like '%$item%' ";
-            } else {
-                $item = " $column = '$item' ";
-            }
-		}
-		$glued = implode($connector, $splitted);
-		return "($glued) ";
+	
+	public function debuglog($origin, $type, $message, $userId = 0) {
+	    global $debug;
+	    if ($debug)
+            return log($origin, "Debug_$type", $message, $userId);
+        else
+            return false;
 	}
 
 	/**
@@ -290,79 +430,6 @@ class Logger {
 		return $result_array;
 	}
 
-	private function checkTimeMatch($csv_time, $timebefore, $timeafter){
-		$eligible = true;
-		$csv_time = strtotime($csv_time);
-		if ($eligible && !is_null($timebefore)){
-			if ($csv_time > strtotime($timebefore)){
-				$eligible = false;
-			}
-		}
-		if ($eligible && !is_null($timeafter)){
-			if ($csv_time < strtotime($timeafter)){
-				$eligible = false;
-			}
-		}
-		return $eligible;
-	}
-
-	private function checkInfoMatch($info, $keywords, $bool_keywords){
-		$eligible = true;
-		$splitted = explode(Logger::searchQueryDelimiter, $keywords);
-		switch(strtolower($bool_keywords)){
-			case "and":
-				for ($i=0; $i<count($splitted)&&$eligible ;$i++){
-					if (!strstr($info, $splitted[$i])){
-						$eligible = false;
-					}
-				}
-				break;
-			case "or":
-				$eligible = false;
-				for ($i=0; $i<count($splitted)&&!$eligible ;$i++){
-					if (stristr($info, $splitted[$i]) !== false){
-						$eligible = true;
-					}
-				}
-				break;
-		}
-
-		return $eligible;
-	}
-
-	private function checkUsersMatch($field, $users){
-		$eligible = false;
-		$splitted = explode(Logger::searchQueryDelimiter, $users);
-		for ($i=0; $i<count($splitted)&&!$eligible ;$i++){
-			if (strcmp($field, $splitted[$i]) == 0){
-				$eligible = true;
-			}
-		}
-		return $eligible;
-	}
-
-	private function checkOriginsMatch($field, $origins){
-		$eligible = false;
-		$splitted = explode(Logger::searchQueryDelimiter, $origins);
-		for ($i=0; $i<count($splitted)&&!$eligible ;$i++){
-			if (strcmp($field, $splitted[$i]) == 0){
-				$eligible = true;
-			}
-		}
-		return $eligible;
-	}
-
-	private function checkTypesMatch($field, $types){
-		$eligible = false;
-		$splitted = explode(Logger::searchQueryDelimiter, $csv_data[$ind]);
-		for ($i=0; $i<count($splitted)&&!$eligible ;$i++){
-			if (strcmp($field, $splitted[$i]) == 0){
-				$eligible = true;
-			}
-		}
-		return $eligible;
-	}
-
 	/**
 	 * @desc Searches all the existing log files by entered criteria. Note that, if there is a
 	 * large number of logs, this function might reach the memory limit of PHP and cause a fatal error.
@@ -407,40 +474,6 @@ class Logger {
             }
 		}
 		return $search_result;
-	}
-
-	/**
-	 *
-	 * @return One big array with all existing log files appended one after another
-	 */
-	private function getAllCsvFilesContent(){
-		$result_array = array();
-		$i = 1;
-		while ( file_exists($fn=sprintf("%s%s%s%03d%s", self::fileNamePrefix, $this->name, self::fileNameDelimiter, $i++, self::fileNameSuffix)) )
-		{
-			$result_array[] = array_merge($result_array, $this->getCsvFileContent($fn));
-		}
-		$result_array[] = array_merge($result_array, $this->getCsvFileContent(self::fileNamePrefix . $this->name . self::fileNameSuffix));
-		return $result_array;
-	}
-
-	/**
-	 *
-	 * @param unknown_type $file
-	 * @return 2-D array, where the first dimension is the line and the second dimension is the column in the CSV file.
-	 */
-	private function getCsvFileContent($file){
-		$ret = array();
-		if (!$f = fopen($file, "r")) {
-			trigger_error("Logger::getCsvFileContent(): Cannot open in read mode the file ($file)", E_USER_ERROR);
-			$ret = null;
-		} else {
-			while (($csv_line = fgetcsv($f, 1000, self::csvDelimiter)) !== FALSE) {
-				$ret[] = $csv_line;
-			}
-		}
-		fclose($f);
-		return $ret;
 	}
 
 }
