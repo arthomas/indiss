@@ -1,8 +1,8 @@
 <?php
 /**
- * @version     2009-09-19
- * @author      Patrick Lehner
- * @copyright   Copyright (C) 2009 Patrick Lehner
+ * @version     2010-03-19
+ * @author      Patrick Lehner <lehner.patrick@gmx.de>
+ * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
  * @license     This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU General Public License as published by
@@ -18,6 +18,6 @@
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-    $languages["en"]="English";
-    $languages["de"]="Deutsch";
+    $langList["en"]="English";
+    $langList["de"]="Deutsch";
 ?>

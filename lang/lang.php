@@ -21,9 +21,12 @@
     defined("__MAIN") or die("Restricted access.");
     defined("__DIRAWARE") or die("Directory awareness not included [lang.php]");
     
-    include_once("../includes/str_replace_multi.php");
+    define("__LANG", 1);
     
-    $_lang = basename(__FILE__) . "/$lang"; //create the full path of the language directory
+    include_once("../includes/str_replace_multi.php");
+    include("languages.php");
+    
+    $_lang = dirname(__FILE__) . "/$lang"; //create the full path of the language directory
     if (file_exists($_lang)) {
         if (is_dir($_lang)) {
             $langFiles = preg_grep("/\.php/i", scandir("$_lang"));

@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-03-18
+ * @version     2010-03-19
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Backend main page
@@ -18,22 +18,27 @@
  *              You should have received a copy of the GNU General Public License
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+    
+    $__startTime = microtime(true);
+
 	define("__MAIN", 1);
 
 	include_once("../config/config.php");
 	include_once("../includes/dir_awareness.php");
 	include_once("../includes/database.php");
 	//include_once("../config/version.php");  //TODO: admin: Version management
-	
-	static $lang;
-	if (!isset($lang))
-        $lang = $defaultlang;
-    if (isset($_POST["newlang"]))
-        $lang = $_POST["newlang"];
-	include("lang/lang.php");
-	
-	session_name("INDISSAdmin");
+    
+    session_name("INDISSAdmin");
     session_start();
+	
+	if (!isset($_SESSION["lang"])) {
+        $_SESSION["lang"] = $lang = $defaultlang;
+	} else {
+	    $lang = $_SESSION["lang"];
+	}
+    if (isset($_POST["newlang"]))
+        $_SESSION["lang"] = $lang = $_POST["newlang"];
+	include($FULL_BASEPATH . "/lang/lang.php");
     
     if (isset($_POST['submit'])) {
         if ($_POST['task'] == 'login') {
@@ -222,9 +227,8 @@
                     <?php lang_echo("genLanguage");?>:
                     <select name="newlang" onchange="this.form.submit();">
 <?php
-    include_once("lang/languages.php");
-    foreach ($languages as $key => $value) {
-        $selected = ($key = $lang) ? " selected=\"selected\"" : "";
+    foreach ($langList as $key => $value) {
+        $selected = ($key == $lang) ? " selected=\"selected\"" : "";
         echo "                        <option value=\"$key\"$selected>$value</option>\n";
     }
 ?>
@@ -244,7 +248,8 @@
         </div>
     </div>
     <div id="footer">
-        Layout und Umsetzung &copy; 2009 Patrick Lehner &nbsp; | &nbsp; INDISS ist freie Software unter der GNU GPLv3
+        <?php lang_echo("admLayoutAndRealization");?> &copy; 2009-2010 Patrick Lehner &nbsp; | &nbsp; <?php lang_echo("admIndissIsFreeSoftware");?><br />
+        <?php echo sprintf(lang("admPageCreatedIn"), sprintf("%6.4f",(microtime(true) - $__startTime))); ?>
     </div>
 </body>
 </html>
