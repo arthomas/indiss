@@ -128,29 +128,33 @@ class ComMan {
     }
     
     public static function getComByName($name) {
+        global $logDebug;
         if (!is_string($name)) {
             trigger_error($dmsg = "ComMan::getComByName(): first argument must be of type string", E_USER_WARNING);
-            global $logDebug;
             $logDebug->debuglog("Component manager", "Error", $dmsg);
             return false;
         }
         foreach (self::$components as $com)
             if ($com->name == $name)
                 return $com;
-        trigger_error("ComMan::getComByName(): no component named '$name' was found", E_USER_WARNING);
+        trigger_error($dmsg = "ComMan::getComByName(): no component named '$name' was found", E_USER_WARNING);
+        $logDebug->debuglog("Component manager", "Warning", $dmsg);
         return false;
     }
     
     public static function readDB($table) {
+        global $logDebug;
         if (!is_string($table)) {
-            trigger_error("ComMan::readDB(): first argument must be of type string", E_USER_WARNING);
+            trigger_error($dmsg = "ComMan::readDB(): first argument must be of type string", E_USER_WARNING);
+            $logDebug->debuglog("Component manager", "Error", $dmsg);
             return false;
         }
         self::$dbTable = $table;
         $query = "SELECT * FROM `$table`";
         $result = mysql_query($query);
         if (!$result) {
-            trigger_error("ComMan::readDB(): database error: " . mysql_error(), E_USER_WARNING);
+            trigger_error($dmsg = "ComMan::readDB(): database error: " . mysql_error(), E_USER_WARNING);
+            $logDebug->debuglog("Component manager", "Error", $dmsg);
             return false;
         }
         while ($row = mysql_fetch_assoc($result)) { //fetch all resulting rows
@@ -162,6 +166,8 @@ class ComMan {
                 self::$components[] = $com;
             }
         }
+        $logDebug->debuglog("Component manager", "Notice", "Successfully read " . count(self::$components) . " components from database table $table");
+        return true;
     }
     
     private static function generatePath($comName) {

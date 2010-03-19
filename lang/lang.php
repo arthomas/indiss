@@ -1,8 +1,8 @@
 <?php
 /**
- * @version     2009-09-26
+ * @version     2010-03-19
  * @author      Patrick Lehner
- * @copyright   Copyright (C) 2009 Patrick Lehner
+ * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
  * @license     This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU General Public License as published by
@@ -19,9 +19,27 @@
  */
 
     defined("__MAIN") or die("Restricted access.");
-
-    include("$lang.php");
+    defined("__DIRAWARE") or die("Directory awareness not included [lang.php]");
+    
     include_once("../includes/str_replace_multi.php");
+    
+    $_lang = basename(__FILE__) . "/$lang"; //create the full path of the language directory
+    if (file_exists($_lang)) {
+        if (is_dir($_lang)) {
+            $langFiles = preg_grep("/\.php/i", scandir("$_lang"));
+            if (!empty($langFiles)) {
+                foreach ($langFiles as $fn) {
+                    include($_lang . "/" . $fn);
+                }
+            } else {
+                die ("Requested language '$lang' is not valid.");
+            }
+        } else {
+            die ("Requested language '$lang' is not valid.");
+        }
+    } else {
+        die ("Requested language '$lang' not found.");
+    }
     
     
     

@@ -1,8 +1,8 @@
 <?php
 /**
- * @version     2009-09-26
+ * @version     2010-03-18
  * @author      Patrick Lehner
- * @copyright   Copyright (C) 2009 Patrick Lehner
+ * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      replace multiple substrings
  * 
  * @license     This program is free software: you can redistribute it and/or modify
@@ -26,8 +26,8 @@ function str_replace_multi ($search, $replace, $subject) {
     if ( empty($subject) || count($search) == 0 || count($replace) == 0 )
         return "";
         
-    $search = array_keys($search);
-    $replace = array_keys($replace);
+    $search = array_values($search);
+    $replace = array_values($replace);
         
     if ( count($search) < count($replace) )
         $replace = array_slice( $replace, 0, count($search), true );
