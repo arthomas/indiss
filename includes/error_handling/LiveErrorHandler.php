@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-03-08
+ * @version     2010-03-20
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      Live error message handler
@@ -23,11 +23,11 @@ class LiveErrorHandler {
     
     //---- Class Constants --------------------------------------------------------------
     
-    const EK_DEBUG   = 1;
-    const EK_NOTICE  = 2;
-    const EK_WARNING = 3;
-    const EK_ERROR   = 4;
-    const EK_SUCCESS = 5;
+    const EK_DEBUG   = 0;
+    const EK_NOTICE  = 1;
+    const EK_WARNING = 2;
+    const EK_ERROR   = 3;
+    const EK_SUCCESS = 4;
     
 
     //---- Static properties ------------------------------------------------------------
@@ -229,6 +229,7 @@ class LiveErrorHandler {
         }
         $str .= "</tbody></table>\n";
         $str .= "</div>\n";
+        return $str;
     }
     
     public function clear() {

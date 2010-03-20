@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-02-25
+ * @version     2010-03-20
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
@@ -48,6 +48,13 @@
                     <li><strong>Substitution table:</strong>
                         <ul>
                             <li><!--<a href="?component=substtable">-->Substitution table options<!--</a>--> <i>n/a</i></li>
+                        </ul>
+                    </li>
+                    <li><strong>Components:</strong>
+                        <ul>
+<?php foreach (ComMan::$components as $com) { $v = $com->getPath(); ?>
+                            <li><?php if (!empty($v)) echo "<a href=\"?comID=" . $com->getId() . "\">" ; echo $com->getName(); if (!empty($v)) echo "</a>"; ?> <i>(<?php echo $com->getComName(); ?>)</i></li>
+<?php } ?>
                         </ul>
                     </li>
                 </ul>

@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-03-14
+ * @version     2010-03-20
  * @author      Myriam Leggieri <myriam.leggieri@gmail.com>
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Myriam Leggieri, Patrick Lehner
@@ -149,7 +149,7 @@ class Logger {
     private function constructLogFileCompletePath($index = null){
         global $FULL_BASEPATH;
         $indexbit = (is_null($index)) ? "" : self::fileNameDelimiter . sprintf("%03d", $index);
-        return $FULL_BASEPATH . self::logsFolder . self::fileNamePrefix . $this->name . $indexbit . self::fileNameSuffix;
+        return $FULL_BASEPATH . self::logsFolder . "/" . self::fileNamePrefix . $this->name . $indexbit . self::fileNameSuffix;
     }
     
     /**

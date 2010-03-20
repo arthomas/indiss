@@ -39,145 +39,161 @@
     if (isset($_POST["newlang"]))
         $_SESSION["lang"] = $lang = $_POST["newlang"];
 	include($FULL_BASEPATH . "/lang/lang.php");
+	
+	include_once($FULL_BASEPATH . "/includes/error_handling/LiveErrorHandler.php");
+	$handler = LiveErrorHandler::add("Admin");
+	
+	include_once($FULL_BASEPATH . "/includes/logging/Logger.php");
+    $logError = new Logger("logs_error");
+    $logDebug = new Logger("logs_debug");
+	
+    include_once($FULL_BASEPATH . "/includes/components/ComMan.php");
+    ComMan::readDB("components");
     
     if (isset($_POST['submit'])) {
-        if ($_POST['task'] == 'login') {
-            if (!empty($_POST['username']) && !empty($_POST['pw'])) {
-                $username = $_POST['username'];
-	            $pw = sha1($_POST['pw']);
-	            $ip = $_SERVER['REMOTE_ADDR'];
-	            
-                $query = "SELECT username,password 
-	                        FROM   `users`
-	                        WHERE  username='$username'";
-	            
-                $result = mysql_query($query);
-                if (!$result) { 
-                    mysql_close();
-                    die(lang("errDBQryFailed"));
-                }
-                
-                $row = mysql_fetch_object($result);
-                if (($row->password != $pw) || (mysql_num_rows($result) == 0)) {
-                    $loginresult = false;
-                    $message .= lang("msgWrongPWorUN") . "<br />\n"; /*"Wrong password or username"*/
-                    if (mysql_num_rows($result) == 0) {
-                        $query = "INSERT INTO `errors` (`date`, `content`, `new`)
-                                    VALUES (
-                                        '". date($datefmt) . "',
-                                        'Someone tried to login with unknown username \"$username\" from IP $ip',
-                                        TRUE
-                                    )";
-                        $result = mysql_query($query);
-                        if (!$result) { 
-                            mysql_close();
-                            die(lang("errDBQryFailed"));
-                        }
-                    }
-                    else if ($row->password != $pw) {
-                        $query = "INSERT INTO `errors` (`date`, `content`, `new`)
-                                    VALUES (
-                                        '". date($datefmt) . "',
-                                        'Someone tried to log in as \"$username\" with wrong password from IP $ip'
-                                    )";
-                        $result = mysql_query($query);
-                        if (!$result) { 
-                            mysql_close();
-                            die(lang("errDBQryFailed"));
-                        }
-                    }
-                } else {
-                    $_SESSION['username'] = $username;
-                    $_SESSION['sid'] = session_id(); 
-                    $_SESSION['ip'] = $ip;
-                    $loginresult = true;
-                    $message .= lang("msgLoginSuccess") . "<br />\n";
+        switch ($_POST["task"]) {
+            case "login":
+                if (!empty($_POST['username']) && !empty($_POST['pw'])) {
+                    $username = $_POST['username'];
+                    $pw = sha1($_POST['pw']);
+                    $ip = $_SERVER['REMOTE_ADDR'];
                     
-                    if ($errview = getValueByName("global_options", "display_new_errors")) {
-                        if ($errview == "admin_notify") {
-                            $query = "SELECT COUNT()
-                                        FROM `errors`
-                                        WHERE `new`=TRUE";
-                            $result = mysql_query($query);
-                            if (!$result) { 
-                                mysql_close();
-                                die(lang("errDBQryFailed"));
-                            }
-                            $new = mysql_fetch_row($result);
-                            if ($new > 0)
-                                $message .= "There are $new new entries in the error log.<br />\n";
-                        } else if ($erroview == "admin_list") {
-                            $query = "SELECT `date`,`content`
-                                        FROM `errors`
-                                        WHERE `new`=TRUE";
-                            $result = mysql_query($query);
-                            if (!$result) { 
-                                mysql_close();
-                                die(lang("errDBQryFailed"));
-                            }
-                            while ($new = mysql_fetch_object($result))
-                                $message .= $new->date . ": " . $new->content . "<br />\n";
-                        }
-                    } else { 
+                    $query = "SELECT username,password 
+                                FROM   `users`
+                                WHERE  username='$username'";
+                    
+                    $result = mysql_query($query);
+                    if (!$result) { 
                         mysql_close();
                         die(lang("errDBQryFailed"));
                     }
+                    
+                    $row = mysql_fetch_object($result);
+                    if (($row->password != $pw) || (mysql_num_rows($result) == 0)) {
+                        $loginresult = false;
+                        $message .= lang("msgWrongPWorUN") . "<br />\n"; /*"Wrong password or username"*/
+                        if (mysql_num_rows($result) == 0) {
+                            $query = "INSERT INTO `errors` (`date`, `content`, `new`)
+                                        VALUES (
+                                            '". date($datefmt) . "',
+                                            'Someone tried to login with unknown username \"$username\" from IP $ip',
+                                            TRUE
+                                        )";
+                            $result = mysql_query($query);
+                            if (!$result) { 
+                                mysql_close();
+                                die(lang("errDBQryFailed"));
+                            }
+                        }
+                        else if ($row->password != $pw) {
+                            $query = "INSERT INTO `errors` (`date`, `content`, `new`)
+                                        VALUES (
+                                            '". date($datefmt) . "',
+                                            'Someone tried to log in as \"$username\" with wrong password from IP $ip'
+                                        )";
+                            $result = mysql_query($query);
+                            if (!$result) { 
+                                mysql_close();
+                                die(lang("errDBQryFailed"));
+                            }
+                        }
+                    } else {
+                        $_SESSION['username'] = $username;
+                        $_SESSION['sid'] = session_id(); 
+                        $_SESSION['ip'] = $ip;
+                        $loginresult = true;
+                        $handler->addMsg("Main", lang("msgLoginSuccess"), LiveErrorHandler::EK_SUCCESS);
+                        //$message .= lang("msgLoginSuccess") . "<br />\n";
+                        
+                        if ($errview = getValueByName("global_options", "display_new_errors")) {
+                            if ($errview == "admin_notify") {
+                                $query = "SELECT COUNT()
+                                            FROM `errors`
+                                            WHERE `new`=TRUE";
+                                $result = mysql_query($query);
+                                if (!$result) { 
+                                    mysql_close();
+                                    die(lang("errDBQryFailed"));
+                                }
+                                $new = mysql_fetch_row($result);
+                                if ($new > 0)
+                                    $message .= "There are $new new entries in the error log.<br />\n";
+                            } else if ($erroview == "admin_list") {
+                                $query = "SELECT `date`,`content`
+                                            FROM `errors`
+                                            WHERE `new`=TRUE";
+                                $result = mysql_query($query);
+                                if (!$result) { 
+                                    mysql_close();
+                                    die(lang("errDBQryFailed"));
+                                }
+                                while ($new = mysql_fetch_object($result))
+                                    $message .= $new->date . ": " . $new->content . "<br />\n";
+                            }
+                        } else { 
+                            mysql_close();
+                            die(lang("errDBQryFailed"));
+                        }
+                    }
+    
+                } else {
+                    if (empty($_POST['username'])) {
+                        $usernamemissing = true;
+                    }
+                    if (empty($_POST['pw'])) {
+                        $passwordmissing = true;
+                    }
                 }
-
-            } else {
-                if (empty($_POST['username'])) {
-                    $usernamemissing = true;
+                break;
+            case "logout":          //log out: destroy session and all session data
+                if (isset($_SESSION['username'])) {
+                    
+                    $_SESSION = array();
+        
+                    if (isset($_COOKIE[session_name()])) {
+                        setcookie(session_name(), '', time()-42000, '/');
+                    }
+        
+                    session_destroy();
+                    
+                    $handler->addMsg("", lang("msgLogoutSuccess"), LiveErrorHandler::EK_SUCCESS);
+                    //$message .= lang("msgLogoutSuccess") . "<br />\n";
+                } else {
+                    $handler->addMsg("", lang("errCantLogout"), LiveErrorHandler::EK_ERROR);
+                    //$message .= lang("errCantLogout") . "<br />\n";
                 }
-                if (empty($_POST['pw'])) {
-                    $passwordmissing = true;
+                break;
+            case "register":
+                /*$username = $_POST['username'];  //this whole sections needs to be changed and upgraded
+                $pw = $_POST['pw'];
+                $pw2 = $_POST['pw2'];
+                $email = $_POST['email'];
+                
+                if ($pw != $pw2) {
+                    mysql_close();
+                    die("Password do not match.");
                 }
-            }
-    		
-    	} else if ($_POST['task'] == 'register') {
-    		$username = $_POST['username'];
-		    $pw = $_POST['pw'];
-		    $pw2 = $_POST['pw2'];
-		    $email = $_POST['email'];
-    		
-		    if ($pw != $pw2) {
-		    	mysql_close();
-		    	die("Password do not match.");                               /*Needs to be changed*/
-		    }
-		    
-		    $pw = sha1($pw);
-		    
-		    $query = "INSERT INTO `users` (username, password, email) 
-                        VALUES ('$username', '$pw', '$email')";
-		    
-		    $result = mysql_query($query);
-		    
-		    if (!$result) {
-		    	mysql_close();
-		    	die("The database query failed.");
-		    } else {
-		    	echo "Registration for user $username successful.";
-		    	mysql_close();
-		    	exit;
-		    }
-		    
-    	} else {
-    		die(lang("errGeneralParamError"));
-    	}
-    } else if (isset($_GET["logout"])) {  //log out: destroy session and all session data
-    	if (isset($_SESSION['username'])) {
-    	    
-    		$_SESSION = array();
-
-            if (isset($_COOKIE[session_name()])) {
-                setcookie(session_name(), '', time()-42000, '/');
-            }
-
-            session_destroy();
-            
-    		$message .= lang("msgLogoutSuccess") . "<br />\n";
-    	} else {
-    		$message .= lang("errCantLogout") . "<br />\n";
-    	}
+                
+                $pw = sha1($pw);
+                
+                $query = "INSERT INTO `users` (username, password, email) 
+                            VALUES ('$username', '$pw', '$email')";
+                
+                $result = mysql_query($query);
+                
+                if (!$result) {
+                    mysql_close();
+                    die("The database query failed.");
+                } else {
+                    echo "Registration for user $username successful.";
+                    mysql_close();
+                    exit;
+                }*/
+                break;
+            default:
+                die(lang("errGeneralParamError"));
+                break;
+        }
     }
     
     if (!isset($_SESSION['username'])) {
@@ -200,6 +216,7 @@
     } else {
     	$component = $_comlist["login"];
     }
+    
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -219,7 +236,7 @@
 <body>
     <div id="topBar">
         <div id="topBarInner">
-            <?php if ($loggedin) { ?><div id="topBarLogout" class="topBarRight"><a href="index.php?logout">[<?php lang_echo("genLogout"); ?>]</a></div><?php } ?> 
+            <?php if ($loggedin) { ?><div id="topBarLogout" class="topBarRight"><form name="logoutform" id="logoutform" method="post" action="index.php"><input type="hidden" name="task" value="logout" /><input type="submit" name="submit" value="<?php lang_echo("genLogout"); ?>" /></form></div><?php } ?> 
         	<div id="topBarVer" class="topBarRight">Version: <?php echo $version; ?></div>
             <div id="topBarTime" class="topBarRight">Seite erzeugt: <?php echo date("d.m.Y H:i:s", $_SERVER["REQUEST_TIME"]); ?></div>
             <div id="topBarLang" class="topBarRight">
@@ -243,6 +260,7 @@
     </div>
     <div id="main">
         <div id="component">
+<?php if ($handler->getMsgCount() > 0) echo $handler->getFormatted();?>
 <?php if (isset($message)) { echo "            <div id=\"messageBar\">$message</div>\n"; unset($message); } ?>
             <?php include($component); ?> 
         </div>

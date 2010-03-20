@@ -74,6 +74,10 @@ div.topBarRight {
 div#topBarInner div#topBarLang {
     padding: 2px 0 2px;;
 }
+
+div#topBarInner div#topBarLogout {
+    padding: 0;    
+}
     
 
 div#main {
@@ -89,7 +93,32 @@ div#messageBar {
 	width: 80%;
 	padding: 10px 20px;
 	margin: 0 auto 20px;
-	text-align: center;
+}
+
+div.messagebox {
+    width: 80%;
+    margin: 0 auto 20px;
+}
+
+div.messagebox table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+div.messagebox table td {
+    border: 1px solid gray;
+}
+
+div.messagebox table td.origin {
+    border-right: 0 none;
+    padding: 10px 0 10px 20px;
+    vertical-align: top;
+}
+
+div.messagebox table td.message {
+    border-left: 0 none;
+    padding: 10px 20px 10px 10px;
+    vartical-align: top;
 }
 
 div.mainColumn {

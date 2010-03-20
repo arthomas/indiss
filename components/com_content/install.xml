@@ -11,6 +11,7 @@
     <license>GNU GPLv3</license>
     <version>0.1.0</version>
     <description>A component which can display all kinds of web content (HTML pages, images, flash files, PDF files) as well as other components.</description>
+    <hasFrontend>yes</hasFrontend>
     <files>
         <filename>index.html</filename>
         <filename>install.xml</filename>
