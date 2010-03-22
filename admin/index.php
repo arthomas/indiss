@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-03-19
+ * @version     2010-03-21
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Backend main page
@@ -69,71 +69,21 @@
                     }
                     
                     $row = mysql_fetch_object($result);
-                    if (($row->password != $pw) || (mysql_num_rows($result) == 0)) {
+                    if (($row->password != $pw) || (mysql_num_rows($result) == 0)) {  //login failed
                         $loginresult = false;
-                        $message .= lang("msgWrongPWorUN") . "<br />\n"; /*"Wrong password or username"*/
+                        $handler->addMsg("", lang("msgWrongPWorUN"), LiveErrorHandler::EK_ERROR); //"Wrong password or username"
                         if (mysql_num_rows($result) == 0) {
-                            $query = "INSERT INTO `errors` (`date`, `content`, `new`)
-                                        VALUES (
-                                            '". date($datefmt) . "',
-                                            'Someone tried to login with unknown username \"$username\" from IP $ip',
-                                            TRUE
-                                        )";
-                            $result = mysql_query($query);
-                            if (!$result) { 
-                                mysql_close();
-                                die(lang("errDBQryFailed"));
-                            }
+                            $logError->log("Login", "Error", "Someone tried to login with unknown username '$username' from IP $ip");
                         }
                         else if ($row->password != $pw) {
-                            $query = "INSERT INTO `errors` (`date`, `content`, `new`)
-                                        VALUES (
-                                            '". date($datefmt) . "',
-                                            'Someone tried to log in as \"$username\" with wrong password from IP $ip'
-                                        )";
-                            $result = mysql_query($query);
-                            if (!$result) { 
-                                mysql_close();
-                                die(lang("errDBQryFailed"));
-                            }
+                            $logError->log("Login", "Error", "Some tried to log in as '$username' with a wrong password from IP $ip");
                         }
-                    } else {
+                    } else {   //login was successful
                         $_SESSION['username'] = $username;
-                        $_SESSION['sid'] = session_id(); 
+                        $_SESSION['sid'] = session_id();
                         $_SESSION['ip'] = $ip;
                         $loginresult = true;
                         $handler->addMsg("Main", lang("msgLoginSuccess"), LiveErrorHandler::EK_SUCCESS);
-                        //$message .= lang("msgLoginSuccess") . "<br />\n";
-                        
-                        if ($errview = getValueByName("global_options", "display_new_errors")) {
-                            if ($errview == "admin_notify") {
-                                $query = "SELECT COUNT()
-                                            FROM `errors`
-                                            WHERE `new`=TRUE";
-                                $result = mysql_query($query);
-                                if (!$result) { 
-                                    mysql_close();
-                                    die(lang("errDBQryFailed"));
-                                }
-                                $new = mysql_fetch_row($result);
-                                if ($new > 0)
-                                    $message .= "There are $new new entries in the error log.<br />\n";
-                            } else if ($erroview == "admin_list") {
-                                $query = "SELECT `date`,`content`
-                                            FROM `errors`
-                                            WHERE `new`=TRUE";
-                                $result = mysql_query($query);
-                                if (!$result) { 
-                                    mysql_close();
-                                    die(lang("errDBQryFailed"));
-                                }
-                                while ($new = mysql_fetch_object($result))
-                                    $message .= $new->date . ": " . $new->content . "<br />\n";
-                            }
-                        } else { 
-                            mysql_close();
-                            die(lang("errDBQryFailed"));
-                        }
                     }
     
                 } else {
@@ -157,10 +107,8 @@
                     session_destroy();
                     
                     $handler->addMsg("", lang("msgLogoutSuccess"), LiveErrorHandler::EK_SUCCESS);
-                    //$message .= lang("msgLogoutSuccess") . "<br />\n";
                 } else {
                     $handler->addMsg("", lang("errCantLogout"), LiveErrorHandler::EK_ERROR);
-                    //$message .= lang("errCantLogout") . "<br />\n";
                 }
                 break;
             case "register":
