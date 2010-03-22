@@ -1,0 +1,59 @@
+<!
+body { color:#006600; font-size:20pt; margin-top:100px;}
+
+h1
+{
+  font-size:0pt;
+  font-family:"trebuchet ms", verdana, arial, sans-serif;
+}
+
+h2
+{
+  /*color:#004488;*/
+  /* font-size:12pt; */
+  font-family:"trebuchet ms", verdana, arial, sans-serif;
+}
+
+
+h4
+{
+  color:#004488;
+  /* font-size:12pt; */
+  font-family:"trebuchet ms", verdana, arial, sans-serif;
+}
+
+a:link 
+{
+  font-size:0pt;
+  /* color:#FFFFFF */
+}
+
+
+table.aussen
+{ background-color:#440044; 
+}
+
+table.innen
+{  
+  border:0;
+}
+
+th 
+{ 
+  color:#cccccc;
+  background-color:#004488;
+  font-family:"trebuchet ms", verdana, arial, sans-serif;
+}
+
+td 
+{ 
+  color:#004060;
+  background-color:#c0c0e0;
+  font-family:"trebuchet ms", verdana, arial, sans-serif;
+}
+
+p.seite
+{  /* color:#000080; background-color:#e0e0e0; */
+}
+
+//-->

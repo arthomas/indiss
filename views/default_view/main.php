@@ -30,8 +30,8 @@
 <iframe id="top" name="top" src="<?php echo $topsrc;?>"></iframe>
 <table id="middleTable" summary="" border="0" cellspacing="0" cellpadding="0">
     <tr>
-        <td id="leftMainCol"><iframe id="left" name="left" src="<?php echo $leftsrc;?>"></iframe></td>
-        <td id="rightMainCol"><iframe id="right" name="right" src="<?php echo $rightsrc;?>"></iframe></td>
+        <td id="leftMainCol"><iframe id="left" name="left" src="<?php echo $basepath; ?>/vertretungen/heute/anzeige_heute.html"></iframe></td>
+        <td id="rightMainCol"><iframe id="right" name="right" src="<?php echo $basepath; ?>/vertretungen/morgen/anzeige_morgen.html"></iframe></td>
     </tr>
 </table>
 <iframe id="bottom" name="bottom" src="<?php echo $bottomsrc;?>"></iframe>

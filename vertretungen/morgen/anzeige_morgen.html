@@ -1,0 +1,100 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+
+<script type="text/javascript">
+  scrollObj = null;  // (das fragliche Objekt, mit der Eigenschaft 'Scrollposition')
+  scrollKey = null;  // (der Name dieser Eigenschaft)
+
+  function scrollStep()
+  {
+    y = scrollObj[scrollKey];       // Aktuelle Position speichern
+    scroll(0,y+2);                  // und mal schauen...
+    if (scrollObj[scrollKey] == y)  // Keine Änderung: Seitenende ist erreicht.
+      scroll(0,0);                  // -> Dann halt wieder von vorne.
+    setTimeout('scrollStep()',5);   // Usw. ad infinitum.                                                HIER WARTEZEIT ZWISCHEN SCROLLSCHRITTEN IN ms EINTRAGEN
+  }
+
+  function initScrolling()
+
+  /* (Fragt - onload und einmalig - Objekt und Eigenschaftsnamen ab
+     und startet, wenn etwas brauchbares gefunden wurde, die Aktion.) */
+
+  {
+    // (Am besten immer erstmal die DOM-Knoten abgrasen, da das babylonische
+    //  Wirrwarr in punkto Objektzugriff, -namen und -eigenschaftsnamen hier
+    //  am geringsten ist.)
+
+    if (document.getElementsByTagName)
+     if (scrollObj = document.getElementsByTagName('BODY'))
+      if (scrollObj = scrollObj[0]) // (Dieses wird gesucht.)
+       if (scrollObj[scrollKey = 'scrollTop'] !== 'undefined')
+    {
+      scrollStep();
+      return;
+    }
+
+    // (Erst im zweiten Schritt ggf. browserspezifische Variablen abfragen)
+
+    if (window.pageYOffset !== 'undefined')
+    {
+      scrollObj = window;
+      scrollKey = 'pageYOffset';
+      scrollStep();
+      return;
+    }
+
+    if (document.body? (document.body.scrollTop !== 'undefined') : 0)
+    {
+      scrollObj = document.body;
+      scrollKey = 'scrollTop';
+      scrollStep();
+    }
+
+  }
+
+</script>
+
+
+<!-- Neu Laden der angegebenen URL (hier Link zu dieser Seite angeben!) und Zeit zwischen den Ladevorgängen in Sekunden -->
+
+
+<meta http-equiv="refresh" content="60;url=anzeige_morgen.html">
+
+</head>
+
+<!-- Beim neu laden der Seite wird das Skript "initScrolling" ausgeführt (nach unten scrollen und anschl. zurueck auf Seitenanfang springen usw.) -->
+
+<body onload='initScrolling()'>
+
+
+
+<title>aktueller Vertretungsplan</title>
+
+
+<br><br><br><br><br><br><br><br><br><br>
+
+
+<!-- Hier wird eine andere html-Seite (Vertretungsplanseite)  in voller Hoehe und Breite eingebunden oder bei Nichtverfügbarkeit ein Fehler ausgegeben -->
+
+<iframe onload='
+    var html = this.contentWindow.document.documentElement;
+    var body = this.contentWindow.document.body;
+    this.height = Math.max(html.scrollHeight, body.scrollHeight);
+  ' 
+  src="vertretungsplan_morgen.html" width="100%" frameborder="0" scrolling="no">
+
+<p><code>iframe</code>-Element wird nicht unterstützt bzw. die <a href="vertretungsplan.html">Quelle</a> ist nicht verfügbar.</p> 
+</iframe>
+
+
+<br><br><br><br><br><br><br><br><br><br>
+
+
+<!-- Um Firefox beim ersten Neuladen der Seite in den Vollbildmodus zu bringen muss das AddOn autogofull.xpi installiert sein. Dort wird bei den Einstellungen (Extras -> Add-ons -> Einstellungen) die URL dieser Seite angegeben. -->
+
+</body>
+</html>
+
+
+
