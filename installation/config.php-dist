@@ -18,7 +18,8 @@
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-    $configfile    = true;
+    $configfile    = true;          //legacy
+    define("__CONFIGFILE", 1);
 
     /*General config*/
     $basepath      = "/indiss";

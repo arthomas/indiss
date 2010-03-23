@@ -19,35 +19,11 @@
  */
     defined("__MAIN") or die("Restricted access.");
 ?>
-<div>Available option pages:</div>
+<div>Verf&uuml;gbare Options-Seiten:</div>
                 <ul>
-                    <li><strong>Global:</strong>
-                        <ul>
-                            <li><a href="?component=settings">General settings</a> <i>WIP</i></li>
-                            <li><!--<a href="?component=viewman">-->View manager<!--</a>--> <i>n/a</i></li>
-                            <li><!--<a href="?component=layout">-->Style and layout<!--</a>--> <i>n/a</i></li>
-                            <li><!--<a href="?component=userman">-->User manager<!--</a>--> <i>n/a</i></li>
-                            <li><!--<a href="?component=errlog">-->Error log<!--</a>--> <i>n/a</i></li>
-                        </ul>
-                    </li>
-                    <li><strong>Headline:</strong>
-                        <ul>
-                            <li><!--<a href="?component=headlineman">-->Headline manager<!--</a>--> <i>n/a</i></li>
-                        </ul>
-                    </li>
                     <li><strong>Tickers:</strong>
                         <ul>
                             <li><a href="?component=tickers">Ticker manager</a> <i>WIP</i></li>
-                        </ul>
-                    </li>
-                    <li><strong>Content:</strong>
-                        <ul>
-                            <li><a href="?component=content">Content manager</a> <i>WIP</i></li>
-                        </ul>
-                    </li>
-                    <li><strong>Substitution table:</strong>
-                        <ul>
-                            <li><!--<a href="?component=substtable">-->Substitution table options<!--</a>--> <i>n/a</i></li>
                         </ul>
                     </li>
                 </ul>

@@ -55,67 +55,12 @@
                 if (($row->password != $pw) || (mysql_num_rows($result) == 0)) {
                     $loginresult = false;
                     $message .= lang("msgWrongPWorUN") . "<br />\n"; /*"Wrong password or username"*/
-                    if (mysql_num_rows($result) == 0) {
-                        $query = "INSERT INTO `errors` (`date`, `content`, `new`)
-                                    VALUES (
-                                        '". date($datefmt) . "',
-                                        'Someone tried to login with unknown username \"$username\" from IP $ip',
-                                        TRUE
-                                    )";
-                        $result = mysql_query($query);
-                        if (!$result) { 
-                            mysql_close();
-                            die(lang("errDBQryFailed"));
-                        }
-                    }
-                    else if ($row->password != $pw) {
-                        $query = "INSERT INTO `errors` (`date`, `content`, `new`)
-                                    VALUES (
-                                        '". date($datefmt) . "',
-                                        'Someone tried to log in as \"$username\" with wrong password from IP $ip'
-                                    )";
-                        $result = mysql_query($query);
-                        if (!$result) { 
-                            mysql_close();
-                            die(lang("errDBQryFailed"));
-                        }
-                    }
                 } else {
                     $_SESSION['username'] = $username;
                     $_SESSION['sid'] = session_id(); 
                     $_SESSION['ip'] = $ip;
                     $loginresult = true;
                     $message .= lang("msgLoginSuccess") . "<br />\n";
-                    
-                    if ($errview = getValueByName("global_options", "display_new_errors")) {
-                        if ($errview == "admin_notify") {
-                            $query = "SELECT COUNT()
-                                        FROM `errors`
-                                        WHERE `new`=TRUE";
-                            $result = mysql_query($query);
-                            if (!$result) { 
-                                mysql_close();
-                                die(lang("errDBQryFailed"));
-                            }
-                            $new = mysql_fetch_row($result);
-                            if ($new > 0)
-                                $message .= "There are $new new entries in the error log.<br />\n";
-                        } else if ($erroview == "admin_list") {
-                            $query = "SELECT `date`,`content`
-                                        FROM `errors`
-                                        WHERE `new`=TRUE";
-                            $result = mysql_query($query);
-                            if (!$result) { 
-                                mysql_close();
-                                die(lang("errDBQryFailed"));
-                            }
-                            while ($new = mysql_fetch_object($result))
-                                $message .= $new->date . ": " . $new->content . "<br />\n";
-                        }
-                    } else { 
-                        mysql_close();
-                        die(lang("errDBQryFailed"));
-                    }
                 }
 
             } else {
@@ -127,33 +72,6 @@
                 }
             }
     		
-    	} else if ($_POST['task'] == 'register') {
-    		$username = $_POST['username'];
-		    $pw = $_POST['pw'];
-		    $pw2 = $_POST['pw2'];
-		    $email = $_POST['email'];
-    		
-		    if ($pw != $pw2) {
-		    	mysql_close();
-		    	die("Password do not match.");                               /*Needs to be changed*/
-		    }
-		    
-		    $pw = sha1($pw);
-		    
-		    $query = "INSERT INTO `users` (username, password, email) 
-                        VALUES ('$username', '$pw', '$email')";
-		    
-		    $result = mysql_query($query);
-		    
-		    if (!$result) {
-		    	mysql_close();
-		    	die("The database query failed.");
-		    } else {
-		    	echo "Registration for user $username successful.";
-		    	mysql_close();
-		    	exit;
-		    }
-		    
     	} else {
     		die(lang("errGeneralParamError"));
     	}
