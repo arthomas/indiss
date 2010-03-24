@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-03-21
+ * @version     2010-03-24
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Backend main page
@@ -44,8 +44,8 @@
 	$handler = LiveErrorHandler::add("Admin");
 	
 	include_once($FULL_BASEPATH . "/includes/logging/Logger.php");
-    $logError = new Logger("logs_error");
-    $logDebug = new Logger("logs_debug");
+    $logError = new Logger("error");
+    $logDebug = new Logger("debug");
 	
     include_once($FULL_BASEPATH . "/includes/components/ComMan.php");
     ComMan::readDB("components");
@@ -150,19 +150,31 @@
     	$loggedin = true;
     }
     
+    
     include("components/_comlist.php");
     if ($loggedin) {
-	    if (!isset($_GET["component"]))
-		    $component = $_comlist["overview"];
-		else {
-		    $component = $_comlist[$_GET["component"]];
-			if (!isset($_comlist[$_GET["component"]]) || !file_exists($component)) {
-			    $message .= lang("errComNotFound") . "<br />\n";
-			    $component = $_comlist["overview"];
-			}
-		}
+        if (isset($_GET["comID"])) {
+            if (($activeCom = ComMan::getComById((int)$_GET["comID"])) !== false) {
+                $useComId = true;
+                $component = $activeCom->getFullPath() . "/admin.php";
+            } else {
+                $component = $_comlist["overview"];
+                $handler->addMsg("Components", "Invalid component ID", LiveErrorHandler::EK_ERROR);
+            }
+        } else {
+        	    if (!isset($_GET["component"]))
+        		    $component = $_comlist["overview"];
+        		else {
+        		    $component = $_comlist[$_GET["component"]];
+        			if (!isset($_comlist[$_GET["component"]]) || !file_exists($component)) {
+        			    $message .= lang("errComNotFound") . "<br />\n";
+        			    $component = $_comlist["overview"];
+        			}
+        		}
+            
+    }
     } else {
-    	$component = $_comlist["login"];
+        $component = $_comlist["login"];
     }
     
 
@@ -175,8 +187,9 @@
 
     <link rel="stylesheet" type="text/css" href="css/admin_main.css" />
 <?php 
-    if (file_exists("../components/com_" . $_GET["component"] . "/admin.css.php"))
-        echo "    <link rel=\"stylesheet\" type=\"text/css\" href=\"../components/com_" . $_GET["component"] . "/admin.css.php\" />\n";
+    if ($useComId)
+        if (file_exists($activeCom->getFullPath() . "/admin.css.php"))
+            echo "    <link rel=\"stylesheet\" type=\"text/css\" href=\"" . $activeCom->getWebPath() . "/admin.css.php\" />\n";
 ?>
     
     <title><?php echo $sitename; ?> Administration</title>

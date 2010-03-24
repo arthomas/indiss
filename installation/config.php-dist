@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-01-08
+ * @version     2010-03-23
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
@@ -18,7 +18,8 @@
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-    $configfile    = true;
+    $configfile    = true;          //legacy
+    define("__CONFIGFILE", 1);
 
     /*General config*/
     $basepath      = "/indiss";

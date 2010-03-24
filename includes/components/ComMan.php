@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-03-20
+ * @version     2010-03-24
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that holds info about installed components
@@ -33,10 +33,10 @@ if (!$handler)
     $handler = LiveErrorHandler::add("ComMan");
     
 if (!$logError) {
-    $logError = new Logger("logs_error");
+    $logError = new Logger("error");
 }
 if (!$logDebug) {
-    $logDebug = new Logger("logs_debug");
+    $logDebug = new Logger("debug");
 }
 
  
@@ -178,11 +178,11 @@ class ComMan {
         }
         $p = $FULL_BASEPATH . self::$commonPath;
         if (!file_exists($p . "/$comName"))
-            return "$comName";
+            return "/$comName";
         $i = 1;
         while (file_exists(sprintf("%s/%s_%03d", $p, $comName, $i)))
             $i++;
-        return sprintf("%s_%03d", $comName, $i);
+        return sprintf("/%s_%03d", $comName, $i);
     }
     
     public static function add($source, $name = null, $dest = null) {
@@ -221,7 +221,7 @@ class ComMan {
         $desc = (string)$xml->description;
         $hasFrontend = (strtolower((string)$xml->hasFrontend) == "yes") ? true : false;
         $files = $xml->files->filename;
-        $dest = trim($dest, "/\\");
+        $dest = rtrim($dest, "/\\");
         if (empty($dest))
             $dest = generatePath($comName);
         if (empty($name))
@@ -232,7 +232,7 @@ class ComMan {
             return false;
         }
         
-        $p = $FULL_BASEPATH . $commonPath . "/" . $dest;
+        $p = $FULL_BASEPATH . $commonPath . $dest;
         if (file_exists($p)) {
             $handler->addMsg("Component manager", "Directory already exists ($p)", LiveErrorHandler::EK_ERROR);
             return false;
@@ -414,6 +414,16 @@ class ComMan {
         return $this->path;
     }
     
+    public function getWebPath() {
+        global $basepath;
+        return $basepath . self::$commonPath . $this->path;
+    }
+    
+    public function getFullPath() {
+        global $FULL_BASEPATH;
+        return $FULL_BASEPATH . self::$commonPath . $this->path;
+    }
+    
     //Note: this function is deprecated! It will only change the path but will not move the files!
     public function setPath($path) {
         if (!is_string($path)) {
@@ -448,7 +458,7 @@ class ComMan {
             $handler->addMsg("Component manager", "Component $this->name cannot be duplicated", LiveErrorHandler::EK_ERROR);
             return false;
         }
-        $com = self::add($FULL_BASEPATH . self::$commonPath . $this->path, $name, $dest);
+        $com = self::add($this->getFullPath(), $name, $dest);
         if (!$com)
             $handler->addMsg("Component manager", "Duplicating component $this->name failed", LiveErrorHandler::EK_ERROR);
         else
