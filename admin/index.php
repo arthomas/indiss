@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-03-24
+ * @version     2010-03-27
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Backend main page
@@ -47,7 +47,7 @@
     $logError = new Logger("error");
     $logDebug = new Logger("debug");
 	
-    include_once($FULL_BASEPATH . "/includes/components/ComMan.php");
+    include_once($FULL_BASEPATH . "/includes/comman/ComMan.php");
     ComMan::readDB("components");
     
     if (isset($_POST['submit'])) {
