@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-03-27
+ * @version     2010-03-28
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Backend main page
@@ -46,6 +46,8 @@
 	include_once($FULL_BASEPATH . "/includes/logging/Logger.php");
     $logError = new Logger("error");
     $logDebug = new Logger("debug");
+    
+    include_once($FULL_BASEPATH . "/includes/usrman/UsrMan.php");
 	
     include_once($FULL_BASEPATH . "/includes/comman/ComMan.php");
     ComMan::readDB("components");

@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-03-24
+ * @version     2010-03-29
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that holds info about installed components
@@ -164,7 +164,7 @@ class ComMan {
         if (!empty($rows)) {
             foreach ($rows as $row) {
                 $com = new ComMan($row["id"], $row["name"], $row["comName"], $row["installedAt"], $row["installedBy"], $row["path"], $row["enabled"], $row["hasFrontend"], $row["oneOfAKind"], $row["alwaysOn"], $row["core"]);
-                self::$components[] = $com;
+                self::$components[(int)$row["id"]] = $com;
             }
         }
         $logDebug->debuglog("Component manager", "Notice", "Successfully read " . count(self::$components) . " components from database table $table");
@@ -260,7 +260,7 @@ class ComMan {
         }
         
         $com = new ComMan($id, $name, $comName, $installedAt, null, $dest, true, $hasFrontend);
-        self::$components[] = $com;
+        self::$components[(int)$id] = $com;
         
         $handler->addMsg("Component manager", "Component $name successfully installed", LiveErrorHandler::EK_SUCCESS);
         return true;

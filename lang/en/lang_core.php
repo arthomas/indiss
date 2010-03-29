@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-03-19
+ * @version     2010-03-29
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      English language file for the INDISS core
@@ -56,6 +56,12 @@
     $_LANG["genNoon"]                       = "Noon";
     $_LANG["genEvening"]                    = "Evening";
     $_LANG["genResultingTimeStamp"]         = "Resulting time stamp";
+    $_LANG["genDebug"]                      = "Debug";
+    $_LANG["genNotice"]                     = "Notice";
+    $_LANG["genWarning"]                    = "Warning";
+    $_LANG["genError"]                      = "Error";
+    $_LANG["genFatalError"]                 = "Fatal error";
+    $_LANG["genSuccess"]                    = "Success";
     
     
     /*Top nav items*/
