@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-03-29
+ * @version     2010-04-01
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      User manager core component
@@ -22,7 +22,7 @@
 defined("__CONFIGFILE") or die("Config file not included [UsrMan.php]");
 defined("__DIRAWARE") or die("Directory awareness not included [UsrMan.php]");
 defined("__DATABASE") or die("Database connection not included [UsrMan.php]");
-defined("_MAIN") or die("Language file not included [UsrMan.php]");
+defined("__LANG") or die("Language file not included [UsrMan.php]");
 
 define("__USRMAN", 1);
 
@@ -82,43 +82,79 @@ class UsrMan {
         return count(self::$users);
     }
     
-    public static function getUsr($id) {
-        
+    public static function getUsr($id, $silent = false) {
+        global $logDebug, $logError;
+        if (!is_int($id)) {
+            trigger_error($emsg = "UsrMan::getUsr(): first argument must be of type int", E_USER_WARNING);
+            $logError->log("User manager", "Error", $emsg);
+            return false;
+        }
+        if (isset(self::$users[$id])) {
+            $logDebug->debuglog("User manager", "Notice", "Successfully retrieved user by id '$id'");
+            return self::$users[$id];
+        } else {
+            $emsg = "UsrMan::getUsr(): user with id '$id' was not found";
+            if (!$silent) {
+                trigger_error($emsg, E_USER_WARNING);
+            }
+            $logError->log("User manager", "Error", $emsg);
+            return false;
+        }
     }
     
     public static function getUsrByUname($uname, $silent = false) {
         global $logDebug, $logError;
         if (!is_string($uname)) {
             trigger_error($emsg = "UsrMan::getUsrByUname(): first argument must be of type string", E_USER_WARNING);
-            $logError->log(lang("usrmanUserManager"), lang("genError"), $emsg);
+            $logError->log("User manager", "Error", $emsg);
             return false;
         }
         if (!is_bool($silent)) {
             trigger_error($emsg = "UsrMan::getUsrByUname(): second argument must be of type bool", E_USER_WARNING);
-            $logError->log(lang("usrmanUserManager"), lang("genError"), $emsg);
+            $logError->log("User manager", "Error", $emsg);
             return false;
         }
-        foreach (self::$components as $com)
-            if ($com->name == $name)
-                return $com;
-        trigger_error($dmsg = "UsrMan::getUsrByUname(): no component named '$name' was found", E_USER_WARNING);
-        $logDebug->debuglog(lang("usrmanUserManager"), "Warning", $dmsg);
-        return false;
+        $result = mysql_query("SELECT `id` FROM `" . self::$dbTable . "` WHERE `uname`=`$uname`");
+        if (!$result) {
+            trigger_error($emsg = "UsrMan::getUsrByUname(): database error: " . mysql_error() . "; query: " . $query, E_USER_WARNING);
+            $logError->log("User manager", "Error", $emsg);
+            return false;
+        }
+        if (($row = mysql_get_assoc($result)) !== false) {
+            if (isset(self::$users[(int)$row["id"]])) {
+                return self::$users[(int)$row["id"]];
+            } else {
+                $emsg = "UsrMan::getUsrByUname(): database returned id '" . $row["id"] . "' for username 'uname', but this id was not found in internal array";
+                if (!$silent) {
+                    trigger_error($emsg, E_USER_WARNING);
+                }
+                $logError->log("User manager", "Error", $emsg);
+                return false;
+            }
+        } else {
+            $emsg = "UsrMan::getUsrByUname(): no component named '$name' was found";
+            if (!$silent) {
+                trigger_error($emsg, E_USER_WARNING);
+            }
+            $logError->log("User manager", "Warning", $emsg);
+            return false;
+        }
     }
     
     public static function readDB($table) {
         global $logDebug, $logError;
         if (!is_string($table)) {
-            trigger_error($dmsg = "UsrMan::readDB(): first argument must be of type string", E_USER_WARNING);
-            $logError->log(lang("usrmanUserManager"), "Error", $dmsg);
+            trigger_error($emsg = "UsrMan::readDB(): first argument must be of type string", E_USER_WARNING);
+            $logError->log("User manager", "Error", $emsg);
             return false;
         }
         self::$dbTable = $table;
+        unset(self::$users);                    //reset $users, so this function can also be to refresh the user data
         $query = "SELECT * FROM `$table`";
         $result = mysql_query($query);
         if (!$result) {
-            trigger_error($dmsg = "UsrMan::readDB(): database error: " . mysql_error() . "; query: " . $query, E_USER_WARNING);
-            $logError->log(lang("usrmanUserManager"), "Error", $dmsg);
+            trigger_error($emsg = "UsrMan::readDB(): database error: " . mysql_error() . "; query: " . $query, E_USER_WARNING);
+            $logError->log("User manager", "Error", $emsg);
             return false;
         }
         while ($row = mysql_fetch_assoc($result)) { //fetch all resulting rows
@@ -171,6 +207,7 @@ class UsrMan {
         
         if (self::getUsrByUname($uname, true) !== false) {
             $handler->addMsg(lang("usrmanUserManager"), sprintf(lang("usrmanUnameAlreadyExists"), $uname), LiveErrorHandler::EK_ERROR);
+            $logError->log("User manager", "Error", "UsrMan::add(): A user named '$uname' already exists");
             return false;
         }
         
@@ -193,10 +230,12 @@ class UsrMan {
             VALUES ('$uname', '$pass', '$email', '$fullname', '$createdAt', $createdBy, $level, TRUE)";
         if (!mysql_query($query)) {
             $handler->addMsg(lang("usrmanUserManager"), sprintf(lang("usrmanCreateUserDBError"), $uname, mysql_error(), $query), LiveErrorHandler::EK_ERROR);
+            $logError->log("User manager", "Error", "UsrMan::add(): database error: " . mysql_error() . "; query: " . $query);
             return false;
         }
         if (!($id = mysql_insert_id())) {
             $handler->addMsg(lang("usrmanUserManager"), lang("usrmanGetDBInsertIDFail"), LiveErrorHandler::EK_ERROR);
+            $logError->log("User manager", "Error", "UsrMan::add(): failed to retrieve database entry id -- INTERNAL ARRAY NOW OUT OF SYNC");
             return false;
         }
         
@@ -204,19 +243,87 @@ class UsrMan {
         self::$users[(int)$id] = $usr;
         
         $handler->addMsg(lang("usrmanUserManager"), sprintf(lang("usrmanCreateUserSuccess"), $uname), LiveErrorHandler::EK_SUCCESS);
+        $logDebug->debuglog("User manager", "Notice", "Successfully created user '$uname'");
         return true;
     }
     
-    public static function remove(UsrMan $user) {
-        
+    public static function remove(UsrMan &$user, $silent = false) {
+        global $logDebug, $logError, $handler;
+        if (is_null($user)) {
+            trigger_error($emsg = "UsrMan::remove(): first argument cannot be NULL", E_USER_WARNING);
+            $logError->log("User manager", "Error", $emsg);
+            return false;
+        }
+        $id = $user->getId();
+        if (isset(self::$users[$id])) {
+            $result = mysql_query(sprintf("DELETE FROM `%s` WHERE `id`=%d LIMIT 1", self::$dbTable, $id));
+            if (!$result) {
+                $emsg = "UsrMan::remove(): database error: " . mysql_error() . "; query: " . $query;
+                if (!$silent) {
+                    trigger_error($emsg, E_USER_WARNING);
+                }
+                $logError->log("User manager", "Error", $emsg . " -- INTERNAL ARRAY NOW POSSIBLY OUT OF SYNC");
+                return false;
+            }
+            $affected = mysql_affected_rows();
+            if ($affected < 1) {
+                $emsg = "UsrMan::remove(): Database returned no error, but said that no rows were affected during deletion of user id '$id'";
+                if (!$silent) {
+                    trigger_error($emsg, E_USER_WARNING);
+                }
+                $logError->log("User manager", "Error", $emsg . " -- INTERNAL ARRAY NOW POSSIBLY OUT OF SYNC");
+                return false;
+            }
+            unset(self::$users[$id]);
+            unset($user);
+            $logDebug->debuglog("User manager", "Notice", "Successfully deleted user with the id '$id'");
+            return true;
+        } else {
+            $emsg = "UsrMan::remove(): user with id '$id' was not found in internal array";
+            if (!$silent) {
+                trigger_error($emsg, E_USER_WARNING);
+            }
+            $logError->log("User manager", "Error", $emsg);
+            return false;
+        }
     }
     
-    public static function removeByName($name) {
-        
+    public static function removeByUname($uname, $silent = false) {
+        global $logDebug, $logError;
+        if (!is_string($uname)) {
+            trigger_error($emsg = "UsrMan::removeByUname(): first argument must be of type string", E_USER_WARNING);
+            $logError->log("User manager", "Error", $emsg);
+            return false;
+        }
+        if (($usr = getUsrByUname($uname, true)) !== false) {
+            return self::remove($usr, true);
+        } else {
+            $emsg = "UsrMan::removeByUname(): user named '$uname' was not found in internal array";
+            if (!$silent) {
+                trigger_error($emsg, E_USER_WARNING);
+            }
+            $logError->log("User manager", "Error", $emsg);
+            return false;
+        }
     }
     
-    public static function removeById($id) {
-        
+    public static function removeById($id, $silent = false) {
+        global $logDebug, $logError;
+        if (!is_int($id)) {
+            trigger_error($emsg = "UsrMan::removeById(): first argument must be of type int", E_USER_WARNING);
+            $logError->log("User manager", "Error", $emsg);
+            return false;
+        }
+        if (isset(self::$users[$id])) {
+            return self::remove(self::$users[$id], true);
+        } else {
+            $emsg = "UsrMan::removeById(): user with id '$id' was not found in internal array";
+            if (!$silent) {
+                trigger_error($emsg, E_USER_WARNING);
+            }
+            $logError->log("User manager", "Error", $emsg);
+            return false;
+        }
     }
     
     
@@ -249,8 +356,24 @@ class UsrMan {
         return $this->fullname;
     }
     
-    public function setFullName($fullname) {
+    public function setFullName($fullname, $silent = false) {
+        global $logDebug, $logError;
+        if (!is_string($fullname)) {
+            trigger_error($emsg = "UsrMan::setFullName(): first argument must be of type string", E_USER_WARNING);
+            $logError->log("User manager", "Error", $emsg);
+            return false;
+        }
+        $result = mysql_query(sprintf("UPDATE `%s` SET `fullname`='%s' WHERE `id`=%d LIMIT 1", self::$dbTable, $fullname, $this->id));
+        if (!$result) {
+            $emsg = "UsrMan::setFullName(): database error: " . mysql_error() . "; query: " . $query;
+            if (!$silent) {
+                trigger_error($emsg, E_USER_WARNING);
+            }
+            $logError->log("User manager", "Error", $emsg . " -- INTERNAL ARRAY NOW POSSIBLY OUT OF SYNC");
+            return false;
+        }
         $this->fullname = $fullname;
+        return true;
     }
     
     public function getEmail() {
@@ -258,7 +381,26 @@ class UsrMan {
     }
     
     public function setEmail($email) {
+        global $logDebug, $logError;
+        if (!is_string($email)) {
+            trigger_error($emsg = "UsrMan::setEmail(): first argument must be of type string", E_USER_WARNING);
+            $logError->log("User manager", "Error", $emsg);
+            return false;
+        }
+        
+        //should probably validate email first
+        
+        $result = mysql_query(sprintf("UPDATE `%s` SET `email`='%s' WHERE `id`=%d LIMIT 1", self::$dbTable, $email, $this->id));
+        if (!$result) {
+            $emsg = "UsrMan::setEmail(): database error: " . mysql_error() . "; query: " . $query;
+            if (!$silent) {
+                trigger_error($emsg, E_USER_WARNING);
+            }
+            $logError->log("User manager", "Error", $emsg . " -- INTERNAL ARRAY NOW POSSIBLY OUT OF SYNC");
+            return false;
+        }
         $this->email = $email;
+        return true;
     }
     
     public function getCreatedAt() {
@@ -274,11 +416,43 @@ class UsrMan {
     }
     
     public function setPassHashed($hashedPass) {
+        global $logDebug, $logError;
+        if (!is_string($hashedPass)) {
+            trigger_error($emsg = "UsrMan::setPassHashed(): first argument must be of type string", E_USER_WARNING);
+            $logError->log("User manager", "Error", $emsg);
+            return false;
+        }
+        $result = mysql_query(sprintf("UPDATE `%s` SET `pass`='%s' WHERE `id`=%d LIMIT 1", self::$dbTable, $hashedPass, $this->id));
+        if (!$result) {
+            $emsg = "UsrMan::setPassHashed(): database error: " . mysql_error() . "; query: " . $query;
+            if (!$silent) {
+                trigger_error($emsg, E_USER_WARNING);
+            }
+            $logError->log("User manager", "Error", $emsg . " -- INTERNAL ARRAY NOW POSSIBLY OUT OF SYNC");
+            return false;
+        }
         $this->pass = $hashedPass;
+        return true;
     }
     
     public function setPassAndHash($pass) {
+        global $logDebug, $logError;
+        if (!is_string($pass)) {
+            trigger_error($emsg = "UsrMan::setPassAndHash(): first argument must be of type string", E_USER_WARNING);
+            $logError->log("User manager", "Error", $emsg);
+            return false;
+        }
+        $result = mysql_query(sprintf("UPDATE `%s` SET `pass`='%s' WHERE `id`=%d LIMIT 1", self::$dbTable, sha1($pass), $this->id));
+        if (!$result) {
+            $emsg = "UsrMan::setPassAndHash(): database error: " . mysql_error() . "; query: " . $query;
+            if (!$silent) {
+                trigger_error($emsg, E_USER_WARNING);
+            }
+            $logError->log("User manager", "Error", $emsg . " -- INTERNAL ARRAY NOW POSSIBLY OUT OF SYNC");
+            return false;
+        }
         $this->pass = sha1($pass);
+        return true;
     }
     
     public function isActive() {
@@ -286,7 +460,23 @@ class UsrMan {
     }
     
     public function activate($active) {
+        global $logDebug, $logError;
+        if (!is_bool($active)) {
+            trigger_error($emsg = "UsrMan::activate(): first argument must be of type bool", E_USER_WARNING);
+            $logError->log("User manager", "Error", $emsg);
+            return false;
+        }
+        $result = mysql_query(sprintf("UPDATE `%s` SET `active`=%s WHERE `id`=%d LIMIT 1", self::$dbTable, ($active) ? "TRUE" : "FALSE", $this->id));
+        if (!$result) {
+            $emsg = "UsrMan::activate(): database error: " . mysql_error() . "; query: " . $query;
+            if (!$silent) {
+                trigger_error($emsg, E_USER_WARNING);
+            }
+            $logError->log("User manager", "Error", $emsg . " -- INTERNAL ARRAY NOW POSSIBLY OUT OF SYNC");
+            return false;
+        }
         $this->active = $active;
+        return true;
     }
     
     public function getLevel() {

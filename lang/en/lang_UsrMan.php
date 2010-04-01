@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-03-29
+ * @version     2010-04-01
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      English language file for the User Manager
