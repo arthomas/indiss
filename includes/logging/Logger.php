@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-03-20
+ * @version     2010-04-02
  * @author      Myriam Leggieri <myriam.leggieri@gmail.com>
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Myriam Leggieri, Patrick Lehner
@@ -356,7 +356,7 @@ class Logger {
         $ret = true;
         $when = $this->datetimeFormatter();
         if ($this->logToFile) {
-            $str = array($when, $userId, $origin, $type, $info);
+            $str = array($when, $userId, $origin, $type, $message);
             $ret = $ret && $this->appendEventToCsv($str);
         }
         if ($this->logToDb) {
@@ -365,11 +365,12 @@ class Logger {
                 $uid = "'$userId'";
             else
                 $uid = "NULL";
+            $msg = mysql_real_escape_string($message);
             $query = "INSERT INTO `$tablename` (`$this->col_datetime`, `$this->col_user`, `$this->col_origin`, `$this->col_type`, `$this->col_info`)
-                     VALUES ('$when', $uid, '$origin', '$type', '$info')";
+                     VALUES ('$when', $uid, '$origin', '$type', '$msg')";
     
             if (!mysql_query($query)){
-                trigger_error("Logger::log(): Cannot insert log event into db table '$tablename'.\nmysql error:".mysql_error(), E_USER_WARNING);
+                trigger_error("Logger::log(): Cannot insert log event into db table '$tablename'.\nmysql error: ".mysql_error(), E_USER_WARNING);
                 $ret = false;
             }
         }
@@ -379,7 +380,7 @@ class Logger {
 	public function debuglog($origin, $type, $message, $userId = 0) {
 	    global $debug;
 	    if ($debug)
-            return log($origin, "Debug_$type", $message, $userId);
+            return log($origin, "$type", $message, $userId);
         else
             return false;
 	}

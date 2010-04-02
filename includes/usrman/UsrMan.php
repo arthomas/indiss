@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-01
+ * @version     2010-04-02
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      User manager core component
@@ -149,7 +149,7 @@ class UsrMan {
             return false;
         }
         self::$dbTable = $table;
-        unset(self::$users);                    //reset $users, so this function can also be to refresh the user data
+        self::$users = array();                    //reset $users, so this function can also be to refresh the user data
         $query = "SELECT * FROM `$table`";
         $result = mysql_query($query);
         if (!$result) {
@@ -324,6 +324,59 @@ class UsrMan {
             $logError->log("User manager", "Error", $emsg);
             return false;
         }
+    }
+    
+    public static function login($uname, $pass, $passIsHashed = false) {
+        global $logDebug, $logError, $handler;
+        if (!is_string($uname)) {
+            trigger_error($emsg = "UsrMan::login(): first argument must be of type string", E_USER_WARNING);
+            $logError->log("User manager", "Error", $emsg);
+            return false;
+        }
+        if (!is_string($pass)) {
+            trigger_error($emsg = "UsrMan::login(): second argument must be of type string", E_USER_WARNING);
+            $logError->log("User manager", "Error", $emsg);
+            return false;
+        }
+        if (!is_bool($passIsHashed)) {
+            trigger_error($emsg = "UsrMan::login(): third argument must be of type bool", E_USER_WARNING);
+            $logError->log("User manager", "Error", $emsg);
+            return false;
+        }
+        if (empty($uname) || empty($pass)) {
+            $handler->addMsg("Login", "Username or password was empty", LiveErrorHandler::EK_ERROR);
+            $logError->log("User manager", "Error", "UsrMan::login(): username or password was empty");
+            return false;
+        }
+        if (!$passIsHashed) {
+            $pass = sha1($pass);
+        }
+        $result = mysql_query("SELECT (`id`,`pass`) FROM `" . self::$dbTable . "` WHERE `uname`='$uname' LIMIT 1");
+        if (!$result) {
+            trigger_error($emsg = "UsrMan::login(): database error: " . mysql_error() . "; -- query not included for security reasons", E_USER_WARNING);
+            $logError->log("User manager", "Error", $emsg);
+            return false;
+        }
+        if (($row = mysql_fetch_assoc($result)) === false) {
+            $handler->addMsg("Login", lang("msgWrongPWorUN"), LiveErrorHandler::EK_ERROR); //"Wrong password or username"
+            $logError->log("User manager", "Error", "UsrMan::login(): Someone tried to login as unknown user '$uname' from IP " . $_SERVER['REMOTE_ADDR']);
+            return false;
+        }
+        if ($row["pass"] != $pass) {
+            $handler->addMsg("Login", lang("msgWrongPWorUN"), LiveErrorHandler::EK_ERROR); //"Wrong password or username"
+            $logError->log("User manager", "Error", "UsrMan::login(): Someone tried to login as user '$uname' with a wrong password from IP " . $_SERVER['REMOTE_ADDR']);
+            return false;
+        }
+        //login was successful
+        $_SESSION['username'] = $uname;
+        $_SESSION["uid"] = (int)$row["id"];
+        $_SESSION['sid'] = session_id();
+        $_SESSION['ip'] = $ip;
+        $handler->addMsg("Login", lang("msgLoginSuccess"), LiveErrorHandler::EK_SUCCESS);
+        $logDebug->debuglog("User manager", "Notice", "UsrMan::login(): User '$uname' successfully logged in");
+        global $activeUsr;
+        $activeUsr = self::$users[(int)$row["id"]];
+        return true;
     }
     
     

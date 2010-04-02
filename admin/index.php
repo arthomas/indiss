@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-03-28
+ * @version     2010-04-02
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Backend main page
@@ -48,6 +48,7 @@
     $logDebug = new Logger("debug");
     
     include_once($FULL_BASEPATH . "/includes/usrman/UsrMan.php");
+    UsrMan::readDB("users");
 	
     include_once($FULL_BASEPATH . "/includes/comman/ComMan.php");
     ComMan::readDB("components");
@@ -55,46 +56,15 @@
     if (isset($_POST['submit'])) {
         switch ($_POST["task"]) {
             case "login":
-                if (!empty($_POST['username']) && !empty($_POST['pw'])) {
-                    $username = $_POST['username'];
-                    $pw = sha1($_POST['pw']);
-                    $ip = $_SERVER['REMOTE_ADDR'];
-                    
-                    $query = "SELECT username,password 
-                                FROM   `users`
-                                WHERE  username='$username'";
-                    
-                    $result = mysql_query($query);
-                    if (!$result) { 
-                        mysql_close();
-                        die(lang("errDBQryFailed"));
-                    }
-                    
-                    $row = mysql_fetch_object($result);
-                    if (($row->password != $pw) || (mysql_num_rows($result) == 0)) {  //login failed
-                        $loginresult = false;
-                        $handler->addMsg("", lang("msgWrongPWorUN"), LiveErrorHandler::EK_ERROR); //"Wrong password or username"
-                        if (mysql_num_rows($result) == 0) {
-                            $logError->log("Login", "Error", "Someone tried to login with unknown username '$username' from IP $ip");
-                        }
-                        else if ($row->password != $pw) {
-                            $logError->log("Login", "Error", "Some tried to log in as '$username' with a wrong password from IP $ip");
-                        }
-                    } else {   //login was successful
-                        $_SESSION['username'] = $username;
-                        $_SESSION['sid'] = session_id();
-                        $_SESSION['ip'] = $ip;
-                        $loginresult = true;
-                        $handler->addMsg("Main", lang("msgLoginSuccess"), LiveErrorHandler::EK_SUCCESS);
-                    }
-    
-                } else {
+                if (empty($_POST['username']) || empty($_POST['pw'])) {
                     if (empty($_POST['username'])) {
                         $usernamemissing = true;
                     }
                     if (empty($_POST['pw'])) {
                         $passwordmissing = true;
                     }
+                } else {
+                    UsrMan::login($_POST["username"], $_POST["pw"]);  // no need to remember the return value because "logged in" state is determined by $_SESSION
                 }
                 break;
             case "logout":          //log out: destroy session and all session data
