@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-03-29
+ * @version     2010-04-03
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that holds info about installed components
@@ -46,7 +46,6 @@ class ComMan {
     
     private static $commonPath = "/components";
     private static $dbTable = "components";
-    private static $cached = false;
     public  static $components;
     
     
@@ -72,21 +71,6 @@ class ComMan {
         return count(self::$components);
     }
     
-    public static function isCached() {
-        return self::$cached;
-    }
-    
-    public static function cached($cached) {
-        if (!is_bool($cached)) {
-            trigger_error($dmsg = "ComMan::cached(): first argument must be of type bool", E_USER_WARNING);
-            global $logDebug;
-            $logDebug->debuglog("Component manager", "Error", $dmsg);
-            return false;
-        }
-        self::$cached = $cached;
-        return true;
-    }
-    
     public static function getCommonPath() {
         return self::$commonPath;
     }
@@ -103,65 +87,68 @@ class ComMan {
         return true;
     }
     
-    public static function getCom($index) {
-        if (!is_int($index)) {
-            trigger_error($dmsg = "ComMan::getCom(): first argument must be of type int", E_USER_WARNING);
-            global $logDebug;
-            $logDebug->debuglog("Component manager", "Error", $dmsg);
-            return false;
-        }
-        return self::$components[$i];
-    }
-    
-    public static function getComById($id) {
-        global $logDebug;
+    public static function getCom($id, $silent = false) {
+        global $logError, $logDebug;
         if (!is_int($id)) {
-            trigger_error($dmsg = "ComMan::getComById(): first argument must be of type int", E_USER_WARNING);
-            $logDebug->debuglog("Component manager", "Error", $dmsg);
+            trigger_error($emsg = "ComMan::getCom(): first argument must be of type int", E_USER_WARNING);
+            $logError->log("Component manager", "Error", $emsg);
             return false;
         }
-        foreach (self::$components as $com)
-            if ($com->id == $id)
-                return $com;
-        trigger_error($dmsg = "ComMan::getComById(): no component with id '$id' was found", E_USER_WARNING);
-        $logDebug->debuglog("Component manager", "Warning", $dmsg);
-        return false;
+        if (isset(self::$components[$id])) {
+            $logDebug->debuglog("Component manager", "Notice", "Successfully retrieved component by id '$id'");
+            return self::$components[$id];
+        } else {
+            $emsg = "ComMan::getCom(): component with id '$id' was not found";
+            if (!$silent) {
+                trigger_error($emsg, E_USER_WARNING);
+            }
+            $logError->log("Component manager", "Error", $emsg);
+            return false;
+        }
     }
     
-    public static function getComByName($name) {
-        global $logDebug;
+    public static function getComByName($name, $silent = false) {
+        global $logError, $logDebug;
         if (!is_string($name)) {
-            trigger_error($dmsg = "ComMan::getComByName(): first argument must be of type string", E_USER_WARNING);
-            $logDebug->debuglog("Component manager", "Error", $dmsg);
+            trigger_error($emsg = "ComMan::getComByName(): first argument must be of type string", E_USER_WARNING);
+            $logError->log("Component manager", "Error", $emsg);
+            return false;
+        }
+        if (!is_bool($silent)) {
+            trigger_error($emsg = "ComMan::getComByName(): second argument must be of type bool", E_USER_WARNING);
+            $logError->log("Component manager", "Error", $emsg);
             return false;
         }
         foreach (self::$components as $com)
             if ($com->name == $name)
                 return $com;
-        trigger_error($dmsg = "ComMan::getComByName(): no component named '$name' was found", E_USER_WARNING);
-        $logDebug->debuglog("Component manager", "Warning", $dmsg);
+        $emsg = "ComMan::getComByName(): no component named '$name' was found";
+        if (!$silent) {
+            trigger_error($emsg, E_USER_WARNING);
+        }
+        $logError->log("Component manager", "Warning", $emsg);
         return false;
     }
     
     public static function readDB($table) {
-        global $logDebug;
+        global $logError, $logDebug;
         if (!is_string($table)) {
-            trigger_error($dmsg = "ComMan::readDB(): first argument must be of type string", E_USER_WARNING);
-            $logDebug->debuglog("Component manager", "Error", $dmsg);
+            trigger_error($emsg = "ComMan::readDB(): first argument must be of type string", E_USER_WARNING);
+            $logError->log("Component manager", "Error", $emsg);
             return false;
         }
         self::$dbTable = $table;
         $query = "SELECT * FROM `$table`";
         $result = mysql_query($query);
         if (!$result) {
-            trigger_error($dmsg = "ComMan::readDB(): database error: " . mysql_error(), E_USER_WARNING);
-            $logDebug->debuglog("Component manager", "Error", $dmsg);
+            trigger_error($emsg = "UsrMan::readDB(): database error: " . mysql_error() . "; query: " . $query, E_USER_WARNING);
+            $logError->log("Component manager", "Error", $emsg);
             return false;
         }
         while ($row = mysql_fetch_assoc($result)) { //fetch all resulting rows
             $rows[] = $row;  //and save them into our array
         }
-        if (!empty($rows)) {
+        if (!empty($rows)) {        //lest we "provide an illegal argument to foreach"
             foreach ($rows as $row) {
                 $com = new ComMan($row["id"], $row["name"], $row["comName"], $row["installedAt"], $row["installedBy"], $row["path"], $row["enabled"], $row["hasFrontend"], $row["oneOfAKind"], $row["alwaysOn"], $row["core"]);
                 self::$components[(int)$row["id"]] = $com;
@@ -172,8 +159,10 @@ class ComMan {
     }
     
     private static function generatePath($comName) {
+        global $logError, $logDebug;
         if (!is_string($comName)) {
-            trigger_error("ComMan::generatePath(): first argument must be of type string", E_USER_WARNING);
+            trigger_error($emsg = "ComMan::generatePath(): first argument must be of type string", E_USER_WARNING);
+            $logError->log("Component manager", "Error", $emsg);
             return false;
         }
         $p = $FULL_BASEPATH . self::$commonPath;
@@ -185,21 +174,23 @@ class ComMan {
         return sprintf("/%s_%03d", $comName, $i);
     }
     
-    public static function add($source, $name = null, $dest = null) {
+    public static function add($source, $name = "", $dest = "") {
+        global $logError, $logDebug, $handler;
         if (!is_string($source)) {
-            trigger_error("ComMan::add(): first argument must be of type string", E_USER_WARNING);
+            trigger_error($emsg = "ComMan::add(): first argument must be of type string", E_USER_WARNING);
+            $logError->log("Component manager", "Error", $emsg);
             return false;
         }
-        if (!(is_null($name) || is_string($name))) {
-            trigger_error("ComMan::add(): second argument must be NULL or of type string", E_USER_WARNING);
+        if (!is_string($name)) {
+            trigger_error($emsg = "ComMan::add(): second argument must be of type string", E_USER_WARNING);
+            $logError->log("Component manager", "Error", $emsg);
             return false;
         }
-        if (!(is_null($dest) || is_string($dest))) {
-            trigger_error("ComMan::add(): third argument must be NULL or of type string", E_USER_WARNING);
+        if (!is_string($dest)) {
+            trigger_error($emsg = "ComMan::add(): third argument must be of type string", E_USER_WARNING);
+            $logError->log("Component manager", "Error", $emsg);
             return false;
         }
-        
-        global $handler;
         
         $source = rtrim($source, "/\\");
         

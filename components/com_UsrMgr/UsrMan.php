@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-02
+ * @version     2010-04-05
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      User manager core component
@@ -114,31 +114,16 @@ class UsrMan {
             $logError->log("User manager", "Error", $emsg);
             return false;
         }
-        $result = mysql_query("SELECT `id` FROM `" . self::$dbTable . "` WHERE `uname`=`$uname`");
-        if (!$result) {
-            trigger_error($emsg = "UsrMan::getUsrByUname(): database error: " . mysql_error() . "; query: " . $query, E_USER_WARNING);
-            $logError->log("User manager", "Error", $emsg);
-            return false;
+        foreach (self::$users as $user) {
+            if ($user->uname == $uname)
+                return $user;
         }
-        if (($row = mysql_get_assoc($result)) !== false) {
-            if (isset(self::$users[(int)$row["id"]])) {
-                return self::$users[(int)$row["id"]];
-            } else {
-                $emsg = "UsrMan::getUsrByUname(): database returned id '" . $row["id"] . "' for username 'uname', but this id was not found in internal array";
-                if (!$silent) {
-                    trigger_error($emsg, E_USER_WARNING);
-                }
-                $logError->log("User manager", "Error", $emsg);
-                return false;
-            }
-        } else {
-            $emsg = "UsrMan::getUsrByUname(): no component named '$name' was found";
-            if (!$silent) {
-                trigger_error($emsg, E_USER_WARNING);
-            }
-            $logError->log("User manager", "Warning", $emsg);
-            return false;
+        $emsg = "UsrMan::getUsrByUname(): no user named '$uname' was found";
+        if (!$silent) {
+            trigger_error($emsg, E_USER_WARNING);
         }
+        $logError->log("User manager", "Warning", $emsg);
+        return false;
     }
     
     public static function readDB($table) {
@@ -351,7 +336,7 @@ class UsrMan {
         if (!$passIsHashed) {
             $pass = sha1($pass);
         }
-        $result = mysql_query("SELECT (`id`,`pass`) FROM `" . self::$dbTable . "` WHERE `uname`='$uname' LIMIT 1");
+        $result = mysql_query("SELECT `id`,`pass` FROM `" . self::$dbTable . "` WHERE `uname`='$uname' LIMIT 1");
         if (!$result) {
             trigger_error($emsg = "UsrMan::login(): database error: " . mysql_error() . "; -- query not included for security reasons", E_USER_WARNING);
             $logError->log("User manager", "Error", $emsg);
@@ -377,6 +362,23 @@ class UsrMan {
         global $activeUsr;
         $activeUsr = self::$users[(int)$row["id"]];
         return true;
+    }
+    
+    public static function logout() {
+        if (isset($_SESSION['uid'])) {
+            
+            $_SESSION = array();        //destroy server session data
+
+            if (isset($_COOKIE[session_name()])) {
+                setcookie(session_name(), '', time()-42000, '/'); //destroy user's cookie
+            }
+
+            session_destroy();          //destroy session completely
+            
+            $handler->addMsg("Logout", lang("msgLogoutSuccess"), LiveErrorHandler::EK_SUCCESS);
+        } else {
+            $handler->addMsg("Logout", lang("errCantLogout"), LiveErrorHandler::EK_ERROR);
+        }
     }
     
     

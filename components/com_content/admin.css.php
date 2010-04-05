@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-01-09
+ * @version     2010-04-05
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      content manager (backend) style definitions

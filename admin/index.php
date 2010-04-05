@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-02
+ * @version     2010-04-05
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Backend main page
@@ -64,24 +64,11 @@
                         $passwordmissing = true;
                     }
                 } else {
-                    UsrMan::login($_POST["username"], $_POST["pw"]);  // no need to remember the return value because "logged in" state is determined by $_SESSION
+                    UsrMan::login($_POST["username"], $_POST["pw"]);  // no need to remember the return value because "logged in" state is determined via $_SESSION
                 }
                 break;
             case "logout":          //log out: destroy session and all session data
-                if (isset($_SESSION['username'])) {
-                    
-                    $_SESSION = array();
-        
-                    if (isset($_COOKIE[session_name()])) {
-                        setcookie(session_name(), '', time()-42000, '/');
-                    }
-        
-                    session_destroy();
-                    
-                    $handler->addMsg("", lang("msgLogoutSuccess"), LiveErrorHandler::EK_SUCCESS);
-                } else {
-                    $handler->addMsg("", lang("errCantLogout"), LiveErrorHandler::EK_ERROR);
-                }
+                UsrMan::logout();
                 break;
             case "register":
                 /*$username = $_POST['username'];  //this whole sections needs to be changed and upgraded
@@ -126,7 +113,7 @@
     include("components/_comlist.php");
     if ($loggedin) {
         if (isset($_GET["comID"])) {
-            if (($activeCom = ComMan::getComById((int)$_GET["comID"])) !== false) {
+            if (($activeCom = ComMan::getCom((int)$_GET["comID"])) !== false) {
                 $useComId = true;
                 $component = $activeCom->getFullPath() . "/admin.php";
             } else {
