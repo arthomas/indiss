@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-05
+ * @version     2010-04-11
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -45,11 +45,25 @@ if (!$logDebug) {
 define("__USRMGR_ADMIN",1);
 
 $task = (!empty($_GET["task"])) ? $_GET["task"] : "list";
-    
-if (file_exists("tasks/$task.php")) {
-    include("tasks/$task.php");
+
+$taskfile = dirname(__FILE__) . "/tasks/$task.php";
+
+?>
+<div id="UsrMgr">
+    <div id="subnav">
+        <a href="?comID=<?php echo $activeCom->getId();?>&task=list">User list</a>
+        <a href="?comID=<?php echo $activeCom->getId();?>&task=create">Create new user</a>
+        <a href="?comID=<?php echo $activeCom->getId();?>&task=options">Options</a>
+    </div>
+    <div style="clear: both; font-size: 0; max-height: 1px;">$nbsp;</div>
+<?php
+
+if (file_exists("$taskfile")) {
+    include("$taskfile");
 } else {
+    echo '<div style="text-align: center;">Requested task \'' . $task . '\' was not found</div>';
     $logError->log("User manager", "Error", "Requested task '$task' was not found", $activeUsr->getId());
 }
 
 ?>
+</div>

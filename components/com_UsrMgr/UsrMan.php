@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-05
+ * @version     2010-04-10
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      User manager core component
@@ -365,6 +365,7 @@ class UsrMan {
     }
     
     public static function logout() {
+        global $logDebug, $logError, $handler;
         if (isset($_SESSION['uid'])) {
             
             $_SESSION = array();        //destroy server session data
@@ -376,6 +377,7 @@ class UsrMan {
             session_destroy();          //destroy session completely
             
             $handler->addMsg("Logout", lang("msgLogoutSuccess"), LiveErrorHandler::EK_SUCCESS);
+            $logDebug->debuglog("User manager", "Notice", "UsrMan::logout(): User '$uname' successfully logged out");
         } else {
             $handler->addMsg("Logout", lang("errCantLogout"), LiveErrorHandler::EK_ERROR);
         }

@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-01
+ * @version     2010-04-10
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      English language file for the User Manager
@@ -20,6 +20,9 @@
  */
  
     $_LANG["usrmanUserManager"]             = "User manager";
+    
+    $_LANG["usrmanLevelAdmin"]              = "Administrator";
+    $_LANG["usrmanLevelUser"]               = "User";
     
     $_LANG["usrmanUnameAlreadyExists"]      = "A user named '%s' already exists"; //%s: username
     $_LANG["usrmanCreateUserDBError"]       = "Database error while creating user %s\nDatabase said: %s\nQuery: <pre>%s</pre>"; //%s: username; %s: DB error; %s: DB query

@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-05
+ * @version     2010-04-12
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Backend main page
@@ -47,10 +47,10 @@
     $logError = new Logger("error");
     $logDebug = new Logger("debug");
     
-    include_once($FULL_BASEPATH . "/includes/usrman/UsrMan.php");
+    include_once($FULL_BASEPATH . "/components/com_UsrMgr/UsrMan.php");
     UsrMan::readDB("users");
 	
-    include_once($FULL_BASEPATH . "/includes/comman/ComMan.php");
+    include_once($FULL_BASEPATH . "/components/com_ComMgr/ComMan.php");
     ComMan::readDB("components");
     
     if (isset($_POST['submit'])) {
@@ -103,15 +103,13 @@
         }
     }
     
-    if (!isset($_SESSION['username'])) {
-        $showLoginScreen = true;
-    } else if (!empty($_SESSION['username'])) {
-    	$loggedin = true;
+    if (!empty($_SESSION['username'])) {
+    	$activeUsr = UsrMan::getUsr($_SESSION["uid"]);
     }
     
     
     include("components/_comlist.php");
-    if ($loggedin) {
+    if ($activeUsr) {
         if (isset($_GET["comID"])) {
             if (($activeCom = ComMan::getCom((int)$_GET["comID"])) !== false) {
                 $useComId = true;
@@ -156,7 +154,14 @@
 <body>
     <div id="topBar">
         <div id="topBarInner">
-            <?php if ($loggedin) { ?><div id="topBarLogout" class="topBarRight"><form name="logoutform" id="logoutform" method="post" action="index.php"><input type="hidden" name="task" value="logout" /><input type="submit" name="submit" value="<?php lang_echo("genLogout"); ?>" /></form></div><?php } ?> 
+<?php if ($activeUsr) { ?>
+            <div id="topBarLogout" class="topBarRight">
+                <form name="logoutform" id="logoutform" method="post" action="index.php">
+                    <input type="hidden" name="task" value="logout" />
+                    <input class="likeLink" type="submit" name="submit" value="<?php lang_echo("genLogout"); ?>" />
+                </form>
+            </div>
+<?php } ?> 
         	<div id="topBarVer" class="topBarRight">Version: <?php echo $version; ?></div>
             <div id="topBarTime" class="topBarRight">Seite erzeugt: <?php echo date("d.m.Y H:i:s", $_SERVER["REQUEST_TIME"]); ?></div>
             <div id="topBarLang" class="topBarRight">
@@ -173,7 +178,7 @@
                 </form>
             </div>
             <div id="topBarSitename" class="topBarLeft"><?php echo $sitename; ?> Administration</div>
-            <?php if ($loggedin) { ?><div id="topBarUser" class="topBarLeft">Logged in as: <?php echo $_SESSION['username'];?></div>
+            <?php if ($activeUsr) { ?><div id="topBarUser" class="topBarLeft">Logged in as: <?php echo $_SESSION['username'];?></div>
             <div id="topBarMenu" class="topBarLeft"><a href="?component=overview">Overview</a></div><?php } ?> 
             <div class="topBarContent">&nbsp;</div>
         </div>

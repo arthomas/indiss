@@ -1,7 +1,7 @@
 /**
- * @version     2009-09-10
+ * @version     2010-04-12
  * @author      Patrick Lehner
- * @copyright   Copyright (C) 2009 Patrick Lehner
+ * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  *
  * @license     This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU General Public License as published by
@@ -23,6 +23,35 @@ body {
     font-family: Arial, Verdana, Helvetica, sans-serif;
     font-size: 11pt;
     padding-top: 30px;
+}
+
+a[href] {
+    color: #00B;
+}
+
+a:visited {
+    color: #57B;
+}
+
+a:hover, a:focus {
+    color: #35E;
+}
+
+input[type="button"].likeLink,
+input[type="submit"].likeLink {
+    -moz-appearance: none;
+    background: white;
+    border: 0 none;
+    font-size: 11pt;
+    color: #00B;
+    font-family: Arial,Verdana,Helvetica,sans-serif;
+}
+
+input[type="button"].likeLink:hover,
+input[type="button"].likeLink:focus,
+input[type="submit"].likeLink:hover,
+input[type="submit"].likeLink:focus {
+    color: #35E;
 }
 
 div.floatCleaner {
@@ -50,10 +79,9 @@ div#topBar {
 }
 
 div#topBarInner {
-    margin: 0 10px;
-    border: 1px solid black;
-    border-top: 0 none;
-    padding: 0 5px;
+    border: 0 none;
+    border-bottom: 1px solid black;
+    padding: 0 0 0 5px;
 }
 
 div#topBarInner div {
@@ -66,17 +94,37 @@ div#topBarInner div.topBarLeft {
     border-right: 1px solid black;
 }
 
+div#topBarInner div#topBarSitename {
+    font-weight: bold;
+}
+
 div.topBarRight {
     float: right;
     margin-left: 20px;
 }
 
 div#topBarInner div#topBarLang {
-    padding: 2px 0 2px;;
+    padding: 2px 0 2px;
+    font-size: 9pt;
+}
+
+div#topBarInner div#topBarLang select {
+    font-size: 9pt;
 }
 
 div#topBarInner div#topBarLogout {
-    padding: 0;    
+    padding: 0;
+    margin-left: 10px;
+    border-left: 1px solid black;
+}
+
+div#topBarInner div#topBarLogout input[type="submit"] {
+    padding: 4px 10px 3px;
+    font-size: 9pt;
+}
+
+div#topBarInner div#topBarLogout input[type="submit"]:hover {
+    background: #EEE;
 }
     
 
@@ -118,7 +166,7 @@ div.messagebox table td.origin {
 div.messagebox table td.message {
     border-left: 0 none;
     padding: 10px 20px 10px 10px;
-    vartical-align: top;
+    vertical-align: top;
 }
 
 div.mainColumn {

@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-03-29
+ * @version     2010-04-10
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      English language file for the INDISS core
@@ -33,6 +33,8 @@
     
     
     /*General strings*/
+    $_LANG["genYes"]                        = "Yes";
+    $_LANG["genNo"]                         = "No";
     $_LANG["genNone"]                       = "None";
     $_LANG["genSave"]                       = "Save";
     $_LANG["genCancel"]                     = "Cancel";
