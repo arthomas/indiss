@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-03
+ * @version     2010-04-16
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that holds info about installed components
@@ -125,8 +125,8 @@ class ComMan {
         $emsg = "ComMan::getComByName(): no component named '$name' was found";
         if (!$silent) {
             trigger_error($emsg, E_USER_WARNING);
+            $logError->log("Component manager", "Warning", $emsg);
         }
-        $logError->log("Component manager", "Warning", $emsg);
         return false;
     }
     
@@ -214,16 +214,17 @@ class ComMan {
         $files = $xml->files->filename;
         $dest = rtrim($dest, "/\\");
         if (empty($dest))
-            $dest = generatePath($comName);
+            $dest = self::generatePath($comName);
         if (empty($name))
-            $name = ucfirst($dest);
+            $name = ucfirst(trim($dest, "/\\"));
         
-        if (self::getComByName($name) !== false) {
+        if (self::getComByName($name, true) !== false) {
             $handler->addMsg("Component manager", "A component named '$name' already exists", LiveErrorHandler::EK_ERROR);
             return false;
         }
         
-        $p = $FULL_BASEPATH . $commonPath . $dest;
+        global $FULL_BASEPATH;
+        $p = $FULL_BASEPATH . self::$commonPath . $dest;
         if (file_exists($p)) {
             $handler->addMsg("Component manager", "Directory already exists ($p)", LiveErrorHandler::EK_ERROR);
             return false;
@@ -254,10 +255,11 @@ class ComMan {
         self::$components[(int)$id] = $com;
         
         $handler->addMsg("Component manager", "Component $name successfully installed", LiveErrorHandler::EK_SUCCESS);
-        return true;
+        return $com;
     }
     
     public static function remove(ComMan $com) {
+        global $logDebug, $logError, $handler;
         if ($com->core) {
             $handler->addMsg("Component manager", "Component $this->name cannot be removed", LiveErrorHandler::EK_ERROR);
             return false;
@@ -265,6 +267,7 @@ class ComMan {
     }
     
     public static function removeById($id) {
+        global $logDebug, $logError, $handler;
         if (!is_int($id)) {
             trigger_error("ComMan::removeById(): first argument must be of type int", E_USER_WARNING);
             return false;
@@ -283,6 +286,7 @@ class ComMan {
     }
     
     public static function removeByName($name) {
+        global $logDebug, $logError, $handler;
         if (!is_string($name)) {
             trigger_error("ComMan::removeByName(): first argument must be of type string", E_USER_WARNING);
             return false;
@@ -334,7 +338,7 @@ class ComMan {
     }
     
     public function isAlwaysOn() {
-        return $this->alwaysOne;
+        return $this->alwaysOn;
     }
     
     public function isCore() {
@@ -362,6 +366,7 @@ class ComMan {
     }
     
     public function enable($enabled) {
+        global $logDebug, $logError, $handler;
         if (!is_bool($enabled)) {
             trigger_error("ComMan::enable(): first argument must be of type bool", E_USER_WARNING);
             return false;
@@ -386,6 +391,7 @@ class ComMan {
     }
     
     public function setName($name) {
+        global $logDebug, $logError, $handler;
         if (!is_string($enabled)) {
             trigger_error("ComMan::setName(): first argument must be of type string", E_USER_WARNING);
             return false;
@@ -417,6 +423,7 @@ class ComMan {
     
     //Note: this function is deprecated! It will only change the path but will not move the files!
     public function setPath($path) {
+        global $logDebug, $logError, $handler;
         if (!is_string($path)) {
             trigger_error("ComMan::setPath(): first argument must be of type string", E_USER_WARNING);
             return false;
@@ -436,7 +443,8 @@ class ComMan {
         return true;
     }
     
-    public function duplicate($name = null, $dest = null) {
+    public function duplicate($name = "", $dest = "") {
+        global $logDebug, $logError, $handler;
         if (!(is_null($name) || is_string($name))) {
             trigger_error("ComMan::duplicate(): first argument must be NULL or of type string", E_USER_WARNING);
             return false;

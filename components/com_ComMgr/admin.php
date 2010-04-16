@@ -1,8 +1,9 @@
 <?php
 /**
- * @version     2010-03-20
+ * @version     2010-04-12
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
- * @copyright   Copyright (C) 2009-2010 Patrick Lehner
+ * @copyright   Copyright (C) 2010 Patrick Lehner
+ * @module      
  * 
  * @license     This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU General Public License as published by
@@ -17,20 +18,9 @@
  *              You should have received a copy of the GNU General Public License
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+ 
     defined("__MAIN") or die("Restricted access.");
+    
+    include("commgr_admin.php");
+
 ?>
-<div>Available option pages:</div>
-                <ul>
-                    <li><strong>Global:</strong>
-                        <ul>
-                            <li><a href="?component=settings">General settings</a> <i>WIP</i></li>
-                        </ul>
-                    </li>
-                    <li><strong>Components:</strong>
-                        <ul>
-<?php foreach (ComMan::$components as $com) { $v = $com->getPath(); ?>
-                            <li><?php if (!empty($v) && $com->isEnabled()) echo "<a href=\"?comID=" . $com->getId() . "\">" ; echo $com->getName(); if (!empty($v)) echo "</a>"; ?> <i>(<?php echo $com->getComName(); ?>)</i></li>
-<?php } ?>
-                        </ul>
-                    </li>
-                </ul>

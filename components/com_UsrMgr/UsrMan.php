@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-10
+ * @version     2010-04-16
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      User manager core component
@@ -151,7 +151,7 @@ class UsrMan {
                 self::$users[(int)$row["id"]] = $usr;
             }
         }
-        $logDebug->debuglog("Component manager", "Notice", "Successfully read " . count(self::$users) . " components from database table $table");
+        $logDebug->debuglog("User manager", "Notice", "Successfully read " . count(self::$users) . " users from database table $table");
         return true;
     }
     

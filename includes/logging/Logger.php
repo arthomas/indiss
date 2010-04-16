@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-02
+ * @version     2010-04-16
  * @author      Myriam Leggieri <myriam.leggieri@gmail.com>
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Myriam Leggieri, Patrick Lehner
@@ -355,6 +355,9 @@ class Logger {
 	public function log($origin, $type, $message, $userId = 0) {
         $ret = true;
         $when = $this->datetimeFormatter();
+        global $activeUsr;
+        if ($userId == 0 && !empty($activeUsr))
+            $userId = $activeUsr->getId();
         if ($this->logToFile) {
             $str = array($when, $userId, $origin, $type, $message);
             $ret = $ret && $this->appendEventToCsv($str);
@@ -380,7 +383,7 @@ class Logger {
 	public function debuglog($origin, $type, $message, $userId = 0) {
 	    global $debug;
 	    if ($debug)
-            return log($origin, "$type", $message, $userId);
+            return $this->log($origin, "$type", $message, $userId);
         else
             return false;
 	}
