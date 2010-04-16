@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-11
+ * @version     2010-04-16
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -20,7 +20,7 @@
  */
  
 defined("__MAIN") or die("Restricted access.");
-defined("__USRMGR_ADMIN") or die("Include the UsrMgr backend first. [" . __FILE__ . "]");
+defined("__COMMGR_ADMIN") or die("Include the UsrMgr backend first. [" . __FILE__ . "]");
 
 $buttonbarContent = 
 '<table summary="" border="0" cellpadding="0" cellspacing="0">
@@ -28,8 +28,9 @@ $buttonbarContent =
         <tr>
             <td>With selected:</td>
             <td><input class="likeLink" type="button" value="Invert selection" onclick="a=document.getElementsByTagName(\'input\');for(i=0;i<a.length;i++){if(a[i].type==\'checkbox\'&&a[i].name!=\'\')a[i].checked=!a[i].checked;}" /></td>
-            <td><input class="likeLink" type="button" value="Toggle active" /></td>
+            <td><input class="likeLink" type="button" value="Toggle enabled/disabled" /></td>
             <td><input class="likeLink" type="button" value="Edit" /></td>
+            <td><input class="likeLink" type="button" value="Clone" /></td>
             <td><input class="likeLink" type="button" value="Delete" /></td>
         </tr>
     </tbody>
@@ -39,43 +40,37 @@ $buttonbarContent =
 
 <script type="text/javascript">
 function doSubmit(postview) {
-	
+    
 }
 </script>
 
 <form method="post" action="?comID=<?php echo $activeCom->getId(); ?>" id="listForm">
-    <input type="hidden" id="postview" name="postview" value="" />
-    <input type="hidden" id="affectedIDs" name="affectedIDs" value="" />
+    <input type="hidden" id="postview" name="postview" value="unset" />
+    <input type="hidden" id="affectedIDs" name="affectedIDs" value="unset" />
     <div class="buttonbar" id="buttonbarTop"><?php echo $buttonbarContent; ?></div>
     <table summary="" border="0" cellpadding="0" cellspacing="0" id="userlist">
         <tbody>
             <tr class="headingRow">
                 <td class="check"><input type="checkbox" title="Select all" onclick="a=document.getElementsByTagName('input');for(i=0;i< a.length;i++){if(a[i].type=='checkbox')a[i].checked=this.checked;}" /></td>
-                <td class="active" title="Active">A</td>
-                <td class="uname">User name</td>
-                <td class="fullname">Full name</td>
-                <td class="email">Email</td>
-                <td class="level">Level</td>
+                <td class="enabled" title="Enabled">E</td>
+                <td class="name">Component name</td>
+                <td class="comname">Component type</td>
+                <td class="installedAt">Installation date</td>
                 <td class="id">ID</td>
-                <td class="delete">D</td>
+                <td class="clone" title="Clone">C</td>
+                <td class="delete" title="Delete">D</td>
             </tr>
-<?php foreach (UsrMan::$users as $usr) { ?>
-            <tr id="row_<?php echo $usr->getId(); ?>">
-                <td class="check"><input type="checkbox" name="check_<?php echo $usr->getId(); ?>" value="Yes" title="Select user '<?php echo $usr->getUname(); ?>'" /></td>
-                <td class="active"><a href="#" onclick="pv.value='toggleActive'; ai.value='<?php echo $usr->getId(); ?>'; form.submit();" title="Toggle active/inactive for user '<?php echo $usr->getUname(); ?>'"><?php if ($usr->isActive()) lang_echo("genYes"); else lang_echo("genNo"); ?></a></td>
-                <td class="uname"><a href="#" onclick="pv.value='edit'; ai.value='<?php echo $usr->getId(); ?>'; form.submit();" title="Edit user '<?php echo $usr->getUname(); ?>'"><?php echo $usr->getUname(); ?></a></td>
-                <td class="fullname"><?php echo $usr->getFullName(); ?></td>
-<?php 
-$email = $usr->getEmail();
-if (!empty($email)) 
-    $email_string = sprintf('<a href="mailto:%s" title="Send email to user \'%s\' (%s)">%s</a>', $email, $usr->getUname(), $email, "%s");
-else
-    $email_string = "%s";
+<?php foreach (ComMan::$components as $com) {
 ?>
-                <td class="email"><?php echo sprintf($email_string, $email); ?></td>
-                <td class="level"><?php echo lang(($usr->isAdmin()) ? "usrmanLevelAdmin" : "usrmanLevelUser")?></td>
-                <td class="id"><?php echo $usr->getId(); ?></td>
-                <td class="delete"><a href="#" onclick="pv.value='edit'; ai.value='<?php echo $usr->getId(); ?>'; form.action=form.action+'&task=delete'; form.submit();" title="Delete user '<?php echo $usr->getUname(); ?>'">D</a></td>
+            <tr id="row_<?php echo $com->getId(); ?>">
+                <td class="check"><input type="checkbox" name="check_<?php echo $com->getId(); ?>" value="Yes" title="Select component '<?php echo $com->getName(); ?>'" /></td>
+                <td class="enabled"><?php if (!($com->isAlwaysOn())) { ?><a href="#" onclick="pv.value='toggleActive'; ai.value='<?php echo $com->getId(); ?>'; form.submit();" title="<?php echo (($com->isEnabled()) ? "Disable" : "Enable"); ?> component '<?php echo $com->getName(); ?>'"><?php if ($com->isEnabled()) lang_echo("genYes"); else lang_echo("genNo"); ?></a><?php } else { ?><span title="This component cannot be disabled.">Yes</span><?php } ?></td>
+                <td class="name"><a href="#" onclick="pv.value='edit'; ai.value='<?php echo $com->getId(); ?>'; form.submit();" title="Edit component '<?php echo $com->getName(); ?>'"><?php echo $com->getName(); ?></a></td>
+                <td class="comname"><?php echo $com->getComName(); ?></td>
+                <td class="installedAt"><?php echo $com->getInstalledAt(); ?></td>
+                <td class="id"><?php echo $com->getId(); ?></td>
+                <td class="clone"><?php if (!($com->isOneOfAKind())) { ?><a href="#" onclick="pv.value='clone'; ai.value='<?php echo $com->getId(); ?>'; form.action=form.action+'&task=clone'; form.submit();" title="Clone component '<?php echo $com->getName(); ?>'">C</a><?php } else { ?><span title="This component cannot be cloned.">--</span><?php } ?></td>
+                <td class="delete"><?php if (!($com->isCore())) { ?><a href="#" onclick="pv.value='edit'; ai.value='<?php echo $com->getId(); ?>'; form.action=form.action+'&task=delete'; form.submit();" title="Delete component '<?php echo $com->getName(); ?>'">D</a><?php } else { ?><span title="This component cannot be deleted.">--</span><?php } ?></td>
             </tr>
 <?php } ?>
         </tbody>
