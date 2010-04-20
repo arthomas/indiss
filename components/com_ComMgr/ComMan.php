@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-19
+ * @version     2010-04-20
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that holds info about installed components
@@ -19,9 +19,9 @@
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-defined("__CONFIGFILE") or die("Config file not included [ComMan.php]");
-defined("__DIRAWARE") or die("Directory awareness not included [ComMan.php]");
-defined("__DATABASE") or die("Database connection not included [ComMan.php]");
+defined("__CONFIGFILE") or die("Config file not included [" . __FILE__ . "]");
+defined("__DIRAWARE") or die("Directory awareness not included [" . __FILE__ . "]");
+defined("__DATABASE") or die("Database connection not included [" . __FILE__ . "]");
 
 define("__COMMAN", 1);
 
@@ -262,7 +262,7 @@ class ComMan {
             $logDebug->debuglog("Component manager", "Notice", "ComMan::add(): Copying file '$source/$filename' to '$p/$filename'... " . (($r) ? "Success" : "Fail"));
         }
         
-        $installedAt = date("Ymdhis");
+        $installedAt = date($GLOBALS["datefmt"]);
         
         $query = "INSERT INTO `" . self::$dbTable . "` (`name`, `comName`, `installedAt`, `installedBy`, `path`, `enabled`, `hasFrontend`) 
             VALUES ('$dname', '$comName', '$installedAt', NULL, '$dest', TRUE, $hasFrontend)";

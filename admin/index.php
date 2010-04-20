@@ -32,7 +32,7 @@
     session_start();
 	
 	if (!isset($_SESSION["lang"])) {
-        $_SESSION["lang"] = $lang = $defaultlang;
+        $_SESSION["lang"] = $lang = "en"; //$defaultlang;
 	} else {
 	    $lang = $_SESSION["lang"];
 	}
@@ -164,7 +164,7 @@
                 </form>
             </div>
 <?php } ?> 
-        	<div id="topBarVer" class="topBarRight">Version: <?php echo $version; ?></div>
+        	<div id="topBarVer" class="topBarRight">Version: <?php echo __version(); ?></div>
             <div id="topBarTime" class="topBarRight">Seite erzeugt: <?php echo date("d.m.Y H:i:s", $_SERVER["REQUEST_TIME"]); ?></div>
             <div id="topBarLang" class="topBarRight">
                 <form action="<?php echo $_SERVER["REQUEST_URI"]; ?>" method="post">

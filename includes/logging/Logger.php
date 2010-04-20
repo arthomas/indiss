@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-19
+ * @version     2010-04-20
  * @author      Myriam Leggieri <myriam.leggieri@gmail.com>
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Myriam Leggieri, Patrick Lehner
@@ -23,9 +23,9 @@
  *
  */
 
-defined("__CONFIGFILE") or die("Config file not included [Logger.php]");
-defined("__DIRAWARE") or die("Directory awareness not included [Logger.php]");
-defined("__DATABASE") or die("Database connection not included [Logger.php]");
+defined("__CONFIGFILE") or die("Config file not included [" . __FILE__ . "]");
+defined("__DIRAWARE") or die("Directory awareness not included [" . __FILE__ . "]");
+defined("__DATABASE") or die("Database connection not included [" . __FILE__ . "]");
 
 define("__LOGGER", 1);
 

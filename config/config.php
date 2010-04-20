@@ -2,8 +2,7 @@
 /**
  * @version     2010-04-20
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
- * @copyright   Copyright (C) 2009 Patrick Lehner
- * @module
+ * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
  * @license     This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU General Public License as published by
@@ -19,24 +18,37 @@
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-defined("__MAIN") or die("Restricted access.");
-defined("__CONFIGFILE") or die("Config file not included [" . __FILE__ . "]");
+//$configfile    = true;          //legacy
+define("__CONFIGFILE", 1);
 
-$main_ver = 0;
-$sub_ver  = 1;
-$dev_ver  = 1;
+include(dirname(__FILE__) . "/version.php");
 
-$ver_sep  = ".";
 
-function __version() {
-    global $main_ver, $sub_ver, $dev_ver, $ver_sep;
-	$ver = (string)$main_ver . $ver_sep . (string)$sub_ver . $ver_sep . (string)$dev_ver;
-	return (string) $ver;
+if (!file_exists(dirname(__FILE__) . "/config.xml")) {
+   die("Config file not found.");
+}
+$xml = simplexml_load_file(dirname(__FILE__) . "/config.xml");
+if (!$xml) {
+    die("Error while reading config file");
 }
 
-function __versionID() {
-    $ver = $main_ver * 10000 + $sub_ver * 100 + $dev_ver;
-    return (int)$ver;
+foreach ($xml as $option) {
+    switch((string)$option["type"]) {
+        case "string":
+            $value = (string)$option["value"];
+            break;
+        case "bool":
+            $value = (bool)$option["value"];
+            break;
+        case "int":
+            $value = (int)$option["value"];
+        default:
+            $value = $option["value"];
+            break;
+    }
+    $GLOBALS[(string)$option["name"]] = $value;
 }
+
+unset($xml, $option, $value);
 
 ?>

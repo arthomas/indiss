@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-16
+ * @version     2010-04-20
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      User manager core component
@@ -19,10 +19,10 @@
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-defined("__CONFIGFILE") or die("Config file not included [UsrMan.php]");
-defined("__DIRAWARE") or die("Directory awareness not included [UsrMan.php]");
-defined("__DATABASE") or die("Database connection not included [UsrMan.php]");
-defined("__LANG") or die("Language file not included [UsrMan.php]");
+defined("__CONFIGFILE") or die("Config file not included [" . __FILE__ . "]");
+defined("__DIRAWARE") or die("Directory awareness not included [" . __FILE__ . "]");
+defined("__DATABASE") or die("Database connection not included [" . __FILE__ . "]");
+defined("__LANG") or die("Language file not included [" . __FILE__ . "]");
 
 define("__USRMAN", 1);
 
@@ -196,7 +196,7 @@ class UsrMan {
             return false;
         }
         
-        $createdAt = date("Ymdhis");
+        $createdAt = date($GLOBALS["datefmt"]);
         
         global $activeUsr;
         if (isset($activeUsr)) {

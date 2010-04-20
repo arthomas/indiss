@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-03-19
+ * @version     2010-04-20
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
@@ -23,7 +23,6 @@
     
     define("__LANG", 1);
     
-    include_once("../includes/str_replace_multi.php");
     include("languages.php");
     
     $_lang = dirname(__FILE__) . "/$lang"; //create the full path of the language directory
@@ -57,9 +56,9 @@
     
     
     function html_escape_regional_chars($str) {
-        $old = array('Ä','Ö','Ü','ä','ö','ü','ß');
+        $old = array('/Ä/','/Ö/','/Ü/','/ä/','/ö/','/ü/','/ß/');
         $new = array('&Auml;','&Ouml;','&Uuml;','&auml;','&ouml;','&uuml;','&szlig;');
-        return str_replace_multi($old, $new, htmlspecialchars($str));
+        return preg_replace($old, $new, htmlspecialchars($str));
     }
 
 ?>
