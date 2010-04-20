@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-16
+ * @version     2010-04-19
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that holds info about installed components
@@ -58,7 +58,8 @@ class ComMan {
     private $oneOfAKind = false;    //means that this component cannot be duplicated
     private $alwaysOn = false;      //means that this component cannot be disabled
     private $core = false;          //means that this component cannot be removed
-    private $name = "";
+    private $dname = "";            //descriptive name
+    private $iname = "";            //internal name/"alias" -- may only contain alphanumerics, underscores and dashes
     private $comName = "";
     private $installedAt = 0;
     private $installedBy = 0;
@@ -76,9 +77,9 @@ class ComMan {
     }
     
     public static function setCommonPath($path) {
+        global $logDebug;
         if (!is_string($path)) {
             trigger_error($dmsg = "ComMan::setCommonPath(): first argument must be of type string", E_USER_WARNING);
-            global $logDebug;
             $logDebug->debuglog("Component manager", "Error", $dmsg);
             return false;
         }
@@ -95,21 +96,21 @@ class ComMan {
             return false;
         }
         if (isset(self::$components[$id])) {
-            $logDebug->debuglog("Component manager", "Notice", "Successfully retrieved component by id '$id'");
+            $logDebug->debuglog("Component manager", "Notice", "Successfully retrieved component '" . self::$components[$id]->iname . "' by id '$id'");
             return self::$components[$id];
         } else {
             $emsg = "ComMan::getCom(): component with id '$id' was not found";
             if (!$silent) {
                 trigger_error($emsg, E_USER_WARNING);
+                $logError->log("Component manager", "Error", $emsg);
             }
-            $logError->log("Component manager", "Error", $emsg);
             return false;
         }
     }
     
-    public static function getComByName($name, $silent = false) {
+    public static function getComByIname($iname, $silent = false) {
         global $logError, $logDebug;
-        if (!is_string($name)) {
+        if (!is_string($iname)) {
             trigger_error($emsg = "ComMan::getComByName(): first argument must be of type string", E_USER_WARNING);
             $logError->log("Component manager", "Error", $emsg);
             return false;
@@ -120,9 +121,11 @@ class ComMan {
             return false;
         }
         foreach (self::$components as $com)
-            if ($com->name == $name)
+            if ($com->iname == $iname) {
+                $logDebug->debuglog("Component manager", "Notice", "Successfully retrieved component '" . $com->iname . "' by internal name");
                 return $com;
-        $emsg = "ComMan::getComByName(): no component named '$name' was found";
+            }
+        $emsg = "ComMan::getComByName(): no component named '$iname' was found";
         if (!$silent) {
             trigger_error($emsg, E_USER_WARNING);
             $logError->log("Component manager", "Warning", $emsg);
@@ -138,6 +141,7 @@ class ComMan {
             return false;
         }
         self::$dbTable = $table;
+        self::$components = array(); //reset the component array -- that way this function can also refresh the DB array
         $query = "SELECT * FROM `$table`";
         $result = mysql_query($query);
         if (!$result) {
@@ -150,44 +154,59 @@ class ComMan {
         }
         if (!empty($rows)) {        //lest we "provide an illegal argument to foreach"
             foreach ($rows as $row) {
-                $com = new ComMan($row["id"], $row["name"], $row["comName"], $row["installedAt"], $row["installedBy"], $row["path"], $row["enabled"], $row["hasFrontend"], $row["oneOfAKind"], $row["alwaysOn"], $row["core"]);
+                $com = new ComMan($row["id"], $row["dname"], $row["iname"], $row["comName"], $row["installedAt"], $row["installedBy"], $row["path"], $row["enabled"], $row["hasFrontend"], $row["oneOfAKind"], $row["alwaysOn"], $row["core"]);
                 self::$components[(int)$row["id"]] = $com;
             }
+        } else {
+            trigger_error($emsg = "UsrMan::readDB(): The database contained no entries for components", E_USER_WARNING);
+            $logError->log("Component manager", "Error", $emsg);
+            return false;
         }
         $logDebug->debuglog("Component manager", "Notice", "Successfully read " . count(self::$components) . " components from database table $table");
         return true;
     }
     
-    private static function generatePath($comName) {
+    private static function generateIname($comName, $mindPath = false) {
         global $logError, $logDebug;
         if (!is_string($comName)) {
-            trigger_error($emsg = "ComMan::generatePath(): first argument must be of type string", E_USER_WARNING);
+            trigger_error($emsg = "ComMan::generateIname(): first argument must be of type string", E_USER_WARNING);
             $logError->log("Component manager", "Error", $emsg);
             return false;
         }
+        if (!is_bool($mindPath)) {
+            trigger_error($emsg = "ComMan::generateIname(): second argument must be of type bool", E_USER_WARNING);
+            $logError->log("Component manager", "Error", $emsg);
+            return false;
+        }
+        global $FULL_BASEPATH;
         $p = $FULL_BASEPATH . self::$commonPath;
-        if (!file_exists($p . "/$comName"))
-            return "/$comName";
+        if (!self::getComByIname($comName, true) && (!$mindPath || !file_exists($p . "/$comName")))
+            return $comName;
         $i = 1;
-        while (file_exists(sprintf("%s/%s_%03d", $p, $comName, $i)))
+        while (self::getComByIname($iname = sprintf("%s_%03d", $comName, $i), true) || ($mindPath && file_exists("$p/$iname")))
             $i++;
-        return sprintf("/%s_%03d", $comName, $i);
+        return $iname;
     }
     
-    public static function add($source, $name = "", $dest = "") {
+    public static function add($source, $dname = "", $iname = "", $dest = "") {
         global $logError, $logDebug, $handler;
         if (!is_string($source)) {
             trigger_error($emsg = "ComMan::add(): first argument must be of type string", E_USER_WARNING);
             $logError->log("Component manager", "Error", $emsg);
             return false;
         }
-        if (!is_string($name)) {
+        if (!is_string($dname)) {
             trigger_error($emsg = "ComMan::add(): second argument must be of type string", E_USER_WARNING);
             $logError->log("Component manager", "Error", $emsg);
             return false;
         }
-        if (!is_string($dest)) {
+        if (!is_string($iname)) {
             trigger_error($emsg = "ComMan::add(): third argument must be of type string", E_USER_WARNING);
+            $logError->log("Component manager", "Error", $emsg);
+            return false;
+        }
+        if (!is_string($dest)) {
+            trigger_error($emsg = "ComMan::add(): fourth argument must be of type string", E_USER_WARNING);
             $logError->log("Component manager", "Error", $emsg);
             return false;
         }
@@ -213,13 +232,15 @@ class ComMan {
         $hasFrontend = (strtolower((string)$xml->hasFrontend) == "yes") ? true : false;
         $files = $xml->files->filename;
         $dest = rtrim($dest, "/\\");
+        if (empty($iname))
+            $iname = self::generateIname($comName, empty($dest));
         if (empty($dest))
-            $dest = self::generatePath($comName);
-        if (empty($name))
-            $name = ucfirst(trim($dest, "/\\"));
+            $dest = "/$iname";
+        if (empty($dname))
+            $dname = ucfirst($iname);
         
-        if (self::getComByName($name, true) !== false) {
-            $handler->addMsg("Component manager", "A component named '$name' already exists", LiveErrorHandler::EK_ERROR);
+        if (self::getComByIname($iname, true) !== false) {
+            $handler->addMsg("Component manager", "A component with the internal name '$iname' already exists", LiveErrorHandler::EK_ERROR);
             return false;
         }
         
@@ -231,19 +252,22 @@ class ComMan {
         }
         mkdir($p);
         foreach ($files as $filename) {
-            if ( strpos($filename, "/") !== false || strpos($filename, "\\") !== false) {
-                if (!file_exists(dirname("$p/$filename")))
-                    mkdir(dirname("$p/$filename"), 0777, true);
+            if ( strpos($filename, "/") !== false || strpos($filename, "\\") !== false) {  //if the current file goes into a sub-directory
+                if (!file_exists(dirname("$p/$filename"))) {                //check if this sub-directory exists
+                    $r = mkdir(dirname("$p/$filename"), 0777, true);        //and create it if necessary
+                    $logDebug->debuglog("Component manager", "Notice", "ComMan::add(): Recursively creating directory '" . dirname("$p/$filename") . "'... " . (($r) ? "Success" : "Fail"));
+                }
             }
-            copy("$source/$filename", "$p/$filename");
+            $r = copy("$source/$filename", "$p/$filename");
+            $logDebug->debuglog("Component manager", "Notice", "ComMan::add(): Copying file '$source/$filename' to '$p/$filename'... " . (($r) ? "Success" : "Fail"));
         }
         
         $installedAt = date("Ymdhis");
         
         $query = "INSERT INTO `" . self::$dbTable . "` (`name`, `comName`, `installedAt`, `installedBy`, `path`, `enabled`, `hasFrontend`) 
-            VALUES ('$name', '$comName', '$installedAt', NULL, '$dest', TRUE, $hasFrontend)";
+            VALUES ('$dname', '$comName', '$installedAt', NULL, '$dest', TRUE, $hasFrontend)";
         if (!mysql_query($query)) {
-            $handler->addMsg("Component manager", "Database error while installing component $name\nDatabase said: " . mysql_error() . "\nQuery: <pre>$query</pre>", LiveErrorHandler::EK_ERROR);
+            $handler->addMsg("Component manager", "Database error while installing component $dname\nDatabase said: " . mysql_error() . "\nQuery: <pre>$query</pre>", LiveErrorHandler::EK_ERROR);
             return false;
         }
         if (!($id = mysql_insert_id())) {
@@ -251,17 +275,17 @@ class ComMan {
             return false;
         }
         
-        $com = new ComMan($id, $name, $comName, $installedAt, null, $dest, true, $hasFrontend);
+        $com = new ComMan($id, $dname, $comName, $installedAt, null, $dest, true, $hasFrontend);
         self::$components[(int)$id] = $com;
         
-        $handler->addMsg("Component manager", "Component $name successfully installed", LiveErrorHandler::EK_SUCCESS);
+        $handler->addMsg("Component manager", "Component $dname successfully installed", LiveErrorHandler::EK_SUCCESS);
         return $com;
     }
     
     public static function remove(ComMan $com) {
         global $logDebug, $logError, $handler;
         if ($com->core) {
-            $handler->addMsg("Component manager", "Component $this->name cannot be removed", LiveErrorHandler::EK_ERROR);
+            $handler->addMsg("Component manager", "Component $this->dname cannot be removed", LiveErrorHandler::EK_ERROR);
             return false;
         }
     }
@@ -285,20 +309,20 @@ class ComMan {
         return remove($com);
     }
     
-    public static function removeByName($name) {
+    public static function removeByIname($iname) {
         global $logDebug, $logError, $handler;
-        if (!is_string($name)) {
-            trigger_error("ComMan::removeByName(): first argument must be of type string", E_USER_WARNING);
+        if (!is_string($iname)) {
+            trigger_error("ComMan::removeByIname(): first argument must be of type string", E_USER_WARNING);
             return false;
         }
         $found = false;
         foreach (self::$components as $com)
-            if ($com->name == $name) {
+            if ($com->iname == $iname) {
                 $found = true;
                 break;
             }
         if (!$found) {
-            trigger_error("ComMan::removeByName(): component named '$name' was not found", E_USER_WARNING);
+            trigger_error("ComMan::removeByIname(): component named '$iname' was not found", E_USER_WARNING);
             return false;
         }
         return remove($com);
@@ -307,9 +331,10 @@ class ComMan {
     
     //---- Constructors & destructors ---------------------------------------------------
     
-    private function __construct($id, $name, $comName, $installedAt, $installedBy, $path, $enabled = true, $hasFrontend = true, $oneOfAKind = false, $alwaysOn = false, $core = false) {
+    private function __construct($id, $dname, $iname, $comName, $installedAt, $installedBy, $path, $enabled = true, $hasFrontend = true, $oneOfAKind = false, $alwaysOn = false, $core = false) {
         $this->id = $id;
-        $this->name = $name;
+        $this->dname = $dname;
+        $this->iname = $iname;
         $this->comName = $comName;
         $this->installedAt = $installedAt;
         $this->installedBy = $installedBy;
@@ -372,13 +397,13 @@ class ComMan {
             return false;
         }
         if ($this->alwaysOn) {
-            $handler->addMsg("Component manager", "Component $this->name cannot be disabled", LiveErrorHandler::EK_ERROR);
+            $handler->addMsg("Component manager", "Component $this->dname cannot be disabled", LiveErrorHandler::EK_ERROR);
             return false;
         }
         if (!$this->cached) {
             $result = mysql_query("UPDATE `" . self::$dbTable . "` SET `enabled`=" . (($enabled) ? "TRUE" : "FALSE") . " WHERE `id`='" . $this->id . "'");
             if (!$result) {
-                $handler->addMsg("Component manager", "Database error while " . (($enabled) ? "enabling" : "disabling") . " component $this->name\nDatabase said: " . mysql_error() . "\nQuery: <pre>$query</pre>", LiveErrorHandler::EK_ERROR);
+                $handler->addMsg("Component manager", "Database error while " . (($enabled) ? "enabling" : "disabling") . " component $this->dname\nDatabase said: " . mysql_error() . "\nQuery: <pre>$query</pre>", LiveErrorHandler::EK_ERROR);
                 return false;
             }
         }
@@ -386,25 +411,29 @@ class ComMan {
         return true;
     }
     
-    public function getName() {
-        return $this->name;
+    public function getDname() {
+        return $this->dname;
     }
     
-    public function setName($name) {
+    public function setDname($dname) {
         global $logDebug, $logError, $handler;
         if (!is_string($enabled)) {
             trigger_error("ComMan::setName(): first argument must be of type string", E_USER_WARNING);
             return false;
         }
         if (!$this->cached) {
-            $result = mysql_query("UPDATE `" . self::$dbTable . "` SET `name`='$name' WHERE `id`='" . $this->id . "'");
+            $result = mysql_query("UPDATE `" . self::$dbTable . "` SET `name`='$dname' WHERE `id`='" . $this->id . "'");
             if (!$result) {
-                $handler->addMsg("Component manager", "Database error while renaming component $this->name\nDatabase said: " . mysql_error() . "\nQuery: <pre>$query</pre>", LiveErrorHandler::EK_ERROR);
+                $handler->addMsg("Component manager", "Database error while renaming component $this->dname\nDatabase said: " . mysql_error() . "\nQuery: <pre>$query</pre>", LiveErrorHandler::EK_ERROR);
                 return false;
             }
         }
-        $this->name = $name;
+        $this->dname = $dname;
         return true;
+    }
+    
+    public function getIname() {
+        return $this->iname;
     }
     
     public function getPath() {
@@ -435,7 +464,7 @@ class ComMan {
         if (!$this->cached) {
             $result = mysql_query("UPDATE `" . self::$dbTable . "` SET `path`='$path' WHERE `id`='" . $this->id . "'");
             if (!$result) {
-                $handler->addMsg("Component manager", "Database error while changing path for component $this->name\nDatabase said: " . mysql_error() . "\nQuery: <pre>$query</pre>", LiveErrorHandler::EK_ERROR);
+                $handler->addMsg("Component manager", "Database error while changing path for component $this->dname\nDatabase said: " . mysql_error() . "\nQuery: <pre>$query</pre>", LiveErrorHandler::EK_ERROR);
                 return false;
             }
         }
@@ -443,25 +472,29 @@ class ComMan {
         return true;
     }
     
-    public function duplicate($name = "", $dest = "") {
+    public function duplicate($dname = "", $iname = "", $dest = "") {
         global $logDebug, $logError, $handler;
-        if (!(is_null($name) || is_string($name))) {
-            trigger_error("ComMan::duplicate(): first argument must be NULL or of type string", E_USER_WARNING);
+        if (!is_string($dname)) {
+            trigger_error("ComMan::duplicate(): first argument must be of type string", E_USER_WARNING);
             return false;
         }
-        if (!(is_null($dest) || is_string($dest))) {
-            trigger_error("ComMan::duplicate(): second argument must be NULL or of type string", E_USER_WARNING);
+        if (!is_string($iname)) {
+            trigger_error("ComMan::duplicate(): second argument must be of type string", E_USER_WARNING);
+            return false;
+        }
+        if (!is_string($dest)) {
+            trigger_error("ComMan::duplicate(): third argument must be of type string", E_USER_WARNING);
             return false;
         }
         if ($this->oneOfAKind) {
-            $handler->addMsg("Component manager", "Component $this->name cannot be duplicated", LiveErrorHandler::EK_ERROR);
+            $handler->addMsg("Component manager", "Component $this->dname cannot be duplicated", LiveErrorHandler::EK_ERROR);
             return false;
         }
-        $com = self::add($this->getFullPath(), $name, $dest);
+        $com = self::add($this->getFullPath(), $dname, $iname, $dest);
         if (!$com)
-            $handler->addMsg("Component manager", "Duplicating component $this->name failed", LiveErrorHandler::EK_ERROR);
+            $handler->addMsg("Component manager", "Duplicating component $this->dname failed", LiveErrorHandler::EK_ERROR);
         else
-            $handler->addMsg("Component manager", "Component $this->name was successfully duplicated to $com->name", LiveErrorHandler::EK_SUCCESS);
+            $handler->addMsg("Component manager", "Component $this->dname was successfully duplicated to $com->dname", LiveErrorHandler::EK_SUCCESS);
         return $com; 
     }
     

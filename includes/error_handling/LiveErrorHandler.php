@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-03-20
+ * @version     2010-04-20
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      Live error message handler
@@ -18,6 +18,10 @@
  *              You should have received a copy of the GNU General Public License
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+defined("__CONFIGFILE") or die("Config file not included [" . __FILE__ . "]");
+defined("__DIRAWARE") or die("Directory awareness not included [" . __FILE__ . "]");
+include_once($FULL_BASEPATH . "/includes/str_replace_multi.php");
  
 class LiveErrorHandler {
     
@@ -221,9 +225,10 @@ class LiveErrorHandler {
             $str .= "<tr><td class=\"noMessages\">(No messages)</td></tr>\n";
         } else {
             foreach ($this->messages as $msg) {
+                $message = preg_replace(array('@(?<!<br />|<br>)(?:<br>|)$@im'), array("<br />"), $msg["message"]);
                 $str .= "<tr style=\"background-color: " . $this->colors[$msg["kind"]] . ";\">";
                 $str .= "<td class=\"origin" . ((empty($msg["origin"])) ? " noOrigin" : "" ) . "\">" . $msg["origin"] . ((empty($msg["origin"])) ? "" : ":" ) . "</td>";
-                $str .= "<td class=\"message\">" . $msg["message"] . "</td>";
+                $str .= "<td class=\"message\">$message</td>";
                 $str .= "</tr>\n";
             }
         }

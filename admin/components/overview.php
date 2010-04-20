@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-03-20
+ * @version     2010-04-19
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
@@ -29,7 +29,7 @@
                     <li><strong>Components:</strong>
                         <ul>
 <?php foreach (ComMan::$components as $com) { $v = $com->getPath(); ?>
-                            <li><?php if (!empty($v) && $com->isEnabled()) echo "<a href=\"?comID=" . $com->getId() . "\">" ; echo $com->getName(); if (!empty($v)) echo "</a>"; ?> <i>(<?php echo $com->getComName(); ?>)</i></li>
+                            <li><?php if ($com->isEnabled() && !empty($v)) echo "<a href=\"?comID=" . $com->getId() . "\">" ; echo $com->getDname(); if ($com->isEnabled() && !empty($v)) echo "</a>"; ?> <i>(<?php echo $com->getComName(); ?>)</i></li>
 <?php } ?>
                         </ul>
                     </li>

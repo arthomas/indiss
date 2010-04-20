@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-02-28
+ * @version     2010-04-16
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      directory awareness -- some variables containing important paths
@@ -19,9 +19,10 @@
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
  
-    defined("__CONFIGFILE") or die("Config file not included [dir_awareness.php]");
+    defined("__CONFIGFILE") or die("Config file not included [" . __FILE__ . "]");
     define("__DIRAWARE", 1);
     
-    $FULL_BASEPATH = $_SERVER["DOCUMENT_ROOT"] . $basepath;
+    //Note: this has to be changed if this file is moved somewhere else
+    $FULL_BASEPATH = dirname(dirname(__FILE__));
 
 ?>

@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-16
+ * @version     2010-04-19
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -63,14 +63,14 @@ function doSubmit(postview) {
 <?php foreach (ComMan::$components as $com) {
 ?>
             <tr id="row_<?php echo $com->getId(); ?>">
-                <td class="check"><input type="checkbox" name="check_<?php echo $com->getId(); ?>" value="Yes" title="Select component '<?php echo $com->getName(); ?>'" /></td>
-                <td class="enabled"><?php if (!($com->isAlwaysOn())) { ?><a href="#" onclick="pv.value='toggleActive'; ai.value='<?php echo $com->getId(); ?>'; form.submit();" title="<?php echo (($com->isEnabled()) ? "Disable" : "Enable"); ?> component '<?php echo $com->getName(); ?>'"><?php if ($com->isEnabled()) lang_echo("genYes"); else lang_echo("genNo"); ?></a><?php } else { ?><span title="This component cannot be disabled.">Yes</span><?php } ?></td>
-                <td class="name"><a href="#" onclick="pv.value='edit'; ai.value='<?php echo $com->getId(); ?>'; form.submit();" title="Edit component '<?php echo $com->getName(); ?>'"><?php echo $com->getName(); ?></a></td>
+                <td class="check"><input type="checkbox" name="check_<?php echo $com->getId(); ?>" value="Yes" title="Select component '<?php echo $com->getDname(); ?>'" /></td>
+                <td class="enabled"><?php if (!($com->isAlwaysOn())) { ?><a href="#" onclick="pv.value='toggleActive'; ai.value='<?php echo $com->getId(); ?>'; form.submit();" title="<?php echo (($com->isEnabled()) ? "Disable" : "Enable"); ?> component '<?php echo $com->getDname(); ?>'"><?php if ($com->isEnabled()) lang_echo("genYes"); else lang_echo("genNo"); ?></a><?php } else { ?><span title="This component cannot be disabled.">Yes</span><?php } ?></td>
+                <td class="name"><a href="#" onclick="pv.value='edit'; ai.value='<?php echo $com->getId(); ?>'; form.submit();" title="Edit component '<?php echo $com->getDname(); ?>'"><?php echo $com->getDname(); ?></a></td>
                 <td class="comname"><?php echo $com->getComName(); ?></td>
                 <td class="installedAt"><?php echo $com->getInstalledAt(); ?></td>
                 <td class="id"><?php echo $com->getId(); ?></td>
-                <td class="clone"><?php if (!($com->isOneOfAKind())) { ?><a href="#" onclick="pv.value='clone'; ai.value='<?php echo $com->getId(); ?>'; form.action=form.action+'&task=clone'; form.submit();" title="Clone component '<?php echo $com->getName(); ?>'">C</a><?php } else { ?><span title="This component cannot be cloned.">--</span><?php } ?></td>
-                <td class="delete"><?php if (!($com->isCore())) { ?><a href="#" onclick="pv.value='edit'; ai.value='<?php echo $com->getId(); ?>'; form.action=form.action+'&task=delete'; form.submit();" title="Delete component '<?php echo $com->getName(); ?>'">D</a><?php } else { ?><span title="This component cannot be deleted.">--</span><?php } ?></td>
+                <td class="clone"><?php if (!($com->isOneOfAKind())) { ?><a href="#" onclick="pv.value='clone'; ai.value='<?php echo $com->getId(); ?>'; form.action=form.action+'&task=clone'; form.submit();" title="Clone component '<?php echo $com->getDname(); ?>'">C</a><?php } else { ?><span title="This component cannot be cloned.">--</span><?php } ?></td>
+                <td class="delete"><?php if (!($com->isCore())) { ?><a href="#" onclick="pv.value='edit'; ai.value='<?php echo $com->getId(); ?>'; form.action=form.action+'&task=delete'; form.submit();" title="Delete component '<?php echo $com->getDname(); ?>'">D</a><?php } else { ?><span title="This component cannot be deleted.">--</span><?php } ?></td>
             </tr>
 <?php } ?>
         </tbody>

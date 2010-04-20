@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-16
+ * @version     2010-04-19
  * @author      Myriam Leggieri <myriam.leggieri@gmail.com>
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Myriam Leggieri, Patrick Lehner
@@ -119,6 +119,7 @@ class Logger {
                     trigger_error("Logger::__construct(): Cannot create the db table '$tablename'.\nmysql error:".mysql_error(), E_USER_ERROR);
                 }
         }
+        //$this->log("Logger created", "Notice", "--------------------------------------------------------------------------------------");
     }
     
     
@@ -368,9 +369,11 @@ class Logger {
                 $uid = "'$userId'";
             else
                 $uid = "NULL";
-            $msg = mysql_real_escape_string($message);
+            $origin = mysql_real_escape_string($origin);
+            $type = mysql_real_escape_string($type);
+            $message = mysql_real_escape_string($message);
             $query = "INSERT INTO `$tablename` (`$this->col_datetime`, `$this->col_user`, `$this->col_origin`, `$this->col_type`, `$this->col_info`)
-                     VALUES ('$when', $uid, '$origin', '$type', '$msg')";
+                     VALUES ('$when', $uid, '$origin', '$type', '$message')";
     
             if (!mysql_query($query)){
                 trigger_error("Logger::log(): Cannot insert log event into db table '$tablename'.\nmysql error: ".mysql_error(), E_USER_WARNING);

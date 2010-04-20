@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-12
+ * @version     2010-04-19
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Backend main page
@@ -135,6 +135,8 @@
     }
     
 
+    ob_start();
+    
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -185,7 +187,7 @@
     </div>
     <div id="main">
         <div id="component">
-<?php if ($handler->getMsgCount() > 0) echo $handler->getFormatted();?>
+<?php /*if ($handler->getMsgCount() > 0) echo $handler->getFormatted();*/ ?>%HANDLEROUTPUT%
 <?php if (isset($message)) { echo "            <div id=\"messageBar\">$message</div>\n"; unset($message); } ?>
             <?php include($component); ?> 
         </div>
@@ -196,4 +198,12 @@
     </div>
 </body>
 </html>
-<?php mysql_close(); ?>
+<?php
+
+$buf = ob_get_clean();
+$buf = str_replace("%HANDLEROUTPUT%", ($handler->getMsgCount() > 0) ? $handler->getFormatted() : "", $buf);
+
+echo $buf;
+
+mysql_close(); 
+?>

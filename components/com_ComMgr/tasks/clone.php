@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-16
+ * @version     2010-04-19
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -24,21 +24,19 @@ defined("__COMMGR_ADMIN") or die("Include the UsrMgr backend first. [" . __FILE_
 
 if (($com = ComMan::getCom((int)$_POST["affectedIDs"])) !== false) {
 
-    echo "Attempting to clone component '". $com->getName() . "'<br />";
+    echo "Attempting to clone component '". $com->getDname() . "'<br />";
     
     if (($newcom = $com->duplicate("Test", "/testcom")) !== false) {
         echo "Cloning successful.<br />New component info:<br /><pre>";
         var_dump($newcom);
         echo "</pre>";
     } else {
-        echo "Error while cloning component '". $com->getName() . "'";
+        echo "Error while cloning component '". $com->getDname() . "'";
     }
 
 } else {
     echo "Error while retrieving component by id '" . $_POST["affectedIDs"] . "'";
 }
-
-echo $handler->getFormatted();
 
 
 ?>
