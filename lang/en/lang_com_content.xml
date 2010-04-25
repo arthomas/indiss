@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Insert DTD info here! -->
+<language lang="en" version="0.1.1">
+    <item name="usrmanUserManager" value="User manager"/>
+    <item name="usrmanLevelAdmin" value="Administrator"/>
+    <item name="usrmanLevelUser" value="User"/>
+    <item name="usrmanUnameAlreadyExists" value="A user named '%s' already exists"/>
+    <item name="usrmanCreateUserDBError" value="Database error while creating user %s&#10;Database said: %s&#10;Query: &lt;pre&gt;%s&lt;/pre&gt;"/>
+    <item name="usrmanGetDBInsertIDFail" value="Could not retrieve database entry ID"/>
+    <item name="usrmanCreateUserSuccess" value="User '%s' successfully created"/>
+    <item name="conPageManHeadline" value="Content manager"/>
+    <item name="conNavList" value="List of content"/>
+    <item name="conNavCreate" value="Add new content"/>
+    <item name="conNavTrash" value="Content trash bin"/>
+    <item name="conNavOptions" value="Content options"/>
+    <item name="conCreateSuccess" value="Successfully added %d content items."/>
+    <item name="conRestoreFromTrashSuccess" value="Successfully restored %d content items from the trash bin."/>
+    <item name="conMoveToTrashSuccess" value="Successfully moved %s content items to the trash bin."/>
+    <item name="conPermDeleteSuccess" value="Successfully deleted %s content items."/>
+    <item name="conEditSaveSuccess" value="Successfully saved edits to %d content items."/>
+    <item name="conExistingPages" value="Existing content items"/>
+    <item name="conName" value="Name"/>
+    <item name="conURL" value="URL"/>
+    <item name="conDispTime" value="Displayed for"/>
+    <item name="conDispFrom" value="Displayed from"/>
+    <item name="conDispUntil" value="Displayed until"/>
+    <item name="conType" value="Type"/>
+    <item name="conTypeLocalPage" value="Local page"/>
+    <item name="conTypeExternalPage" value="External page"/>
+    <item name="conTypeLocalImage" value="Local image"/>
+    <item name="conTypeExternalImage" value="External image"/>
+    <item name="conTypeLocalPDF" value="Local PDF file"/>
+    <item name="conTypeExternalPDF" value="External PDF file"/>
+    <item name="conTypeLocalFlash" value="Local flash file"/>
+    <item name="conTypeExternalFlash" value="External flash file"/>
+    <item name="conTypeLocalOther" value="Other local file"/>
+    <item name="conTypeExternalOther" value="Other external file"/>
+    <item name="conTypeUnknown" value="Unknown"/>
+    <item name="conPastPages" value="Previous content items"/>
+    <item name="conPresentPages" value="Current content items"/>
+    <item name="conFuturePages" value="Future content items"/>
+    <item name="conEdit" value="Edit"/>
+    <item name="conEditShort" value="E"/>
+    <item name="conEditSelected" value="Edit selected"/>
+    <item name="conDelete" value="Delete"/>
+    <item name="conDeleteShort" value="D"/>
+    <item name="conDeleteSelected" value="Delete selected"/>
+    <item name="conDelete2" value="Delete permanently"/>
+    <item name="conDelete2Short" value="D"/>
+    <item name="conDelete2Selected" value="Delete selected permanently"/>
+    <item name="conRestor" value="Restore"/>
+    <item name="conRestoreShort" value="R"/>
+    <item name="conRestoreSelected" value="Restore selected"/>
+    <item name="conSelectMultiple" value="Select multiple"/>
+    <item name="conCreateItem" value="Add new content"/>
+    <item name="conReloadCreate1" value="Reload with"/>
+    <item name="conReloadCreate2" value="new content items."/>
+    <item name="conEmptyURLNotice" value="Items with empty URL will be ignored (names are optional)."/>
+    <item name="conYesReallyDelete" value="Yes, really delete"/>
+    <item name="conNoDontDelete" value="No, don't delete"/>
+    <item name="conMoveToTrash?" value="Do you really want to move all items listed below to the trash bin? (You can later restore them while they are still in the trash bin)"/>
+    <item name="conDeletePermanently?" value="Do you really want to delete all items listed below permanently? (This cannot be undone!)"/>
+    <item name="conPagesToDelete" value="Items to be deleted"/>
+    <item name="conTrashBin" value="Deleted content items - Trash bin"/>
+    <item name="conEditItem" value="Edit item"/>
+    <item name="conDeleted" value="Deleted"/>
+    <item name="conDeletedInfo" value="This item is currently in the trash bin. If you want to restore it from there when you click save, un-check this box. Otherwise, leave it checked."/>
+    <item name="conEnabled" value="Enabled"/>
+    <item name="conBrowseServer" value="Browse server..."/>
+    <item name="conUploadFile" value="Upload file..."/>
+    <item name="conCreateFile" value="Create file..."/>
+    <item name="conEditFile" value="Edit file..."/>
+    <item name="conOpenEditor" value="Open Editor..."/>
+    <item name="conIgnore1" value="This entry will be ignored: "/>
+    <item name="conIgnoreEmptyURL" value="Empty URL."/>
+    <item name="conIgnoreUnsuppProt" value="Unsupported protocol."/>
+    <item name="conIgnoreDispTime" value="Invalid display time."/>
+    <item name="conThisIsLocalPage" value="This is a local page."/>
+    <item name="conThisIsExternalPage" value="This is an external page."/>
+    <item name="conThisIsLocalImage" value="This is a local image."/>
+    <item name="conThisIsExternalImage" value="This is an external image."/>
+    <item name="conThisIsLocalPDF" value="This is a local PDF file."/>
+    <item name="conThisIsExternalPDF" value="This is an external PDF file."/>
+    <item name="conThisIsLocalFlash" value="This is a local flash file."/>
+    <item name="conThisIsExternalFlash" value="This is an external flash file."/>
+    <item name="conThisIsLocalOther" value="This is a local link (type not recognized)."/>
+    <item name="conThisIsExternalOther" value="This is an external link (type not recognized)."/>
+</language>
+

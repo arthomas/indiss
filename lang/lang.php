@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-20
+ * @version     2010-04-23
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
@@ -23,15 +23,34 @@
     
     define("__LANG", 1);
     
-    include("languages.php");
+    //create the languages list
+    $d = dirname(__FILE__);
+    $l = preg_grep("/\./i", scandir("$d"), PREG_GREP_INVERT);
+    foreach ($l as $dir) {
+        if (file_exists("$d/$dir/langinfo.xml")) {
+            $x = simplexml_load_file("$d/$dir/langinfo.xml");
+            if ($x !== false) {
+                if ((bool)$x->name && (bool)$x->code && (bool)$x->version && $dir == (string)$x->code) {
+                    $langList[$dir] = (string)$x->name;
+                }
+            }
+        }
+    }
     
-    $_lang = dirname(__FILE__) . "/$lang"; //create the full path of the language directory
+    $_lang = $d . "/$lang"; //create the full path of the language directory
     if (file_exists($_lang)) {
         if (is_dir($_lang)) {
-            $langFiles = preg_grep("/\.php/i", scandir("$_lang"));
+            $langFiles = preg_grep("/lang_.+\.xml$/i", scandir("$_lang"));
             if (!empty($langFiles)) {
                 foreach ($langFiles as $fn) {
-                    include($_lang . "/" . $fn);
+                    $x = simplexml_load_file("$_lang/$fn");
+                    if (($x === false) || $x->getName() != "language") {
+                        trigger_error("This file is not a valid language file ($_lang/$fn)");
+                        continue;
+                    }
+                    foreach ($x as $item) {
+                        $_LANG[(string)$item["name"]] = (string)$item["value"];
+                    }
                 }
             } else {
                 die ("Requested language '$lang' is not valid.");
@@ -43,12 +62,19 @@
         die ("Requested language '$lang' not found.");
     }
     
+    unset($d, $_lang, $langFiles, $fn, $x);
+    
     
     
     function lang($lang_content_string) {
         global $_LANG;
         return (isset($_LANG[$lang_content_string])) ? $_LANG[$lang_content_string] : '[' . $lang_content_string . ']';
     }
+    
+    /*function _($lang_content_string) {
+        global $_LANG;
+        return (isset($_LANG[$lang_content_string])) ? $_LANG[$lang_content_string] : '[' . $lang_content_string . ']';
+    }*/
     
     function lang_echo($lang_content_string) {
         echo lang($lang_content_string);
