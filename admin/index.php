@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-19
+ * @version     2010-04-25
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Backend main page
@@ -19,39 +19,41 @@
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
     
-    $__startTime = microtime(true);
+$__startTime = microtime(true);
 
-	define("__MAIN", 1);
+define("__MAIN", 1);
 
-	include_once("../config/config.php");
-	include_once("../includes/dir_awareness.php");
-	include_once("../includes/database.php");
-	//include_once("../config/version.php");  //TODO: admin: Version management
-    
-    session_name("INDISSAdmin");
-    session_start();
-	
-	if (!isset($_SESSION["lang"])) {
-        $_SESSION["lang"] = $lang = "en"; //$defaultlang;
-	} else {
-	    $lang = $_SESSION["lang"];
-	}
-    if (isset($_POST["newlang"]))
-        $_SESSION["lang"] = $lang = $_POST["newlang"];
-	include($FULL_BASEPATH . "/lang/lang.php");
-	
-	include_once($FULL_BASEPATH . "/includes/error_handling/LiveErrorHandler.php");
-	$handler = LiveErrorHandler::add("Admin");
-	
-	include_once($FULL_BASEPATH . "/includes/logging/Logger.php");
-    $logError = new Logger("error");
-    $logDebug = new Logger("debug");
-    
-    include_once($FULL_BASEPATH . "/components/com_UsrMgr/UsrMan.php");
-    UsrMan::readDB("users");
-	
-    include_once($FULL_BASEPATH . "/components/com_ComMgr/ComMan.php");
-    ComMan::readDB("components");
+include_once("../config/config.php");
+include_once("../includes/dir_awareness.php");
+include_once("../includes/database.php");
+
+include_once($FULL_BASEPATH . "/includes/logging/Logger.php");
+$logError = new Logger("error");
+$logDebug = new Logger("debug");
+
+//load additional options into variables for convenience
+$defaultlang = getOptionD("default_lang", "en");
+
+session_name("INDISSAdmin");
+session_start();
+
+if (!isset($_SESSION["lang"])) {
+    $_SESSION["lang"] = $lang = $defaultlang;
+} else {
+    $lang = $_SESSION["lang"];
+}
+if (isset($_POST["newlang"]))
+    $_SESSION["lang"] = $lang = $_POST["newlang"];
+include($FULL_BASEPATH . "/lang/lang.php");
+
+include_once($FULL_BASEPATH . "/includes/error_handling/LiveErrorHandler.php");
+$handler = LiveErrorHandler::add("Admin");
+
+include_once($FULL_BASEPATH . "/components/com_UsrMgr/UsrMan.php");
+UsrMan::readDB("users");
+
+include_once($FULL_BASEPATH . "/components/com_ComMgr/ComMan.php");
+ComMan::readDB("components");
     
     if (isset($_POST['submit'])) {
         switch ($_POST["task"]) {

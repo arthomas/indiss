@@ -32,7 +32,7 @@ $DV = array (
         array ( "screenDimensionX",         "1920",    "" ),
         array ( "screenDimensionY",         "1080",   "" )
     ),
-    "view_default_view" => array (
+    "view_default_options" => array (
         array ( "topBarHeight",             "30",    "" ),
         array ( "bottomBarHeight",          "30",    "" ),
         array ( "leftMainColumnWidth",      "60%",   "" )

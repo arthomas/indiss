@@ -27,7 +27,7 @@ if ( $create ) {
 }
 ?>
                 <div id="contentCreateTop">
-<?php if ( $create ) { ?>                    <form id="contentCreateRestartForm" action="?component=content&view=create" method="post">
+<?php if ( $create ) { ?>                    <form id="contentCreateRestartForm" action="?comID=<?php echo $activeCom->getId();?>&view=create" method="post">
                         <?php lang_echo("conReloadCreate1");?> 
                         <select name="new_pages" onchange="this.form.submit();">
 <?php foreach (array(1,2,3,4,5,10,15,20,30,40,50) as $value) {              //here the user can choose if he wants to create more or less fields for new entries
@@ -134,7 +134,7 @@ if ( $create ) {
                 
                 </script>
 <?php  $item_count = ($create) ? $new_pages : $editcount; //move the two relevant count variables into a common one ?>
-                <form id="contentCreateForm" action="?component=content&view=list" method="post">
+                <form id="contentCreateForm" action="?comID=<?php echo $activeCom->getId();?>&view=list" method="post">
                     <input type="hidden" name="postview" value="<?php echo $view; //this will output either 'create' or 'edit' ?>" />
                     <div id="contentCreateButtonBar"><input type="submit" value="<?php lang_echo("genSave");?>" /><input type="button" value="<?php lang_echo("genCancel"); ?>" onclick="window.location.href='index.php?component=content'" /></div>
                     <input type="hidden" name="<?php echo ($create) ? "new_pages" : "editcount" ; ?>" value="<?php echo $item_count; ?>" />

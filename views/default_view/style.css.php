@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-09-10
+ * @version     2010-04-25
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module
@@ -28,9 +28,9 @@
     
     $screenWidth        = getValueByName("global_view_options", "screenDimensionX");
     $screenHeight       = getValueByName("global_view_options", "screenDimensionY");
-    $topBarHeight       = getValueByName("view_default_view", "topBarHeight");
-    $bottomBarHeight    = getValueByName("view_default_view", "bottomBarHeight");
-    $leftMainColWidth   = getValueByName("view_default_view", "leftMainColumnWidth");
+    $topBarHeight       = getValueByName("view_default_options", "topBarHeight");
+    $bottomBarHeight    = getValueByName("view_default_options", "bottomBarHeight");
+    $leftMainColWidth   = getValueByName("view_default_options", "leftMainColumnWidth");
     
     if (strpos($leftMainColWidth, "%") !== false) {
         $rightMainColWidth = (100 - $leftMainColWidth) . "%";

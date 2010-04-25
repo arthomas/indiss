@@ -21,7 +21,6 @@
 
 defined("__CONFIGFILE") or die("Config file not included [" . __FILE__ . "]");
 defined("__DIRAWARE") or die("Directory awareness not included [" . __FILE__ . "]");
-include_once($FULL_BASEPATH . "/includes/str_replace_multi.php");
  
 class LiveErrorHandler {
     

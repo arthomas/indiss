@@ -1,6 +1,6 @@
 <?php 
 /**
- * @version     2010-01-07
+ * @version     2010-02-25
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module
@@ -19,35 +19,37 @@
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-    define("__MAIN", 1);
+define("__MAIN", 1);
 
-    include_once("config/config.php");
-    //include_once("includes/database.php");
-    
-    $view = "default_view";
-    if ( !empty( $_GET["view"] ) ) {
-        if ( file_exists( "views/".$_GET["view"]."/main.php" ) ) {
-            $view = $_GET["view"];
-        }
+include_once("config/config.php");
+include_once("includes/dir_awareness.php");
+include_once("includes/database.php");
+
+include_once($FULL_BASEPATH . "/includes/logging/Logger.php");
+$logError = new Logger("error");
+$logDebug = new Logger("debug");
+
+//i18n
+$lang = getOptionD("frontend_lang", getOptionD("default_lang", "en"));
+include($FULL_BASEPATH . "/lang/lang.php");
+
+include_once($FULL_BASEPATH . "/components/com_ComMgr/ComMan.php");
+ComMan::readDB("components");
+
+
+
+$view = "default_view";
+if ( !empty( $_GET["view"] ) ) {
+    if ( file_exists( "views/".$_GET["view"]."/main.php" ) ) {
+        $view = $_GET["view"];
     }
+}
 
-?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-<head>
-    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
-    <meta name="author" content="Patrick Lehner" />
-    
-    <link rel="stylesheet" type="text/css" href="css/main.css" />
-    <link rel="stylesheet" type="text/css" href="views/<?php echo $view; ?>/style.css.php" />
-    
-    <title><?php echo $sitename; ?></title>    
-</head>
-<body>
-<?php include("views/$view/main.php");?>
-</body>
-</html>
-<?php 
-	if (isset($dbconnected))
-		mysql_close(); 
+
+include("views/$view/main.php");
+
+
+if (isset($dbconnected))
+	mysql_close();
+
 ?>

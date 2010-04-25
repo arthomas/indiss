@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-02-28
+ * @version     2010-04-20
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
@@ -18,111 +18,107 @@
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-	defined("__MAIN") or die("Restricted access.");
-	defined("__CONFIGFILE") or die("Config file not included [database.php]");
-	
-	define("__DATABASE", 1);
-	
-	// Open connection to MySQL server
-    if(!mysql_connect($dbhost, $dbuser, $dbpass)) { 
-        die("Error: Cannot connect to MySQL server. " . mysql_error());
-    }
-    
-    $dbconnected = true;
-    
-    // Open the right database
-    if(!mysql_select_db($dbname)) { 
-        mysql_close();
-        die("Error: Cannot select database. " . mysql_error());
-    }
-    
-    
-    /**
-     * 
-     * @param $tablename
-     * @param $name
-     * @return query_result
-     */
-    function getValueByName ($tablename, $name) {
-        $result = mysql_query( "SELECT value
-                                    FROM `$tablename`
-                                    WHERE `name`='$name'" );
-        if (!$result) {
-            return false;
-        } else {
-            //var_dump($result); echo "\n";
-            if (mysql_num_rows($result) <= 0) {
-                return false;
-            } else {
-                $rows = mysql_fetch_assoc($result);
-                return $rows["value"];
-            }
-        }
-    }
-    
-    /**
-     * 
-     * @param $tablename
-     * @param $name
-     * @return query_result
-     */
-    function getValueByNameD ($tablename, $name, $default) {
-        $result = mysql_query( "SELECT value
-                                    FROM `$tablename`
-                                    WHERE `name`='$name'" );
-        if (!$result) {
+defined("__MAIN") or die("Restricted access.");
+defined("__CONFIGFILE") or die("Config file not included [database.php]");
+
+define("__DATABASE", 1);
+
+// Open connection to MySQL server
+if(!mysql_connect($dbhost, $dbuser, $dbpass)) { 
+    die("Error: Cannot connect to MySQL server. " . mysql_error());
+}
+
+$dbconnected = true;
+
+// Open the right database
+if(!mysql_select_db($dbname)) { 
+    mysql_close();
+    die("Error: Cannot select database. " . mysql_error());
+}
+
+
+/**
+ * 
+ * @param $tablename
+ * @param $name
+ * @return query_result
+ */
+function getValueByName ($tablename, $name) {
+    return getValueByNameD($tablename, $name, null);
+}
+
+/**
+ * 
+ * @param $tablename
+ * @param $name
+ * @param $default
+ * @return query_result
+ */
+function getValueByNameD ($tablename, $name, $default) {
+    $result = mysql_query( "SELECT value
+                                FROM `$tablename`
+                                WHERE `name`='$name'" );
+    if (!$result) {
+        return $default;
+    } else {
+        //var_dump($result); echo "\n";
+        if (mysql_num_rows($result) <= 0) {
             return $default;
         } else {
-            //var_dump($result); echo "\n";
-            if (mysql_num_rows($result) <= 0) {
-                return $default;
-            } else {
-                $rows = mysql_fetch_assoc($result);
-                return $rows["value"];
-            }
+            $rows = mysql_fetch_assoc($result);
+            return $rows["value"];
         }
     }
-    
-    /**
-     * 
-     * @param $tablename
-     * @param $id
-     * @return query_result
-     */
-    function getValueByID ($tablename, $id) {
-        $result = mysql_query( "SELECT value
-                                    FROM `$tablename`
-                                    WHERE `id`=$id" );
-        if (!$result) {
+}
+
+/**
+ * 
+ * @param $tablename
+ * @param $id
+ * @return query_result
+ */
+function getValueByID ($tablename, $id) {
+    $result = mysql_query( "SELECT value
+                                FROM `$tablename`
+                                WHERE `id`=$id" );
+    if (!$result) {
+        return false;
+    } else {
+        if (mysql_num_rows($result) <= 0) {
             return false;
         } else {
-            if (mysql_num_rows($result) <= 0) {
-                return false;
-            } else {
-                $rows = mysql_fetch_row($result);
-                return $rows[0];
-            }
+            $rows = mysql_fetch_row($result);
+            return $rows[0];
         }
     }
-    
-    function db_commit ( $query ) {
-        $result = mysql_query($query);
-        if ( !$result ) {
-            return mysql_error();
-        } else {
-            return true;
-        }
+}
+
+function getOption($name) {
+    return getValueByNameD("global_options", $name, null);
+}
+
+function getOptionD($name, $default) {
+    return getValueByNameD("global_options", $name, $default);
+}
+
+function db_commit ( $query ) {
+    $result = mysql_query($query);
+    if ( !$result ) {
+        return mysql_error();
+    } else {
+        return true;
     }
-    
-    function db_commit2 ( $query, $errors, $line = 0 ) {
-        $error = db_commit($query);
-        if ( $error !== true ) {
-            $errors[] = (($line) ? $line . ": " : "" ) . $error;
-            return false;
-        } else {
-            return true;
-        }
+}
+
+function db_commit2 ( $query, $errors, $line = 0 ) {
+    $error = db_commit($query);
+    if ( $error !== true ) {
+        $errors[] = (($line) ? $line . ": " : "" ) . $error;
+        return false;
+    } else {
+        return true;
     }
+}
 	
 
 ?>

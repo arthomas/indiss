@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-01-07
+ * @version     2010-04-25
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      
@@ -31,30 +31,34 @@
     
     //var_dump($files);
     
-    if ( empty( $thisfile ) ) {
-        $thisfile = $_SERVER["PHP_SELF"];
-    }
     
     //set up the auto-reload string
+    if (!empty($_GET["view"])) $t[] = "view=" . $_GET["view"];
+    if (!empty($_GET["frame"])) $t[] = "frame=" . $_GET["frame"];
     if ( empty( $files ) ) {
         $reload = getValueByNameD("com_substtable_options", "error_display_time", 10);
-        $reload .= "; URL=$thisfile";
+        $reload .= "; URL=";
+        if (!empty($t))
+            $reload .= "?" . implode("&", $t);
         include (dirname(__FILE__) . "/substtable_error.php");
+        unset($t);
     } else {
-        $reload = getValueByNameD("com_substtable_options", "display_time", 10) . "; URL=$thisfile?last=";
+        $reload = getValueByNameD("com_substtable_options", "display_time", 10) . "; URL=";
         if ( isset( $_GET["last"] ) ) {
             if ( !empty( $files[$_GET["last"] + 1] ) ) {
-                $reload .= $_GET["last"] + 1;
+                $t[] = $_GET["last"] + 1;
                 $file = file_get_contents( $outputdir . "/" . $files[$_GET["last"] + 1] );
             } else {
-                $reload .= 0;
+                $t[] = 0;
                 $file = file_get_contents( $outputdir . "/" . $files[0] );
             }
         } else {
-            $reload .= 0;
+            $t[] = 0;
             $file = file_get_contents( $outputdir . "/" . $files[0] );
         }
         
+        $reload .= "?" . implode("&", $t);
+        unset($t);
         $file = str_replace("%RELOAD_STRING%", $reload, $file);
         echo $file;
     }

@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-13
+ * @version     2010-04-25
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      content_admin -- HTML page manager (backend)
@@ -43,6 +43,9 @@ if (!$logDebug) {
 }
 
 define("__CONTENT_ADMIN",1);
+
+$itemTable = "com_" . $activeCom->getIname();
+$optionsTable = "com_" . $activeCom->getIname() . "_options";
     
     $view = (!isset($_GET["view"])) ? "list" : $_GET["view"];
         
@@ -59,7 +62,7 @@ define("__CONTENT_ADMIN",1);
                 $delid[0] = $_GET["id"];
             }
             if ($delcount) {
-                $query ="SELECT * FROM `com_content` WHERE `id` IN(" . implode(",", $delid) . ")";
+                $query ="SELECT * FROM `$itemTable` WHERE `id` IN(" . implode(",", $delid) . ")";
                 $result = mysql_query($query);
                 if (!$result) {
                     $message .= sprintf(lang("errDBError") . "<br />\n", mysql_error());      //  <<-----  $_LANG
@@ -83,7 +86,7 @@ define("__CONTENT_ADMIN",1);
                 $reid[0] = $_GET["id"];
             }
             if ($recount) {
-                $query = "UPDATE `com_content` SET `deleted`=FALSE  wHERE `id` IN(" . implode(",", $reid) . ")";
+                $query = "UPDATE `$itemTable` SET `deleted`=FALSE  wHERE `id` IN(" . implode(",", $reid) . ")";
                 $result = mysql_query($query);
                 if (!$result) {
                     $message .= sprintf(lang("errDBError") . "<br />\n", mysql_error());      //  <<-----  $_LANG
@@ -106,7 +109,7 @@ define("__CONTENT_ADMIN",1);
                 $editid[0] = $_GET["id"];
             }
             if ($editcount) {
-                $query ="SELECT * FROM `com_content` WHERE `id` IN(" . implode(",", $editid) . ")";
+                $query ="SELECT * FROM `$itemTable` WHERE `id` IN(" . implode(",", $editid) . ")";
                 $result = mysql_query($query);
                 if (!$result) {
                     $message .= sprintf(lang("errDBError") . "<br />\n", mysql_error());      //  <<-----  $_LANG
@@ -122,7 +125,7 @@ define("__CONTENT_ADMIN",1);
     }
     switch ($_POST["postview"]) {
         case "create":
-            $query = "INSERT INTO `com_content` (`name`, `url`, `displaytime`, `start`, `end`, `type`, `enabled`, `deleted`, `tags`)
+            $query = "INSERT INTO `$itemTable` (`name`, `url`, `displaytime`, `start`, `end`, `type`, `enabled`, `deleted`, `tags`)
                         VALUES ";
             $c = 0; //counter for actual number of added pages
             //var_dump($_POST);
@@ -187,7 +190,7 @@ define("__CONTENT_ADMIN",1);
             break;
         case "recycleYes":
             if ($_POST["delcount"] > 0) {
-                $query = "UPDATE `com_content` SET `deleted`=TRUE  WHERE `id` IN(";
+                $query = "UPDATE `$itemTable` SET `deleted`=TRUE  WHERE `id` IN(";
                 for ($i = 0; $i < $_POST["delcount"]; $i++)
                     $query .= $_POST["id$i"] . ",";
                 $query = rtrim($query, ",");
@@ -203,7 +206,7 @@ define("__CONTENT_ADMIN",1);
             break;
         case "deletePermYes":
             if ($_POST["delcount"] > 0) {
-                $query = "DELETE FROM `com_content` WHERE `id` IN(";
+                $query = "DELETE FROM `$itemTable` WHERE `id` IN(";
                 for ($i = 0; $i < $_POST["delcount"]; $i++)
                     $query .= $_POST["id$i"] . ",";
                 $query = rtrim($query, ",");
@@ -222,7 +225,7 @@ define("__CONTENT_ADMIN",1);
                 $c = 0;
                 for ($i = 0; $i < $_POST["editcount"]; $i++) {
                     if ( !empty($_POST["URL$i"]) && !empty($_POST["tags$i"]) && !empty($_POST["disptime$i"]) && !empty($_POST["start".$i."result"]) && !empty($_POST["end".$i."result"]) ) {
-                        $query = "UPDATE `com_content` SET ";
+                        $query = "UPDATE `$itemTable` SET ";
                         $query .= "`name`='" . $_POST["name$i"] . "',";
                         $query .= "`url`='" . $_POST["URL$i"] . "',";
                         $query .= "`displaytime`='" . $_POST["disptime$i"] . "',";
@@ -251,7 +254,7 @@ define("__CONTENT_ADMIN",1);
         default:
             break;
     }
-    $query = "SELECT * FROM `com_content`";
+    $query = "SELECT * FROM `$itemTable`";
 
     $result = mysql_query($query);
     

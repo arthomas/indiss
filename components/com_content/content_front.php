@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-01-07
+ * @version     2010-04-25
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      
@@ -19,12 +19,27 @@
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
  
-    defined("__MAIN") or die("Restricted access.");
+defined("__MAIN") or die("Restricted access.");
     
-    include_once("config/config.php");
-    include_once("includes/database.php");
+defined("__CONFIGFILE") or die("Config file not included [" . __FILE__ . "]");
+defined("__DIRAWARE") or die("Directory awareness not included [" . __FILE__ . "]");
+defined("__DATABASE") or die("Database connection not included [" . __FILE__ . "]");
+defined("__LANG") or die("Language file not included [" . __FILE__ . "]");
+defined("__COMMAN") or die("ComMan class not included [" . __FILE__ . "]");
     
-    $query = "SELECT * FROM `com_content`";
+if (!$logError) {
+    $logError = new Logger("error");
+}
+if (!$logDebug) {
+    $logDebug = new Logger("debug");
+}
+
+define("__CONTENT_ADMIN",1);
+
+$itemTable = "com_" . $activeCom->getIname();
+$optionsTable = "com_" . $activeCom->getIname() . "_options";
+    
+    $query = "SELECT * FROM `$itemTable`";
 
     $result = mysql_query($query);
     
@@ -91,18 +106,21 @@
     }
     
     //set up the auto-reload string
+    if (!empty($_GET["view"])) $t[] = "view=" . $_GET["view"];
+    if (!empty($_GET["frame"])) $t[] = "frame=" . $_GET["frame"];
+    $t[] = "last=" . $current->id;
     if ( empty( $type ) || ( $type == "unknown" ) || ( $type == "none" ) ) {
-        $reload = getValueByNameD("com_content_options", "error_display_time", 30);
-        $reload .= "; URL=left.php";                                                    //TODO: content: generalize self-call
-        if ( $type == "unknown" )
-            $reload .= "?last=" . $current->id;
+        $reload = getValueByNameD($optionsTable, "error_display_time", 30);
     } else {
-        $reload = $current->displaytime . "; URL=left.php?last=" . $current->id;
+        $reload = $current->displaytime;
     }
+    $reload .= "; URL=";
+    $reload .= "?" . implode("&", $t);
+    unset($t);
     
-    $maxwidth = getValueByNameD("com_content_options", "max_width", "auto");
+    $maxwidth = getValueByNameD($optionsTable, "max_width", "auto");
     if ( strcasecmp( $maxwidth, "auto" ) == 0 ) {
-        $leftwidth = getValueByNameD("view_default_view", "leftMainColumnWidth", "50%");
+        $leftwidth = getValueByNameD("view_default_options", "leftMainColumnWidth", "50%");
         preg_match( "/^([0-9]+)/", $leftwidth, $matches );
         if ( strpos( $leftwidth, "%" ) !== false ) {
             $maxwidth = (int)(getValueByNameD("global_view_options", "screenDimensionX", 1920) * ($matches[1] * 0.01));
@@ -113,9 +131,9 @@
         $maxwidth = (int)$maxwidth;
     }
     
-    $maxheight = getValueByNameD("com_content_options", "max_height", "auto");
+    $maxheight = getValueByNameD($optionsTable, "max_height", "auto");
     if ( strcasecmp( $maxheight, "auto" ) == 0 ) {
-        $maxheight = (int)(getValueByNameD("global_view_options", "screenDimensionY", 1080) - getValueByNameD("view_default_view", "topBarHeight", 30) - getValueByNameD("view_default_view", "bottomBarHeight", 30));
+        $maxheight = (int)(getValueByNameD("global_view_options", "screenDimensionY", 1080) - getValueByNameD("view_default_options", "topBarHeight", 30) - getValueByNameD("view_default_options", "bottomBarHeight", 30));
     } else {
         $maxheight = (int)$maxheight;
     }
