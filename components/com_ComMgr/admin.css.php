@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-12
+ * @version     2010-04-27
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      component manager UI (backend) style definitions
@@ -63,94 +63,111 @@ div#ComMgr div#subnav a:last-child {
     padding-right: 8px;
 }
 
-div#ComMgr table#userlist {
+div#ComMgr table#comlist {
     width: 100%;
+    clear: both;
 }
 
-div#ComMgr table#userlist tr.headingRow td {
+div#ComMgr table#comlist tr.headingRow td {
     font-weight: bold;
     text-align: center;
     border-bottom: 1px solid black;
 }
 
-div#ComMgr table#userlist td {
+div#ComMgr table#comlist td {
     border-bottom: 1px solid gray;
     padding: 3px 5px;
+    border-left: 1px solid #BBB;
 }
 
-div#ComMgr table#userlist td.check {
+div#ComMgr table#comlist td.check {
     padding: 1px;
     text-align: center;
     width: 15px;
 }
 
-div#ComMgr table#userlist td.enabled {
+div#ComMgr table#comlist td.enabled {
     width: 30px;
     text-align: center;
-    border-left: 1px solid #BBB;
 }
 
-div#ComMgr table#userlist td.name {
-    border-left: 1px solid #BBB;
+div#ComMgr table#comlist td.name {
 }
 
-div#ComMgr table#userlist td.comname {
-    border-left: 1px solid #BBB;
+div#ComMgr table#comlist td.comname {
 }
 
-div#ComMgr table#userlist td.installedAt {
+div#ComMgr table#comlist td.installedAt {
     width: 150px;
     text-align: center;
-    border-left: 1px solid #BBB;
 }
 
-div#ComMgr table#userlist td.id {
+div#ComMgr table#comlist td.id {
     width: 30px;
     text-align: right;
-    border-left: 1px solid #BBB;
 }
 
-div#ComMgr table#userlist td.clone {
+div#ComMgr table#comlist td.duplicate {
     width: 15px;
     text-align: center;
-    border-left: 1px solid #BBB;
 }
 
-div#ComMgr table#userlist td.delete {
+div#ComMgr table#comlist td.delete {
     width: 15px;
     text-align: center;
-    border-left: 1px solid #BBB;
 }
 
-div#ComMgr table#userlist td:first-child {
+div#ComMgr table#comlist td:first-child {
     padding-left: 10px;
     border-left: 2px solid black;
 }
 
-div#ComMgr table#userlist td:last-child {
+div#ComMgr table#comlist td:last-child {
     padding-right: 10px;
     border-right: 2px solid black;
 }
 
-div#ComMgr table#userlist tr:first-child td {
+div#ComMgr table#comlist tr:first-child td {
     border-top: 2px solid black;
 }
 
-div#ComMgr table#userlist tr:last-child td {
+div#ComMgr table#comlist tr:last-child td {
     border-bottom: 2px solid black;
 }
 
-div#ComMgr table#userlist tr:first-child td:last-child {
+div#ComMgr table#comlist.rright tr:first-child td:last-child {
     -moz-border-radius-topright: 8px;           /*Firefox*/
     border-top-right-radius: 8px;               /*Opera/CSS3*/
 }
 
-div#ComMgr table#userlist tr:last-child td:last-child {
+div#ComMgr table#comlist.rright tr:last-child td:last-child {
     -moz-border-radius-bottomright: 8px;        /*Firefox*/
     border-bottom-right-radius: 8px;            /*Opera/CSS3*/
 }
 
+div#ComMgr table#comlist.rleft tr:first-child td:first-child {
+    -moz-border-radius-topleft: 8px;           /*Firefox*/
+    border-top-left-radius: 8px;               /*Opera/CSS3*/
+}
+
+div#ComMgr table#comlist.rleft tr:last-child td:first-child {
+    -moz-border-radius-bottomleft: 8px;        /*Firefox*/
+    border-bottom-left-radius: 8px;            /*Opera/CSS3*/
+}
+
+div#ComMgr form#duplicateForm table#comlist td:not(:last-child) {
+    width: 25%;
+}
+
+div#ComMgr table#comlist td.newdname input,
+div#ComMgr table#comlist td.newiname input {
+    width: 95%;
+    margin: 0 auto;
+    display: block;
+}
+
 div#ComMgr div.buttonbar {
+    float: left;
 }
 
 div#ComMgr div.buttonbar table td {

@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-12
+ * @version     2010-04-27
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -44,7 +44,51 @@ if (!$logDebug) {
 
 define("__COMMGR_ADMIN",1);
 
-$task = (!empty($_GET["task"])) ? $_GET["task"] : "list";
+if (!empty($_POST["postview"]) && !empty($_POST["affectedIDs"])) {
+    $IDs = explode(",", $_POST["affectedIDs"]);
+    
+    if (!empty($IDs)) {
+        switch ($_POST["postview"]) {
+            case "duplicate":
+                foreach ($IDs as $ID) {
+                    if (($com = ComMan::getCom((int)$ID, true)) !== false) {    //if the component is there
+                        if ($com->isOneOfAKind()) {                             //if the component mustn't be duplicated
+                            $handler->addMsg("Component manager", "Component '" . $com->getDname() . "' cannot be duplicated", LiveErrorHandler::EK_ERROR);
+                        } else {
+                            $newdname = $_POST["newdname_$ID"];
+                            if (empty($newdname)) {
+                                $newdname = $com->getDname();
+                            }
+                            $newiname = $_POST["newiname_$ID"];
+                            if (empty($newiname)) {
+                                $newiname = $com->getComName();
+                            }
+                            if (($newcom = $com->duplicate($newdname, $newiname)) !== false) {
+                                $newcom->enable($_POST["enable_$ID"] == "Yes");
+                                $handler->addMsg("Component manager", "Component '" . $com->getDname() . " was successfully duplicated to '" . $newcom->getDname() . "'", LiveErrorHandler::EK_SUCCESS);
+                            } else {
+                                $handler->addMsg("Component manager", "Error while duplicating component '" . $com->getDname() . "'", LiveErrorHandler::EK_ERROR);
+                            }
+                        }
+                    } else {    //if the component can't be found
+                        $handler->addMsg("Component manager", "Could not retrieve component with id '$ID'", LiveErrorHandler::EK_ERROR);
+                    }
+                }   
+                break;
+            default:
+                break;
+        }
+    }
+    
+    unset($IDs, $ID, $com, $newcom, $newdname, $newiname);
+}
+
+$task = "list";
+if (!empty($_GET["task"])) {
+    if ($_GET["task"][0] != '_') {      //this prevents tasks starting with an underscore from loading and thus makes such filenames available for internal helper files
+        $task = $_GET["task"];
+    }
+}
 
 $taskfile = dirname(__FILE__) . "/tasks/$task.php";
 
@@ -56,6 +100,7 @@ $taskfile = dirname(__FILE__) . "/tasks/$task.php";
         <a href="?comID=<?php echo $activeCom->getId();?>&task=options">Options</a>
     </div>
     <div style="clear: both; font-size: 0; max-height: 1px;">$nbsp;</div>
+<!--%HANDLEROUTPUT%-->
 <?php
 
 if (file_exists("$taskfile")) {

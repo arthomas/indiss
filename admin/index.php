@@ -189,7 +189,7 @@ ComMan::readDB("components");
     </div>
     <div id="main">
         <div id="component">
-<?php /*if ($handler->getMsgCount() > 0) echo $handler->getFormatted();*/ ?>%HANDLEROUTPUT%
+            <!--%HANDLEROUTPUT_COMMON%-->
 <?php if (isset($message)) { echo "            <div id=\"messageBar\">$message</div>\n"; unset($message); } ?>
             <?php include($component); ?> 
         </div>
@@ -202,8 +202,19 @@ ComMan::readDB("components");
 </html>
 <?php
 
-$buf = ob_get_clean();
-$buf = str_replace("%HANDLEROUTPUT%", ($handler->getMsgCount() > 0) ? $handler->getFormatted() : "", $buf);
+$buf = ob_get_clean();  //retrieve all created (buffered) output
+
+//Inject the LiveErrorHandler message output
+/* 
+ * Note: This part gives components the chance to place the message output differently (i.e. in a more fitting place); if
+ * a component does not place the message output by inluding the string "<!--%HANDLEROUTPUT-->" in the appropriate place,
+ * the message output will be placed in the default location above the component output. 
+ * */
+$count = 0;
+$buf = str_replace("<!--%HANDLEROUTPUT%-->", ($handler->getMsgCount() > 0) ? $handler->getFormatted() : "", $buf, $count);
+if ($count == 0)
+    $buf = str_replace("<!--%HANDLEROUTPUT_COMMON%-->", ($handler->getMsgCount() > 0) ? $handler->getFormatted() : "", $buf);
+unset ($count);
 
 echo $buf;
 

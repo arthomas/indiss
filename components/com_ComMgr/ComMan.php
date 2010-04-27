@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-20
+ * @version     2010-04-27
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that holds info about installed components
@@ -213,6 +213,11 @@ class ComMan {
         
         $source = rtrim($source, "/\\");
         
+        if (!file_exists($source . "/install.xml")) {
+            $handler->addMsg("Component manager", "XML file was not found ($source/install.xml)", LiveErrorHandler::EK_ERROR);
+            return false;
+        }
+        
         $xml = simplexml_load_file($source . "/install.xml");
         if ( !$xml ) {
             $handler->addMsg("Component manager", "XML file is not valid XML ($source/install.xml)", LiveErrorHandler::EK_ERROR);
@@ -263,9 +268,14 @@ class ComMan {
         }
         
         $installedAt = date($GLOBALS["datefmt"]);
+        $installedBy = "NULL";
+        global $activeUsr;
+        if (defined("__USRMAN"))
+            if (isset($activeUsr))
+                $installedBy = $activeUsr->getId();
         
-        $query = "INSERT INTO `" . self::$dbTable . "` (`name`, `comName`, `installedAt`, `installedBy`, `path`, `enabled`, `hasFrontend`) 
-            VALUES ('$dname', '$comName', '$installedAt', NULL, '$dest', TRUE, $hasFrontend)";
+        $query = "INSERT INTO `" . self::$dbTable . "` (`dname`, `iname`, `comName`, `installedAt`, `installedBy`, `path`, `enabled`, `hasFrontend`) 
+            VALUES ('$dname', '$iname', '$comName', '$installedAt', $installedBy, '$dest', TRUE, $hasFrontend)";
         if (!mysql_query($query)) {
             $handler->addMsg("Component manager", "Database error while installing component $dname\nDatabase said: " . mysql_error() . "\nQuery: <pre>$query</pre>", LiveErrorHandler::EK_ERROR);
             return false;
@@ -275,10 +285,10 @@ class ComMan {
             return false;
         }
         
-        $com = new ComMan($id, $dname, $comName, $installedAt, null, $dest, true, $hasFrontend);
+        $com = new ComMan($id, $dname, $iname, $comName, $installedAt, ($installedBy == "NULL") ? null : $installedBy, $dest, true, $hasFrontend);
         self::$components[(int)$id] = $com;
         
-        $handler->addMsg("Component manager", "Component $dname successfully installed", LiveErrorHandler::EK_SUCCESS);
+        //$handler->addMsg("Component manager", "Component $dname successfully installed", LiveErrorHandler::EK_SUCCESS);
         return $com;
     }
     
@@ -400,12 +410,10 @@ class ComMan {
             $handler->addMsg("Component manager", "Component $this->dname cannot be disabled", LiveErrorHandler::EK_ERROR);
             return false;
         }
-        if (!$this->cached) {
-            $result = mysql_query("UPDATE `" . self::$dbTable . "` SET `enabled`=" . (($enabled) ? "TRUE" : "FALSE") . " WHERE `id`='" . $this->id . "'");
-            if (!$result) {
-                $handler->addMsg("Component manager", "Database error while " . (($enabled) ? "enabling" : "disabling") . " component $this->dname\nDatabase said: " . mysql_error() . "\nQuery: <pre>$query</pre>", LiveErrorHandler::EK_ERROR);
-                return false;
-            }
+        $result = mysql_query("UPDATE `" . self::$dbTable . "` SET `enabled`=" . (($enabled) ? "TRUE" : "FALSE") . " WHERE `id`='" . $this->id . "'");
+        if (!$result) {
+            $handler->addMsg("Component manager", "Database error while " . (($enabled) ? "enabling" : "disabling") . " component $this->dname\nDatabase said: " . mysql_error() . "\nQuery: <pre>$query</pre>", LiveErrorHandler::EK_ERROR);
+            return false;
         }
         $this->enabled = $enabled;
         return true;
@@ -421,12 +429,10 @@ class ComMan {
             trigger_error("ComMan::setName(): first argument must be of type string", E_USER_WARNING);
             return false;
         }
-        if (!$this->cached) {
-            $result = mysql_query("UPDATE `" . self::$dbTable . "` SET `name`='$dname' WHERE `id`='" . $this->id . "'");
-            if (!$result) {
-                $handler->addMsg("Component manager", "Database error while renaming component $this->dname\nDatabase said: " . mysql_error() . "\nQuery: <pre>$query</pre>", LiveErrorHandler::EK_ERROR);
-                return false;
-            }
+        $result = mysql_query("UPDATE `" . self::$dbTable . "` SET `name`='$dname' WHERE `id`='" . $this->id . "'");
+        if (!$result) {
+            $handler->addMsg("Component manager", "Database error while renaming component $this->dname\nDatabase said: " . mysql_error() . "\nQuery: <pre>$query</pre>", LiveErrorHandler::EK_ERROR);
+            return false;
         }
         $this->dname = $dname;
         return true;
@@ -491,10 +497,10 @@ class ComMan {
             return false;
         }
         $com = self::add($this->getFullPath(), $dname, $iname, $dest);
-        if (!$com)
+        /*if (!$com)
             $handler->addMsg("Component manager", "Duplicating component $this->dname failed", LiveErrorHandler::EK_ERROR);
         else
-            $handler->addMsg("Component manager", "Component $this->dname was successfully duplicated to $com->dname", LiveErrorHandler::EK_SUCCESS);
+            $handler->addMsg("Component manager", "Component $this->dname was successfully duplicated to $com->dname", LiveErrorHandler::EK_SUCCESS);*/
         return $com; 
     }
     
