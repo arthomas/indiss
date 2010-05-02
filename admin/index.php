@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-25
+ * @version     2010-05-02
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Backend main page
@@ -28,8 +28,7 @@ include_once("../includes/dir_awareness.php");
 include_once("../includes/database.php");
 
 include_once($FULL_BASEPATH . "/includes/logging/Logger.php");
-$logError = new Logger("error");
-$logDebug = new Logger("debug");
+include_once($FULL_BASEPATH . "/includes/logging/helper_loggers.php");
 
 //load additional options into variables for convenience
 $defaultlang = getOptionD("default_lang", "en");

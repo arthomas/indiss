@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-27
+ * @version     2010-05-02
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that holds info about installed components
@@ -22,6 +22,7 @@
 defined("__CONFIGFILE") or die("Config file not included [" . __FILE__ . "]");
 defined("__DIRAWARE") or die("Directory awareness not included [" . __FILE__ . "]");
 defined("__DATABASE") or die("Database connection not included [" . __FILE__ . "]");
+defined("__LANG") or die("Database connection not included [" . __FILE__ . "]");
 
 define("__COMMAN", 1);
 
@@ -32,12 +33,7 @@ $handler = LiveErrorHandler::getLastHandler();
 if (!$handler)
     $handler = LiveErrorHandler::add("ComMan");
     
-if (!$logError) {
-    $logError = new Logger("error");
-}
-if (!$logDebug) {
-    $logDebug = new Logger("debug");
-}
+include_once($FULL_BASEPATH . "/includes/logging/helper_loggers.php");
 
  
 class ComMan {
@@ -214,21 +210,21 @@ class ComMan {
         $source = rtrim($source, "/\\");
         
         if (!file_exists($source . "/install.xml")) {
-            $handler->addMsg("Component manager", "XML file was not found ($source/install.xml)", LiveErrorHandler::EK_ERROR);
+            $handler->addMsg(lang("commgrComponentManager"), lang("commgrXMLNotFound") . " ($source/install.xml)", LiveErrorHandler::EK_ERROR);
             return false;
         }
         
         $xml = simplexml_load_file($source . "/install.xml");
         if ( !$xml ) {
-            $handler->addMsg("Component manager", "XML file is not valid XML ($source/install.xml)", LiveErrorHandler::EK_ERROR);
+            $handler->addMsg(lang("commgrComponentManager"), lang("commgrXMLInvalid") . " ($source/install.xml)", LiveErrorHandler::EK_ERROR);
             return false;
         }
         if ((string)$xml["type"] != "component") {
-            $handler->addMsg("Component manager", "This is not a component ($source/install.xml)", LiveErrorHandler::EK_ERROR);
+            $handler->addMsg(lang("commgrComponentManager"), lang("commgrXMLNotACom") . " ($source/install.xml)", LiveErrorHandler::EK_ERROR);
             return false;
         }
         if ( !(bool)$xml->comName || !(bool)$xml->version || !(bool)$xml->description || !(bool)$xml->hasFrontend || !(bool)$xml->files || count($xml->files->filename) < 1 ) {
-            $handler->addMsg("Component manager", "XML file is not a valid component information file ($source/install.xml)", LiveErrorHandler::EK_ERROR);
+            $handler->addMsg(lang("commgrComponentManager"), lang("commgrXMLNotValidComInfo") . " ($source/install.xml)", LiveErrorHandler::EK_ERROR);
             return false;
         }
         $comName = (string)$xml->comName;
@@ -245,14 +241,14 @@ class ComMan {
             $dname = ucfirst($iname);
         
         if (self::getComByIname($iname, true) !== false) {
-            $handler->addMsg("Component manager", "A component with the internal name '$iname' already exists", LiveErrorHandler::EK_ERROR);
+            $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrInameAlreadyExists"), $iname), LiveErrorHandler::EK_ERROR);
             return false;
         }
         
         global $FULL_BASEPATH;
         $p = $FULL_BASEPATH . self::$commonPath . $dest;
         if (file_exists($p)) {
-            $handler->addMsg("Component manager", "Directory already exists ($p)", LiveErrorHandler::EK_ERROR);
+            $handler->addMsg(lang("commgrComponentManager"), lang("commgrComDirInUse") . " ($p)", LiveErrorHandler::EK_ERROR);
             return false;
         }
         mkdir($p);
@@ -277,11 +273,11 @@ class ComMan {
         $query = "INSERT INTO `" . self::$dbTable . "` (`dname`, `iname`, `comName`, `installedAt`, `installedBy`, `path`, `enabled`, `hasFrontend`) 
             VALUES ('$dname', '$iname', '$comName', '$installedAt', $installedBy, '$dest', TRUE, $hasFrontend)";
         if (!mysql_query($query)) {
-            $handler->addMsg("Component manager", "Database error while installing component $dname\nDatabase said: " . mysql_error() . "\nQuery: <pre>$query</pre>", LiveErrorHandler::EK_ERROR);
+            $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrComInstallDBError"), $dname, "<i>".mysql_error()."</i>", "<pre>$query</pre>"), LiveErrorHandler::EK_ERROR);
             return false;
         }
         if (!($id = mysql_insert_id())) {
-            $handler->addMsg("Component manager", "Could not retrieve database entry ID", LiveErrorHandler::EK_ERROR);
+            $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrGetDBInsertIDFail"), $dname), LiveErrorHandler::EK_ERROR);
             return false;
         }
         
@@ -295,7 +291,7 @@ class ComMan {
     public static function remove(ComMan $com) {
         global $logDebug, $logError, $handler;
         if ($com->core) {
-            $handler->addMsg("Component manager", "Component $this->dname cannot be removed", LiveErrorHandler::EK_ERROR);
+            $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrCannotRemoveCom"), $this->dname), LiveErrorHandler::EK_ERROR);
             return false;
         }
     }
@@ -407,12 +403,12 @@ class ComMan {
             return false;
         }
         if ($this->alwaysOn) {
-            $handler->addMsg("Component manager", "Component $this->dname cannot be disabled", LiveErrorHandler::EK_ERROR);
+            $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrCannotDisableCom"), $this->dname), LiveErrorHandler::EK_ERROR);
             return false;
         }
         $result = mysql_query("UPDATE `" . self::$dbTable . "` SET `enabled`=" . (($enabled) ? "TRUE" : "FALSE") . " WHERE `id`='" . $this->id . "'");
         if (!$result) {
-            $handler->addMsg("Component manager", "Database error while " . (($enabled) ? "enabling" : "disabling") . " component $this->dname\nDatabase said: " . mysql_error() . "\nQuery: <pre>$query</pre>", LiveErrorHandler::EK_ERROR);
+            $handler->addMsg(lang("commgrComponentManager"), sprintf(lang(($enabled) ? "commgrDisableComDBError" : "commgrEnableComDBError"), $this->dname, "<i>" . mysql_error() . "</i>", "<pre>$query</pre>"), LiveErrorHandler::EK_ERROR);
             return false;
         }
         $this->enabled = $enabled;
@@ -431,7 +427,7 @@ class ComMan {
         }
         $result = mysql_query("UPDATE `" . self::$dbTable . "` SET `name`='$dname' WHERE `id`='" . $this->id . "'");
         if (!$result) {
-            $handler->addMsg("Component manager", "Database error while renaming component $this->dname\nDatabase said: " . mysql_error() . "\nQuery: <pre>$query</pre>", LiveErrorHandler::EK_ERROR);
+            $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrRenameComDBError"), $this->dname, "<i>" . mysql_error() . "</i>", "<pre>$query</pre>"), LiveErrorHandler::EK_ERROR);
             return false;
         }
         $this->dname = $dname;
@@ -470,7 +466,7 @@ class ComMan {
         if (!$this->cached) {
             $result = mysql_query("UPDATE `" . self::$dbTable . "` SET `path`='$path' WHERE `id`='" . $this->id . "'");
             if (!$result) {
-                $handler->addMsg("Component manager", "Database error while changing path for component $this->dname\nDatabase said: " . mysql_error() . "\nQuery: <pre>$query</pre>", LiveErrorHandler::EK_ERROR);
+                $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrChangeComPathDBError"), $this->dname, "<i>" . mysql_error() . "</i>", "<pre>$query</pre>"), LiveErrorHandler::EK_ERROR);
                 return false;
             }
         }
@@ -493,7 +489,7 @@ class ComMan {
             return false;
         }
         if ($this->oneOfAKind) {
-            $handler->addMsg("Component manager", "Component $this->dname cannot be duplicated", LiveErrorHandler::EK_ERROR);
+            $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrCannotDuplicateCom"), $this->dname), LiveErrorHandler::EK_ERROR);
             return false;
         }
         $com = self::add($this->getFullPath(), $dname, $iname, $dest);

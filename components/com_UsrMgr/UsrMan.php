@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-20
+ * @version     2010-05-02
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      User manager core component
@@ -33,12 +33,7 @@ $handler = LiveErrorHandler::getLastHandler();
 if (!$handler)
     $handler = LiveErrorHandler::add("UsrMan");
     
-if (!$logError) {
-    $logError = new Logger("error");
-}
-if (!$logDebug) {
-    $logDebug = new Logger("debug");
-}
+include_once($FULL_BASEPATH . "/includes/logging/helper_loggers.php");
  
 class UsrMan {
     

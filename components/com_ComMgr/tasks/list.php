@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-26
+ * @version     2010-05-02
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -51,8 +51,8 @@ $buttonbarContent =
                 <td class="comname">Component type</td>
                 <td class="installedAt">Installation date</td>
                 <td class="id">ID</td>
-                <td class="duplicate" title="Duplicate">C</td>
-                <td class="delete" title="Delete">D</td>
+                <td class="duplicate" title="Duplicate">Du</td>
+                <td class="delete" title="Delete">Del</td>
             </tr>
 <?php foreach (ComMan::$components as $com) {
 ?>

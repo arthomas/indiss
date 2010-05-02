@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-27
+ * @version     2010-05-02
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -53,25 +53,22 @@ if (!empty($_POST["postview"]) && !empty($_POST["affectedIDs"])) {
                 foreach ($IDs as $ID) {
                     if (($com = ComMan::getCom((int)$ID, true)) !== false) {    //if the component is there
                         if ($com->isOneOfAKind()) {                             //if the component mustn't be duplicated
-                            $handler->addMsg("Component manager", "Component '" . $com->getDname() . "' cannot be duplicated", LiveErrorHandler::EK_ERROR);
-                        } else {
+                            $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrCannotDuplicateCom"), $com->getDname()), LiveErrorHandler::EK_ERROR);
+                        } else {                                                //duplicating is okay
                             $newdname = $_POST["newdname_$ID"];
-                            if (empty($newdname)) {
+                            if (empty($newdname)) {             //generate new dname if necessary
                                 $newdname = $com->getDname();
                             }
-                            $newiname = $_POST["newiname_$ID"];
-                            if (empty($newiname)) {
-                                $newiname = $com->getComName();
-                            }
+                            $newiname = $_POST["newiname_$ID"]; //if no iname is given, duplicate() will generate one automatically
                             if (($newcom = $com->duplicate($newdname, $newiname)) !== false) {
                                 $newcom->enable($_POST["enable_$ID"] == "Yes");
-                                $handler->addMsg("Component manager", "Component '" . $com->getDname() . " was successfully duplicated to '" . $newcom->getDname() . "'", LiveErrorHandler::EK_SUCCESS);
+                                $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrComDuplicateSuccess"), $com->getDname(), $newcom->getDname()), LiveErrorHandler::EK_SUCCESS);
                             } else {
-                                $handler->addMsg("Component manager", "Error while duplicating component '" . $com->getDname() . "'", LiveErrorHandler::EK_ERROR);
+                                $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrComDuplicateError"), $com->getDname()), LiveErrorHandler::EK_ERROR);
                             }
                         }
                     } else {    //if the component can't be found
-                        $handler->addMsg("Component manager", "Could not retrieve component with id '$ID'", LiveErrorHandler::EK_ERROR);
+                        $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrRetrieveComFailed"), $ID), LiveErrorHandler::EK_ERROR);
                     }
                 }   
                 break;
@@ -95,9 +92,9 @@ $taskfile = dirname(__FILE__) . "/tasks/$task.php";
 ?>
 <div id="ComMgr">
     <div id="subnav">
-        <a href="?comID=<?php echo $activeCom->getId();?>&task=list">Component list</a>
-        <a href="?comID=<?php echo $activeCom->getId();?>&task=install">Install new component</a>
-        <a href="?comID=<?php echo $activeCom->getId();?>&task=options">Options</a>
+        <a href="?comID=<?php echo $activeCom->getId();?>&task=list"><?php lang_echo("commgrUIComList"); ?></a>
+        <a href="?comID=<?php echo $activeCom->getId();?>&task=install"><?php lang_echo("commgrUIInstallCom"); ?></a>
+        <a href="?comID=<?php echo $activeCom->getId();?>&task=options"><?php lang_echo("commgrUIOptions"); ?></a>
     </div>
     <div style="clear: both; font-size: 0; max-height: 1px;">$nbsp;</div>
 <!--%HANDLEROUTPUT%-->

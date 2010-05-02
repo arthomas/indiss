@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-20
+ * @version     2010-05-02
  * @author      Myriam Leggieri <myriam.leggieri@gmail.com>
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Myriam Leggieri, Patrick Lehner
@@ -60,6 +60,9 @@ class Logger {
 	private $name;
 	private $logToFile = true;
 	private $logToDb = true;
+	private $firstEvent = true;    //this remembers if we need to output a separator before logging the first event after creation
+	private $passthrough = false;  //if true, log events will be passed through
+	private $passthroughTo;        //reference(s) to other logger(s) to pass events through to
 	
 	
     //---- Object methods ---------------------------------------------------------------
@@ -76,21 +79,25 @@ class Logger {
      * (int/float) -- no promises though.
      * @return void
      */
-    public function __construct($name, $logToFile = true, $logToDb = true) {
+    public function __construct($name, $logToFile = null, $logToDb = null) {
         if (!is_string($name)) {
             trigger_error("Logger::__construct(): first argument must be of type string", E_USER_WARNING);
             return false;
         }
-        if (!is_bool($logToFile)) {
-            trigger_error("Logger::__construct(): second argument must be of type bool", E_USER_WARNING);
+        if (!(is_bool($logToFile) || is_null($logToFile))) {
+            trigger_error("Logger::__construct(): second argument must be NULL or of type bool", E_USER_WARNING);
             return false;
         }
-        if (!is_bool($logToDb)) {
-            trigger_error("Logger::__construct(): third argument must be of type bool", E_USER_WARNING);
+        if (!(is_bool($logToDb) || is_null($logToDb))) {
+            trigger_error("Logger::__construct(): third argument must be NULL or of type bool", E_USER_WARNING);
             return false;
         }
+        if (is_null($logToFile))
+            $logToFile = (getOptionD("log_to_file", "1") == "0") ? false : true;
+        if (is_null($logToDb))
+            $logToDb = (getOptionD("log_to_db", "0") == "0") ? false : true;
         if ( !$logToFile && !$logToDb ) {
-            trigger_error("Logger::__construct(): this logger will do nothing (log neither to file nor to DB)", E_USER_WARNING);
+            trigger_error("Logger::__construct(): this logger ('$name') will do nothing (log neither to file nor to DB)", E_USER_NOTICE);
         }
         $this->name = $name;
         $this->logToFile = $logToFile;
@@ -119,7 +126,6 @@ class Logger {
                     trigger_error("Logger::__construct(): Cannot create the db table '$tablename'.\nmysql error:".mysql_error(), E_USER_ERROR);
                 }
         }
-        //$this->log("Logger created", "Notice", "--------------------------------------------------------------------------------------");
     }
     
     
@@ -344,6 +350,42 @@ class Logger {
     
     
     // Publicly relevant functions:
+    
+    public function passthrough($enablePassthrough, $passthroughTo = null) {
+        //note: "passthrough" is abbreviated as PT in the comments here
+        if (!is_bool($enablePassthrough)) {
+            trigger_error("Logger::passthrough(): first argument must be of type bool", E_USER_ERROR);
+            return false;
+        }
+        if (is_array($passthroughTo)) {
+            foreach ($passthroughTo as $p) {
+                if (!($p instanceof Logger)) {
+                    trigger_error("Logger::passthrough(): second argument must be NULL, a Logger object or an array of Logger objects", E_USER_ERROR);
+                    return false;
+                }
+            }
+        } else if (!(is_null($passthroughTo) || $passthroughTo instanceof Logger)) {
+            trigger_error("Logger::passthrough(): second argument must be NULL, a Logger object or an array of Logger objects", E_USER_ERROR);
+            return false;
+        }
+        
+        if (!is_null($passthroughTo)) {                 //if a PT target is passed on, save it; otherwise leave target unchanged
+            if (!is_array($passthroughTo)) {
+                $passthroughTo = array($passthroughTo);
+            }
+            $this->passthroughTo = $passthroughTo;
+        }
+        
+        if (!is_null($this->passthroughTo)) {           //if there is a PT target, save the PT-enable status from the argument
+            $this->passthrough = $enablePassthrough;
+        } else {                                        //otherwise disable PT
+            $this->passthrough = false;
+        }
+        
+        //note: the implemented behaviour allows you to temporarily disable PT without forgetting the target
+        
+        return true;
+    }
 	
 	/**
 	 * @desc Log an event.
@@ -353,19 +395,24 @@ class Logger {
 	 * @param $userId
 	 * @return (bool)
 	 */
-	public function log($origin, $type, $message, $userId = 0) {
+	public function log($origin, $type, $message, $userId = null, $PToverride = false) {
         $ret = true;
+        if ($firstEvent) {
+            $firstEvent = false;
+            $this->log("Logger created", "Notice", "--------------------------------------------------------------------------------------", $userId, true);
+        }
         $when = $this->datetimeFormatter();
         global $activeUsr;
-        if ($userId == 0 && !empty($activeUsr))
-            $userId = $activeUsr->getId();
+        if (defined("__USRMAN"))
+            if (isset($activeUsr) && is_null($userId))
+                $userId = $activeUsr->getId();
         if ($this->logToFile) {
             $str = array($when, $userId, $origin, $type, $message);
             $ret = $ret && $this->appendEventToCsv($str);
         }
         if ($this->logToDb) {
             $tablename = self::tablePrefix . $this->name;
-            if ($userId)
+            if (!is_null($userId))
                 $uid = "'$userId'";
             else
                 $uid = "NULL";
@@ -380,13 +427,22 @@ class Logger {
                 $ret = false;
             }
         }
+        if ($this->passthrough && !(is_null($this->passthroughTo)) && !$PToverride) {
+            foreach ($this->passthroughTo as $pt)
+                $pt->log($origin, $type, $message, $userId);
+        }
         return $ret;
 	}
 	
-	public function debuglog($origin, $type, $message, $userId = 0) {
+	public function debuglog($origin, $type, $message, $userId = null) {
 	    global $debug;
-	    if ($debug)
-            return $this->log($origin, "$type", $message, $userId);
+	    if ($debug) {
+            if ($this->passthrough && !(is_null($this->passthroughTo))) {
+                foreach ($this->passthroughTo as $pt)
+                    $pt->debuglog($origin, $type, $message, $userId);
+            }
+            return $this->log($origin, "$type", $message, $userId, true);
+	    }
         else
             return false;
 	}

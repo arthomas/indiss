@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Insert DTD info here! -->
-<language lang="en" version="0.1.1">
-    <item name="usrmanUserManager" value="User manager"/>
-    <item name="usrmanLevelAdmin" value="Administrator"/>
-    <item name="usrmanLevelUser" value="User"/>
-    <item name="usrmanUnameAlreadyExists" value="A user named '%s' already exists"/>
-    <item name="usrmanCreateUserDBError" value="Database error while creating user %s&#10;Database said: %s&#10;Query: &lt;pre&gt;%s&lt;/pre&gt;"/>
-    <item name="usrmanGetDBInsertIDFail" value="Could not retrieve database entry ID"/>
-    <item name="usrmanCreateUserSuccess" value="User '%s' successfully created"/>
+<!--
+    Version:        2010-05-02
+    Author:         Patrick Lehner <lehner.patrick@gmx.de>
+    Copyright:      Copyright (C) 2010 Patrick Lehner 
+ -->
+<language lang="en" version="0.2" for="com_content">
     <item name="conPageManHeadline" value="Content manager"/>
     <item name="conNavList" value="List of content"/>
     <item name="conNavCreate" value="Add new content"/>
