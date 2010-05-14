@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-05-02
+ * @version     2010-05-03
  * @author      Myriam Leggieri <myriam.leggieri@gmail.com>
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Myriam Leggieri, Patrick Lehner
@@ -80,6 +80,7 @@ class Logger {
      * @return void
      */
     public function __construct($name, $logToFile = null, $logToDb = null) {
+        global $db;
         if (!is_string($name)) {
             trigger_error("Logger::__construct(): first argument must be of type string", E_USER_WARNING);
             return false;
@@ -93,9 +94,9 @@ class Logger {
             return false;
         }
         if (is_null($logToFile))
-            $logToFile = (getOptionD("log_to_file", "1") == "0") ? false : true;
+            $logToFile = $db->getBoolOptionD("log_to_file", true);
         if (is_null($logToDb))
-            $logToDb = (getOptionD("log_to_db", "0") == "0") ? false : true;
+            $logToDb = $db->getBoolOptionD("log_to_db", false);
         if ( !$logToFile && !$logToDb ) {
             trigger_error("Logger::__construct(): this logger ('$name') will do nothing (log neither to file nor to DB)", E_USER_NOTICE);
         }

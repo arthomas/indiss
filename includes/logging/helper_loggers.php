@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-05-02
+ * @version     2010-05-14
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Myriam Leggieri, Patrick Lehner
  * @module      
@@ -23,10 +23,10 @@
 defined("__CONFIGFILE") or die("Config file not included [" . __FILE__ . "]");
 defined("__LOGGER") or die("Logger class file not included [" . __FILE__ . "]");
 
-if (!$logDebug) {
+if (!isset($logDebug)) {
     $logDebug = new Logger("debug");
 }
-if (!$logError) {
+if (!isset($logError)) {
     $logError = new Logger("error");
     if ($debug) {
         $logError->passthrough(true, $logDebug);

@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-20
+ * @version     2010-05-03
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
@@ -19,22 +19,9 @@
  */
 
 defined("__MAIN") or die("Restricted access.");
-defined("__CONFIGFILE") or die("Config file not included [database.php]");
+defined("__CONFIGFILE") or die("Config file not included [" . __FILE__ . "]");
 
 define("__DATABASE", 1);
-
-// Open connection to MySQL server
-if(!mysql_connect($dbhost, $dbuser, $dbpass)) { 
-    die("Error: Cannot connect to MySQL server. " . mysql_error());
-}
-
-$dbconnected = true;
-
-// Open the right database
-if(!mysql_select_db($dbname)) { 
-    mysql_close();
-    die("Error: Cannot select database. " . mysql_error());
-}
 
 
 /**
@@ -118,6 +105,140 @@ function db_commit2 ( $query, $errors, $line = 0 ) {
     } else {
         return true;
     }
+}
+
+class MySQLConnection {
+    
+    //---- Class constants --------------------------------------------------------------
+    
+    
+    //---- Static properties ------------------------------------------------------------
+    
+    
+    //---- Object properties ------------------------------------------------------------
+    private $dbhost = "localhost";
+    private $dbuser = "";
+    private $dbpass = "";
+    private $dbname = "";
+    private $lid;                       //MySQL link identifier
+    
+    
+    //---- Static methods ---------------------------------------------------------------
+    
+    
+    //---- Constructors & destructors ---------------------------------------------------
+    
+    public function __construct ($dbhost, $dbuser, $dbpass, $dbname) {
+        $this->dbhost = $dbhost;
+        $this->dbuser = $dbuser;
+        $this->dbpass = $dbpass;
+        $this->dbname = $dbname;
+    }
+    
+    
+    //---- Object methods ---------------------------------------------------------------
+    
+    public function connect() {
+        if (!($this->lid = mysql_connect($this->dbhost, $this->dbuser, $this->dbpass))) {
+            die("Error: Cannot connect to MySQL server. Server said: " . mysql_error());
+        }
+        if (!mysql_select_db($this->dbname)) { 
+            mysql_close($this->lid);
+            die("Error: Cannot select database. Server said: " . mysql_error());
+        }
+    }
+    
+    public function disconnect() {
+        mysql_close($this->lid);
+    }
+    
+    /**
+     * 
+     * @param $tablename
+     * @param $name
+     * @param $default
+     * @return query_result
+     */
+    public function getValueByNameD ($tablename, $name, $default) {
+        $result = mysql_query( "SELECT `value` FROM `$tablename` WHERE `name`='$name'", $this->lid );
+        if (!$result) {
+            return $default;
+        } else {
+            //var_dump($result); echo "\n";
+            if (mysql_num_rows($result) <= 0) {
+                return $default;
+            } else {
+                $rows = mysql_fetch_assoc($result);
+                return $rows["value"];
+            }
+        }
+    }
+    
+    /**
+     * 
+     * @param $tablename
+     * @param $name
+     * @return query_result
+     */
+    public function getValueByName ($tablename, $name) {
+        return $this->getValueByNameD($tablename, $name, null);
+    }
+    
+    /**
+     * 
+     * @param $tablename
+     * @param $id
+     * @return query_result
+     */
+    public function getValueByID ($tablename, $id) {
+        $result = mysql_query( "SELECT `value` FROM `$tablename` WHERE `id`=$id", $this->lid );
+        if (!$result) {
+            return false;
+        } else {
+            if (mysql_num_rows($result) <= 0) {
+                return false;
+            } else {
+                $rows = mysql_fetch_row($result);
+                return $rows[0];
+            }
+        }
+    }
+    
+    public function getOption($name) {
+        return $this->getValueByNameD("global_options", $name, null);
+    }
+    
+    public function getOptionD($name, $default) {
+        return $this->getValueByNameD("global_options", $name, $default);
+    }
+    
+    public function getBoolOption($name) {
+        $r = $this->getValueByNameD("global_options", $name, null);
+        if (!is_null($r)) {
+            if ($r == 0)
+                return false;
+            else
+                return true;
+        } else
+            return null;
+    }
+    
+    public function getBoolOptionD($name, $default) {
+        $r = $this->getValueByNameD("global_options", $name, null);
+        if (!is_null($r)) {
+            if ($r == 0)
+                return false;
+            else
+                return true;
+        } else
+            return $default;
+    }
+    
+}
+
+if (!isset($db)) {
+    $db = new MySQLConnection($dbhost, $dbuser, $dbpass, $dbname);
+    $db->connect();
 }
 	
 

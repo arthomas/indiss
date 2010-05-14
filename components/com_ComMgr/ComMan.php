@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-05-02
+ * @version     2010-05-14
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that holds info about installed components
@@ -291,25 +291,36 @@ class ComMan {
     public static function remove(ComMan $com) {
         global $logDebug, $logError, $handler;
         if ($com->core) {
-            $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrCannotRemoveCom"), $this->dname), LiveErrorHandler::EK_ERROR);
+            $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrCannotRemoveCom"), $com->dname), LiveErrorHandler::EK_ERROR);
             return false;
         }
+        $query = "DELETE FROM `" . self::$dbTable . "` WHERE `id`=$com->id";
+        if (!mysql_query($query)) {
+            $me = mysql_error();
+            $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrRemoveComDBError"), $com->dname, "<i>$me</i>", "<pre>$query</pre>"), LiveErrorHandler::EK_ERROR);
+            $logError->log("Component manager", "Error", "ComMan::remove(): Error while removing component '$com->dname'; Database said: $me; Query: $query");
+            return false;
+        }
+        global $FULL_BASEPATH;
+        include_once ("$FULL_BASEPATH/includes/filesystem/recursiveDelete.php");
+        if (recursiveDelete($FULL_BASEPATH . self::$commonPath . $com->path) === false) {
+            $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrDeletingFilesFailed"), $com->dname), LiveErrorHandler::EK_ERROR);
+            $logError->log("Component manager", "Error", "ComMan::remove(): Error while deleting the files of component '$com->dname'");
+        }
+        unset (self::$components[$com->id]);        //remove the component from the internal array
+        return true;
     }
     
     public static function removeById($id) {
         global $logDebug, $logError, $handler;
         if (!is_int($id)) {
-            trigger_error("ComMan::removeById(): first argument must be of type int", E_USER_WARNING);
+            trigger_error($emsg = "ComMan::removeById(): Argument 1 must be of type int", E_USER_ERROR);
+            $logError->log("Component manager", "Error", $emsg);
             return false;
         }
-        $found = false;
-        foreach (self::$components as $com)
-            if ($com->id == $id) {
-                $found = true;
-                break;
-            }
-        if (!$found) {
-            trigger_error("ComMan::removeById(): component id '$id' was not found", E_USER_WARNING);
+        if (isset(self::$components[$id])) {
+            trigger_error($emsg = "ComMan::removeById(): component ID '$id' was not found", E_USER_ERROR);
+            $logError->log("Component manager", "Error", $emsg);
             return false;
         }
         return remove($com);
@@ -318,7 +329,7 @@ class ComMan {
     public static function removeByIname($iname) {
         global $logDebug, $logError, $handler;
         if (!is_string($iname)) {
-            trigger_error("ComMan::removeByIname(): first argument must be of type string", E_USER_WARNING);
+            trigger_error("ComMan::removeByIname(): Argument 1 must be of type string", E_USER_ERROR);
             return false;
         }
         $found = false;
@@ -328,7 +339,7 @@ class ComMan {
                 break;
             }
         if (!$found) {
-            trigger_error("ComMan::removeByIname(): component named '$iname' was not found", E_USER_WARNING);
+            trigger_error("ComMan::removeByIname(): component named '$iname' was not found", E_USER_ERROR);
             return false;
         }
         return remove($com);

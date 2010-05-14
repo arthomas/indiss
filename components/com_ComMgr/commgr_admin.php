@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-05-02
+ * @version     2010-05-14
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -28,8 +28,8 @@ defined("__LANG") or die("Language file not included [" . __FILE__ . "]");
 defined("__COMMAN") or die("ComMan class not included [" . __FILE__ . "]");
 defined("__USRMAN") or die("UsrMan class not included [" . __FILE__ . "]");
 
-include_once($FULL_BASEPATH . "/includes/error_handling/LiveErrorHandler.php");
-include_once($FULL_BASEPATH . "/includes/logging/Logger.php");
+include_once("$FULL_BASEPATH/includes/error_handling/LiveErrorHandler.php");
+include_once("$FULL_BASEPATH/includes/logging/Logger.php");
 
 $handler = LiveErrorHandler::getLastHandler();
 if (!$handler)

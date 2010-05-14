@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Insert DTD info here! -->
 <!--
-    Version:        2010-05-02
+    Version:        2010-05-03
     Author:         Patrick Lehner <lehner.patrick@gmx.de>
     Copyright:      Copyright (C) 2010 Patrick Lehner 
  -->
@@ -18,14 +18,16 @@
     <item name="commgrComInstallSuccess"        value="Component '%s' successfully installed"/> <!-- %s: component dname -->
     <item name="commgrCannotRemoveCom"          value="Component '%s' cannot be removed"/> <!-- %s: component dname -->
     <item name="commgrCannotDisableCom"         value="Component '%s' cannot be disabled"/> <!-- %s: component dname -->
-    <item name="commgrDisableComDBError"        value="Database error while disabling component '%s' '%s'&#10;Database said: %s&#10;Query: %s"/> <!-- %s: component dname; %s: db error msg (formatted); %s: db query (formatted) -->
-    <item name="commgrEnableComDBError"         value="Database error while enabling component '%s' '%s'&#10;Database said: %s&#10;Query: %s"/> <!-- %s: component dname; %s: db error msg (formatted); %s: db query (formatted) -->
-    <item name="commgrRenameComDBError"         value="Database error while renaming component '%s' '%s'&#10;Database said: %s&#10;Query: %s"/> <!-- %s: component dname; %s: db error msg (formatted); %s: db query (formatted) -->
-    <item name="commgrChangeComPathDBError"     value="Database error while changing path of component '%s' '%s'&#10;Database said: %s&#10;Query: %s"/> <!-- %s: component dname; %s: db error msg (formatted); %s: db query (formatted) -->
+    <item name="commgrDisableComDBError"        value="Database error while disabling component '%s'&#10;Database said: %s&#10;Query: %s"/> <!-- %s: component dname; %s: db error msg (formatted); %s: db query (formatted) -->
+    <item name="commgrEnableComDBError"         value="Database error while enabling component '%s'&#10;Database said: %s&#10;Query: %s"/> <!-- %s: component dname; %s: db error msg (formatted); %s: db query (formatted) -->
+    <item name="commgrRenameComDBError"         value="Database error while renaming component '%s'&#10;Database said: %s&#10;Query: %s"/> <!-- %s: component dname; %s: db error msg (formatted); %s: db query (formatted) -->
+    <item name="commgrChangeComPathDBError"     value="Database error while changing path of component '%s'&#10;Database said: %s&#10;Query: %s"/> <!-- %s: component dname; %s: db error msg (formatted); %s: db query (formatted) -->
+    <item name="commgrRemoveComDBError"         value="Database error while removing component '%s'&#10;Database said: %s&#10;Query: %s"/> <!-- %s: component dname; %s: db error msg (formatted); %s: db query (formatted) -->
     <item name="commgrCannotDuplicateCom"       value="Component '%s' cannot be duplicated"/> <!-- %s: component dname -->
     <item name="commgrComDuplicateSuccess"      value="Component '%s' was successfully duplicated to '%s'"/> <!-- %s: old component dname; %s: duplicate dname -->
     <item name="commgrComDuplicateError"        value="Error while duplicating component '%s'"/> <!-- %s: component dname -->
     <item name="commgrRetrieveComFailed"        value="Could not retrieve component with ID '%s'"/> <!-- %s: component id -->
+    <item name="commgrDeletingFilesFailed"      value="Could not delete all files of component '%s'"/> <!-- %s: component dname -->
     
     <item name="commgrUIComList"                value="Component list"/>
     <item name="commgrUIInstallCom"             value="Install new component"/>
