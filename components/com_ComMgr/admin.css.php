@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-27
+ * @version     2010-05-15
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      component manager UI (backend) style definitions
@@ -217,4 +217,14 @@ div#ComMgr div.buttonbar#buttonbarBottom table td:last-child {
     -moz-border-radius-bottomright: 8px;    /*Firefox*/
     border-bottom-right-radius: 8px;        /*Opera/CSS3*/
     padding-right: 4px;
+}
+
+div#ComMgr form#deleteForm table#delquestion {
+    width: 80%;
+    margin: 0 auto 10px;
+}
+
+div#ComMgr form#deleteForm table#delquestion td.buttoncell {
+    width: 200px;
+    text-align: center;
 }

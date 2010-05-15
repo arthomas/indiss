@@ -28,6 +28,8 @@
     <item name="commgrComDuplicateError"        value="Error while duplicating component '%s'"/> <!-- %s: component dname -->
     <item name="commgrRetrieveComFailed"        value="Could not retrieve component with ID '%s'"/> <!-- %s: component id -->
     <item name="commgrDeletingFilesFailed"      value="Could not delete all files of component '%s'"/> <!-- %s: component dname -->
+    <item name="commgrComDeleteSuccess"         value="Component '%s' was successfully deleted"/> <!-- %s: old component dname; %s: duplicate dname -->
+    <item name="commgrComDeleteError"           value="Error while deleting component '%s'"/> <!-- %s: component dname -->
     
     <item name="commgrUIComList"                value="Component list"/>
     <item name="commgrUIInstallCom"             value="Install new component"/>

@@ -26,5 +26,11 @@
         <filename>files/html/index.html</filename>
         <filename>files/images/index.html</filename>
         <filename>files/templates/index.html</filename>
+        <filename>tasks/index.html</filename>
+        <filename>tasks/_editcreate.php</filename>
+        <filename>tasks/create.php</filename>
+        <filename>tasks/edit.php</filename>
+        <filename>tasks/list.php</filename>
+        <filename>tasks/trash.php</filename>
     </files>
 </install>

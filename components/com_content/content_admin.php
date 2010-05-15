@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-25
+ * @version     2010-05-15
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      content_admin -- HTML page manager (backend)
@@ -28,24 +28,31 @@ defined("__LANG") or die("Language file not included [" . __FILE__ . "]");
 defined("__COMMAN") or die("ComMan class not included [" . __FILE__ . "]");
 defined("__USRMAN") or die("UsrMan class not included [" . __FILE__ . "]");
 
-include_once($FULL_BASEPATH . "/includes/error_handling/LiveErrorHandler.php");
-include_once($FULL_BASEPATH . "/includes/logging/Logger.php");
-
-$handler = LiveErrorHandler::getLastHandler();
-if (!$handler)
-    $handler = LiveErrorHandler::add("ComMan");
-    
-if (!$logError) {
-    $logError = new Logger("error");
-}
-if (!$logDebug) {
-    $logDebug = new Logger("debug");
-}
-
 define("__CONTENT_ADMIN",1);
 
 $itemTable = "com_" . $activeCom->getIname();
 $optionsTable = "com_" . $activeCom->getIname() . "_options";
+//dirty db fix because i have no time to implement a class system for components D:
+if (!$db->tableExists($itemTable))              //evil >:|
+    $db->q("CREATE TABLE `$itemTable` (
+            `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+            `name` VARCHAR( 255 ) NOT NULL ,
+            `url` VARCHAR( 255 ) NOT NULL ,
+            `displaytime` INT NOT NULL ,
+            `start` DATETIME NOT NULL ,
+            `end` DATETIME NOT NULL ,
+            `type` enum('LocalPage','ExternalPage','LocalImage','ExternalImage','LocalPDF','ExternalPDF','LocalFlash','ExternalFlash','LocalOther','ExternalOther','Component','Unknown') NOT NULL DEFAULT 'Unknown' ,
+            `tags` VARCHAR( 255 ) NOT NULL ,
+            `createdBy` INT DEFAULT NULL ,
+            `createdAt` DATETIME NOT NULL ,
+            `modifiedBy` INT DEFAULT NULL ,
+            `modifiedAt` DATETIME DEFAULT NULL ,
+            `enabled` BOOL NOT NULL ,
+            `deleted` BOOL NOT NULL
+            )");
+if (!$db->tableExists($optionsTable)) {
+    $db->createNVTable($optionsTable);
+}
     
     $view = (!isset($_GET["view"])) ? "list" : $_GET["view"];
         

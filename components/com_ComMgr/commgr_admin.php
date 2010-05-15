@@ -72,6 +72,19 @@ if (!empty($_POST["postview"]) && !empty($_POST["affectedIDs"])) {
                     }
                 }   
                 break;
+            case "delete":
+                foreach ($IDs as $ID) {
+                    if (($com = ComMan::getCom((int)$ID, true)) !== false) {    //if the component is there
+                        if (ComMan::remove($com)) {
+                            $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrComDeleteSuccess"), $com->getDname()), LiveErrorHandler::EK_SUCCESS);
+                        } else {
+                            $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrComDeleteError"), $com->getDname()), LiveErrorHandler::EK_ERROR);
+                        }
+                    } else {    //if the component can't be found
+                        $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrRetrieveComFailed"), $ID), LiveErrorHandler::EK_ERROR);
+                    }
+                }
+                break;
             default:
                 break;
         }

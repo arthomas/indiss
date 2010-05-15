@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-05-14
+ * @version     2010-05-15
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -50,26 +50,34 @@ if (empty($coms)) {
 <?php } else { ?>
 <form method="post" action="?comID=<?php echo $activeCom->getId(); ?>" id="deleteForm">
     <input type="hidden" id="postview" name="postview" value="delete" />
-    <input type="hidden" id="affectedIDs" name="affectedIDs" value="unset" />
-    <div id="delquestion">
-        <input type="button" value="Yes, delete them" />
-        <input type="button" value="No, cancel deletion" />
-        Are you sure you want to permanently delete all components listed below? This will remove
-        the component from the database and delete all its files from the file system. This
-        operation cannot be undone!
-    </div>
+    <input type="hidden" id="affectedIDs" name="affectedIDs" value="<?php echo implode(",", $_IDs);?>" />
+    <table id="delquestion" summary="" border="0" cellpadding="0" cellspacing="0">
+        <tbody>
+            <tr>
+                <td rowspan="2">
+                    Are you sure you want to permanently delete all components listed below?
+                    This will remove the component from the database and delete all its files
+                    from the file system. This operation cannot be undone!
+                </td>
+                <td class="buttoncell"><input id="yesbutton" type="submit" value="Yes, delete them" /></td>
+            </tr>
+            <tr>
+                <td class="buttoncell"><input id="nobutton" type="button" value="No, cancel deletion" onclick="location.href('?comID=<?php echo $activeCom->getId(); ?>');" /></td>
+            </tr>
+        </tbody>
+    </table>
     <table summary="" border="0" cellpadding="0" cellspacing="0" id="comlist" class="rleft rright">
         <tbody>
             <tr class="headingRow">
                 <td class="deldname">Component name</td>
                 <td class="deliname">Internal name</td>
-                <td class="delid">ID</td>
+                <td class="id">ID</td>
             </tr>
 <?php foreach ($coms as $com) {?>
             <tr id="row_<?php echo $com->getId(); ?>">
                 <td class="deldname"><?php echo $com->getDname(); ?></td>
                 <td class="deliname"><?php echo $com->getIname(); ?></td>
-                <td class="delid"><?php echo $com->getId();?></td>
+                <td class="id"><?php echo $com->getId();?></td>
             </tr>
 <?php } ?>
         </tbody>
