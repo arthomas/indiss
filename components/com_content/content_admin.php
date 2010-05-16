@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-05-15
+ * @version     2010-05-16
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      content_admin -- HTML page manager (backend)
@@ -132,16 +132,17 @@ if (!$db->tableExists($optionsTable)) {
     }
     switch ($_POST["postview"]) {
         case "create":
+            //TODO: com_content: write createdAt and createdBy to db -- wait until after class design though
             $query = "INSERT INTO `$itemTable` (`name`, `url`, `displaytime`, `start`, `end`, `type`, `enabled`, `deleted`, `tags`)
                         VALUES ";
             $c = 0; //counter for actual number of added pages
-            //var_dump($_POST);
+            //echo "<!-- ";print_r($_POST);echo " -->";
             for ($i = 0; $i < $_POST["new_pages"]; $i++) {
                 if ( !empty($_POST["URL$i"]) && !empty($_POST["tags$i"]) ) {
                     //determine the link type
                     
                     $URL = $_POST["URL$i"];
-                    if ( preg_match('/^http:\/\/[a-zA-Z0-9\.-]+\.[a-zA-Z]{2,5}/i', $URL) ) {
+                    if ( preg_match('/^http:\/\/.*/i', $URL) ) {
                         if ( preg_match('/\.(?:bmp|gif|png|jpg|jpeg|svg)$/i', $URL) ) {
                             $type = "ExternalImage";
                         } else if ( preg_match('/\.(?:html|html|php|shtml)$/i', $URL) ) {

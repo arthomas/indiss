@@ -3,15 +3,15 @@
 <install type="component">
     <name>Content</name>
     <comName>com_content</comName>
+    <type>content</type>
     <created>2009-09-11</created>
     <author>Patrick Lehner</author>
     <authorEmail>lehner.patrick@gmx.de</authorEmail>
     <authorUrl>http://indiss.sourceforge.net</authorUrl>
     <copyright>Copyright (C) 2009-2010 Patrick Lehner</copyright>
     <license>GNU GPLv3</license>
-    <version>0.1.0</version>
+    <version>0.2</version>
     <description>A component which can display all kinds of web content (HTML pages, images, flash files, PDF files) as well as other components.</description>
-    <hasFrontend>yes</hasFrontend>
     <files>
         <filename>index.html</filename>
         <filename>install.xml</filename>

@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-05-14
+ * @version     2010-05-16
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that holds info about installed components
@@ -50,7 +50,6 @@ class ComMan {
     private $id = 0;
     private $installed = false;
     private $enabled = false;
-    private $hasFrontend = false;   //means that this component has a frontend -- important for admin-only components
     private $oneOfAKind = false;    //means that this component cannot be duplicated
     private $alwaysOn = false;      //means that this component cannot be disabled
     private $core = false;          //means that this component cannot be removed
@@ -150,7 +149,7 @@ class ComMan {
         }
         if (!empty($rows)) {        //lest we "provide an illegal argument to foreach"
             foreach ($rows as $row) {
-                $com = new ComMan($row["id"], $row["dname"], $row["iname"], $row["comName"], $row["installedAt"], $row["installedBy"], $row["path"], $row["enabled"], $row["hasFrontend"], $row["oneOfAKind"], $row["alwaysOn"], $row["core"]);
+                $com = new ComMan($row["id"], $row["dname"], $row["iname"], $row["comName"], $row["installedAt"], $row["installedBy"], $row["path"], $row["enabled"], $row["oneOfAKind"], $row["alwaysOn"], $row["core"]);
                 self::$components[(int)$row["id"]] = $com;
             }
         } else {
@@ -223,14 +222,13 @@ class ComMan {
             $handler->addMsg(lang("commgrComponentManager"), lang("commgrXMLNotACom") . " ($source/install.xml)", LiveErrorHandler::EK_ERROR);
             return false;
         }
-        if ( !(bool)$xml->comName || !(bool)$xml->version || !(bool)$xml->description || !(bool)$xml->hasFrontend || !(bool)$xml->files || count($xml->files->filename) < 1 ) {
+        if ( !(bool)$xml->comName || !(bool)$xml->version || !(bool)$xml->description || !(bool)$xml->files || count($xml->files->filename) < 1 ) {
             $handler->addMsg(lang("commgrComponentManager"), lang("commgrXMLNotValidComInfo") . " ($source/install.xml)", LiveErrorHandler::EK_ERROR);
             return false;
         }
         $comName = (string)$xml->comName;
         $version = (string)$xml->version;
         $desc = (string)$xml->description;
-        $hasFrontend = (strtolower((string)$xml->hasFrontend) == "yes") ? true : false;
         $files = $xml->files->filename;
         $dest = rtrim($dest, "/\\");
         if (empty($iname))
@@ -270,8 +268,8 @@ class ComMan {
             if (isset($activeUsr))
                 $installedBy = $activeUsr->getId();
         
-        $query = "INSERT INTO `" . self::$dbTable . "` (`dname`, `iname`, `comName`, `installedAt`, `installedBy`, `path`, `enabled`, `hasFrontend`) 
-            VALUES ('$dname', '$iname', '$comName', '$installedAt', $installedBy, '$dest', TRUE, $hasFrontend)";
+        $query = "INSERT INTO `" . self::$dbTable . "` (`dname`, `iname`, `comName`, `installedAt`, `installedBy`, `path`, `enabled`) 
+            VALUES ('$dname', '$iname', '$comName', '$installedAt', $installedBy, '$dest', TRUE)";
         if (!mysql_query($query)) {
             $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrComInstallDBError"), $dname, "<i>".mysql_error()."</i>", "<pre>$query</pre>"), LiveErrorHandler::EK_ERROR);
             return false;
@@ -281,7 +279,7 @@ class ComMan {
             return false;
         }
         
-        $com = new ComMan($id, $dname, $iname, $comName, $installedAt, ($installedBy == "NULL") ? null : $installedBy, $dest, true, $hasFrontend);
+        $com = new ComMan($id, $dname, $iname, $comName, $installedAt, ($installedBy == "NULL") ? null : $installedBy, $dest, true);
         self::$components[(int)$id] = $com;
         
         //$handler->addMsg("Component manager", "Component $dname successfully installed", LiveErrorHandler::EK_SUCCESS);
@@ -348,7 +346,7 @@ class ComMan {
     
     //---- Constructors & destructors ---------------------------------------------------
     
-    private function __construct($id, $dname, $iname, $comName, $installedAt, $installedBy, $path, $enabled = true, $hasFrontend = true, $oneOfAKind = false, $alwaysOn = false, $core = false) {
+    private function __construct($id, $dname, $iname, $comName, $installedAt, $installedBy, $path, $enabled = true, $oneOfAKind = false, $alwaysOn = false, $core = false) {
         $this->id = $id;
         $this->dname = $dname;
         $this->iname = $iname;
@@ -357,7 +355,6 @@ class ComMan {
         $this->installedBy = $installedBy;
         $this->path = $path;
         $this->enabled = $enabled;
-        $this->hasFrontend = $hasFrontend;
         $this->oneOfAKind = $oneOfAKind;
         $this->alwaysOn = $alwaysOn;
         $this->core = $core;
@@ -372,10 +369,16 @@ class ComMan {
     }
     
     public function hasFrontend() {
-        return $this->hasFrontend;
+        return file_exists($this->getFullPath() . "/main.php");
+    }
+    
+    public function hasBackend() {
+        return file_exists($this->getFullPath() . "/admin.php");
     }
     
     public function isOneOfAKind() {
+        if (!file_exists($this->getFullPath() . "/install.xml"))
+            return true;
         return $this->oneOfAKind;
     }
     
