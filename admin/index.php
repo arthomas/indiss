@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-05-02
+ * @version     2010-05-16
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Backend main page
@@ -31,7 +31,7 @@ include_once($FULL_BASEPATH . "/includes/logging/Logger.php");
 include_once($FULL_BASEPATH . "/includes/logging/helper_loggers.php");
 
 //load additional options into variables for convenience
-$defaultlang = getOptionD("default_lang", "en");
+$defaultlang = $db->getOption("default_lang", "en");
 
 session_name("INDISSAdmin");
 session_start();
@@ -118,6 +118,7 @@ ComMan::readDB("components");
             } else {
                 $component = $_comlist["overview"];
                 $handler->addMsg("Components", "Invalid component ID", LiveErrorHandler::EK_ERROR);
+                $logDebug->debuglog("Main", "Error", "User requested invalid component ID '" . $_GET["comID"] . "'");
             }
         } else {
         	    if (!isset($_GET["component"]))
@@ -126,6 +127,7 @@ ComMan::readDB("components");
         		    $component = $_comlist[$_GET["component"]];
         			if (!isset($_comlist[$_GET["component"]]) || !file_exists($component)) {
         			    $message .= lang("errComNotFound") . "<br />\n";
+                        $logDebug->debuglog("Main", "Error", "User requested component '" . $_GET["component"] . "', file '$component'");
         			    $component = $_comlist["overview"];
         			}
         		}
@@ -181,7 +183,7 @@ ComMan::readDB("components");
                 </form>
             </div>
             <div id="topBarSitename" class="topBarLeft"><?php echo $sitename; ?> Administration</div>
-            <?php if ($activeUsr) { ?><div id="topBarUser" class="topBarLeft">Logged in as: <?php echo $_SESSION['username'];?></div>
+            <?php if ($activeUsr) { ?><div id="topBarUser" class="topBarLeft">Logged in as: <?php echo $activeUsr->getUname();?></div>
             <div id="topBarMenu" class="topBarLeft"><a href="?component=overview">Overview</a></div><?php } ?> 
             <div class="topBarContent">&nbsp;</div>
         </div>

@@ -1,13 +1,15 @@
 <?php
 /**
- * @version     2009-09-10
+ * @version     2010-05-18
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
- * @module      TEMPORARY component list
+ * @module      Evil haxx while the component model is still in development X|
  * 
  * @note        This serves as a work-around while the components are both in /admin/components and
  *              /components/com_xxxx ; this file and its used should be removed once migration to
  *              the latter is complete.
+ * @note        as of r103 this also serves as a work-around for the upcoming class-based component
+ *              model
  *
  * @license     This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU General Public License as published by
@@ -28,8 +30,8 @@
     defined("__MAIN") or die("Restricted access.");
  
     // new
-    $_comlist["tickers"]        = "../components/com_tickers/admin.php";
-    $_comlist["content"]        = "../components/com_content/admin.php";
+    //$_comlist["tickers"]        = "../components/com_tickers/admin.php";
+    //$_comlist["content"]        = "../components/com_content/admin.php";
     
     //old
     $_comlist["comtest"]        = "components/comtest.php";
@@ -39,6 +41,7 @@
     $_comlist["registeruser"]   = "components/registeruser.php";
     $_comlist["settings"]       = "components/settings.php";
     $_comlist["substtable"]     = "components/substtable.php";
+    $_comlist["prefsui"]        = "$FULL_BASEPATH/includes/pref_ui.php";
     
 
 ?>

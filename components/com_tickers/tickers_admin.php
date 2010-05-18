@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-02-25
+ * @version     2010-05-16
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      tickers_admin -- Ticker Manager (backend)
@@ -18,7 +18,16 @@
  *              You should have received a copy of the GNU General Public License
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-    defined("__MAIN") or die("Restricted access.");
+defined("__MAIN") or die("Restricted access.");
+
+defined("__CONFIGFILE") or die("Config file not included [" . __FILE__ . "]");
+defined("__DIRAWARE") or die("Directory awareness not included [" . __FILE__ . "]");
+defined("__DATABASE") or die("Database connection not included [" . __FILE__ . "]");
+defined("__LANG") or die("Language file not included [" . __FILE__ . "]");
+defined("__COMMAN") or die("ComMan class not included [" . __FILE__ . "]");
+defined("__USRMAN") or die("UsrMan class not included [" . __FILE__ . "]");
+
+define("__TICKERS_ADMIN",1);
     
     $view = (!isset($_GET["view"])) ? "list" : $_GET["view"];
         
@@ -214,15 +223,15 @@
     
     
     
-
-    
     
     /*Some functions*/
     function tickermanNavLink($_view, $name) {
-        echo ($_view == $GLOBALS["view"]) ? "<span style=\"font-weight: bold;\">$name</span>" : "<a href=\"?component=tickers&view=$_view\">$name</a>";
+        echo ($_view == $GLOBALS["view"]) ? "<span style=\"font-weight: bold;\">$name</span>" : "<a href=\"?comID=" . $GLOBALS["activeCom"]->getId() . "&view=$_view\">$name</a>";
     }
     
     function tickermanOutputList($list, $indent=0, $withselect=1) {
+        global $activeCom;
+        $comID = $activeCom->getId();
         for ($i = 0; $i < $indent; $i++) $output .= " ";
         if  (!isset($GLOBALS[$list]))
             echo $output . "<tr class=\"none\"><td colspan=\"" . (($withselect == 2) ? 8 : 7) . "\">". lang("genNone") . "</td></tr>\n";
@@ -237,15 +246,15 @@
                 switch ($withselect) {
                     case 1:
                         $output .=
-                            "<td class=\"tEdit\"><a href=\"?component=tickers&view=edit&id=$value->id\" title=\"" . lang("ticEdit") . "\">" . lang("ticEditShort") . "</a></td>" .
-                            "<td class=\"tDelete\"><a href=\"?component=tickers&view=delete&id=$value->id\" title=\"" . lang("ticDelete") . "\">" . lang("ticDeleteShort") . "</a></td>" .
+                            "<td class=\"tEdit\"><a href=\"?comID=$comID&view=edit&id=$value->id\" title=\"" . lang("ticEdit") . "\">" . lang("ticEditShort") . "</a></td>" .
+                            "<td class=\"tDelete\"><a href=\"?comID=$comID&view=delete&id=$value->id\" title=\"" . lang("ticDelete") . "\">" . lang("ticDeleteShort") . "</a></td>" .
                             "<td class=\"tCheck\"><input type=\"checkbox\" name=\"$value->id\" title=\"" . lang("ticSelectMultiple") . "\"></td>";
                         break;
                     case 2:
                         $output .=
-                            "<td class=\"tEdit\"><a href=\"?component=tickers&view=edit&id=$value->id\" title=\"" . lang("ticEdit") . "\">" . lang("ticEditShort") . "</a></td>" .
-                            "<td class=\"tRestore\"><a href=\"?component=tickers&view=restore&id=$value->id\" title=\"" . lang("ticRestore") . "\">" . lang("ticRestoreShort") . "</a></td>" .
-                            "<td class=\"tDelete\"><a href=\"?component=tickers&view=delete2&id=$value->id\" title=\"" . lang("ticDelete2") . "\">" . lang("ticDelete2Short") . "</a></td>" .
+                            "<td class=\"tEdit\"><a href=\"?comID=$comID&view=edit&id=$value->id\" title=\"" . lang("ticEdit") . "\">" . lang("ticEditShort") . "</a></td>" .
+                            "<td class=\"tRestore\"><a href=\"?comID=$comID&view=restore&id=$value->id\" title=\"" . lang("ticRestore") . "\">" . lang("ticRestoreShort") . "</a></td>" .
+                            "<td class=\"tDelete\"><a href=\"?comID=$comID&view=delete2&id=$value->id\" title=\"" . lang("ticDelete2") . "\">" . lang("ticDelete2Short") . "</a></td>" .
                             "<td class=\"tCheck\"><input type=\"checkbox\" name=\"$value->id\" title=\"" . lang("ticSelectMultiple") . "\" /></td>";
                         break;
                 }
@@ -271,11 +280,11 @@
 
 if ($view == "list") { ?>
                 <fieldset id="tickerList"><legend><?php lang_echo("ticExistingTickers");?></legend>
-                    <form id="tickerListForm" action="?component=tickers" method="post">
+                    <form id="tickerListForm" action="?comID=<?php echo $activeCom->getId(); ?>" method="post">
                         <div id="tickerListButtons">
                             <input type="hidden" name="postview" value="unset" id="postview" />
-                            <input type="submit" value="<?php lang_echo("ticEditSelected");?>" onclick="this.form.action = './?component=tickers&view=edit'; document.getElementById('postview').value = 'multiEdit';" />
-                            <input type="submit" value="<?php lang_echo("ticDeleteSelected");?>" onclick="this.form.action = './?component=tickers&view=delete'; document.getElementById('postview').value = 'multiDelete';" />
+                            <input type="submit" value="<?php lang_echo("ticEditSelected");?>" onclick="this.form.action = this.form.action + '&view=edit'; document.getElementById('postview').value = 'multiEdit';" />
+                            <input type="submit" value="<?php lang_echo("ticDeleteSelected");?>" onclick="this.form.action = this.form.action + '&view=delete'; document.getElementById('postview').value = 'multiDelete';" />
                         </div>
                         <table id="tickers">
                             <thead>
@@ -294,8 +303,8 @@ if ($view == "list") { ?>
                             </tfoot>
                         </table>
                         <div id="tickerListButtons">
-                            <input type="submit" value="<?php lang_echo("ticEditSelected");?>" onclick="this.form.action = './?component=tickers&view=edit'; document.getElementById('postview').value = 'multiEdit';" />
-                            <input type="submit" value="<?php lang_echo("ticDeleteSelected");?>" onclick="this.form.action = './?component=tickers&view=delete'; document.getElementById('postview').value = 'multiDelete';" />
+                            <input type="submit" value="<?php lang_echo("ticEditSelected");?>" onclick="this.form.action = this.form.action + '&view=edit'; document.getElementById('postview').value = 'multiEdit';" />
+                            <input type="submit" value="<?php lang_echo("ticDeleteSelected");?>" onclick="this.form.action = this.form.action + '&view=delete'; document.getElementById('postview').value = 'multiDelete';" />
                         </div>
                     </form>
                 </fieldset>
@@ -307,7 +316,7 @@ else if ($view == "create") {
     $new_tickers = (isset($_POST["new_tickers"])) ? $_POST["new_tickers"] : 2 ;
 ?>
                 <div id="tickerCreateTop">
-                    <form id="tickerCreateRestartForm" action="?component=tickers&view=create" method="post">
+                    <form id="tickerCreateRestartForm" action="?comID=<?php echo $activeCom->getId(); ?>&view=create" method="post">
                         <?php lang_echo("ticReloadCreate1");?> 
                         <select name="new_tickers" onchange="this.form.submit();">
 <?php foreach (array(1,2,3,4,5,10,15,20,30,40,50) as $value) {
@@ -351,7 +360,7 @@ else if ($view == "create") {
                     }
                 }
                 </script>
-                <form id="tickerCreateForm" action="?component=tickers&view=list" method="post">
+                <form id="tickerCreateForm" action="?comID=<?php echo $activeCom->getId(); ?>&view=list" method="post">
                     <input type="hidden" name="postview" value="create" />
                     <div id="tickerCreateButtonBar"><input type="submit" value="<?php lang_echo("genSave");?>" /></div>
                     <input type="hidden" name="new_tickers" value="<?php echo $new_tickers; ?>" />
@@ -434,7 +443,7 @@ else if ($view == "create") {
 
 else if (($view == "delete") || ($view == "delete2")) { ?>
                 <div id="tickerDeleteTop">
-                    <form id="tickerDeleteForm" action="?component=tickers<?php if ($view == "delete2") echo "&view=deleted"; ?>" method="post">
+                    <form id="tickerDeleteForm" action="?comID=<?php echo $activeCom->getId(); if ($view == "delete2") echo "&view=deleted"; ?>" method="post">
                         <div id="tickerDeleteButtonBar">
                             <input type="hidden" name="postview" value="unset" id="postview" />
                             <input type="submit" value="<?php lang_echo("ticYesReallyDelete");?>" onclick="document.getElementById('postview').value = '<?php echo ($view == "delete") ? "recycleYes" : "deletePermYes"; ?>';" />
@@ -461,12 +470,12 @@ else if (($view == "delete") || ($view == "delete2")) { ?>
 
 else if ($view == "deleted") { ?>
                 <fieldset id="tickerDeleted"><legend><?php lang_echo("ticTrashBin");?></legend>
-                    <form id="tickerListForm" action="?component=tickers" method="post">
+                    <form id="tickerListForm" action="?comID=<?php echo $activeCom->getId(); ?>" method="post">
                         <div id="tickerListButtons">
                             <input type="hidden" name="postview" value="unset" id="postview" />
-                            <input type="submit" value="<?php lang_echo("ticEditSelected");?>" onclick="this.form.action = './?component=tickers&view=edit'; document.getElementById('postview').value = 'multiEdit';" />
-                            <input type="submit" value="<?php lang_echo("ticRestoreSelected");?>" onclick="this.form.action = './?component=tickers&view=restore'; document.getElementById('postview').value = 'multiRestore';" />
-                            <input type="submit" value="<?php lang_echo("ticDelete2Selected");?>" onclick="this.form.action = './?component=tickers&view=delete2'; document.getElementById('postview').value = 'multiDelete';" />
+                            <input type="submit" value="<?php lang_echo("ticEditSelected");?>" onclick="this.form.action = this.form.action + '&view=edit'; document.getElementById('postview').value = 'multiEdit';" />
+                            <input type="submit" value="<?php lang_echo("ticRestoreSelected");?>" onclick="this.form.action = this.form.action + '&view=restore'; document.getElementById('postview').value = 'multiRestore';" />
+                            <input type="submit" value="<?php lang_echo("ticDelete2Selected");?>" onclick="this.form.action = this.form.action + '&view=delete2'; document.getElementById('postview').value = 'multiDelete';" />
                         </div>
                         <table id="tickers">
                             <thead>
@@ -477,9 +486,9 @@ else if ($view == "deleted") { ?>
                             </tbody> 
                         </table>
                         <div id="tickerListButtons">
-                            <input type="submit" value="<?php lang_echo("ticEditSelected");?>" onclick="this.form.action = './?component=tickers&view=edit'; document.getElementById('postview').value = 'multiEdit';" />
-                            <input type="submit" value="<?php lang_echo("ticRestoreSelected");?>" onclick="this.form.action = './?component=tickers&view=restore'; document.getElementById('postview').value = 'multiRestore';" />
-                            <input type="submit" value="<?php lang_echo("ticDelete2Selected");?>" onclick="this.form.action = './?component=tickers&view=delete2'; document.getElementById('postview').value = 'multiDelete';" />
+                            <input type="submit" value="<?php lang_echo("ticEditSelected");?>" onclick="this.form.action = this.form.action + '&view=edit'; document.getElementById('postview').value = 'multiEdit';" />
+                            <input type="submit" value="<?php lang_echo("ticRestoreSelected");?>" onclick="this.form.action = this.form.action + '&view=restore'; document.getElementById('postview').value = 'multiRestore';" />
+                            <input type="submit" value="<?php lang_echo("ticDelete2Selected");?>" onclick="this.form.action = this.form.action + '&view=delete2'; document.getElementById('postview').value = 'multiDelete';" />
                         </div>
                     </form>
                 </fieldset>
@@ -488,9 +497,9 @@ else if ($view == "deleted") { ?>
 //----EDIT------------------------------------------------------------------------------------------------------------------------------------------
 
 else if ($view == "edit") { ?>
-                <form id="tickerEditForm" action="?component=tickers&view=list" method="post">
+                <form id="tickerEditForm" action="?comID=<?php echo $activeCom->getId(); ?>&view=list" method="post">
                     <input type="hidden" name="postview" value="edit" />
-                    <div id="tickerEditButtonBar"><input type="submit" value="<?php lang_echo("genSave"); ?>" /><input type="button" value="<?php lang_echo("genCancel"); ?>" onclick="window.location.href = '?component=tickers';" /></div>
+                    <div id="tickerEditButtonBar"><input type="submit" value="<?php lang_echo("genSave"); ?>" /><input type="button" value="<?php lang_echo("genCancel"); ?>" onclick="window.location.href = '?comID=<?php echo $activeCom->getId(); ?>';" /></div>
                     <input type="hidden" name="editcount" value="<?php echo $editcount; ?>" />
                     <table id="tickerEditContainerTable" summary="" border="0" cellpadding="2" cellspacing="0">
                         <tbody>

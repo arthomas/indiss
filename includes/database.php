@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-05-15
+ * @version     2010-05-16
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
@@ -107,6 +107,11 @@ function db_commit2 ( $query, $errors, $line = 0 ) {
     }
 }
 
+/**
+ * Connection to MySQL server and according utility functions.
+ * @author Patrick Lehner
+ *
+ */
 class MySQLConnection {
     
     //---- Class constants --------------------------------------------------------------
@@ -138,6 +143,12 @@ class MySQLConnection {
     
     //---- Object methods ---------------------------------------------------------------
     
+    /**
+     * Connect to the MySQL server.
+     * Connects using the entered connection data and selects the entered database. Will
+     * call die() upon error.
+     * @return void
+     */
     public function connect() {
         if (!($this->lid = mysql_connect($this->dbhost, $this->dbuser, $this->dbpass))) {
             die("Error: Cannot connect to MySQL server. Server said: " . mysql_error());
@@ -148,8 +159,13 @@ class MySQLConnection {
         }
     }
     
+    /**
+     * Close the connection to the MySQL server.
+     * This function is a wrapper for mysql_close() and returns its return value.
+     * @return bool True on success or false on failure.
+     */
     public function disconnect() {
-        mysql_close($this->lid);
+        return mysql_close($this->lid);
     }
     
     /**
@@ -242,13 +258,15 @@ class MySQLConnection {
     }
     
     /**
-     * 
-     * @param $tablename
-     * @param $name
-     * @param $default
-     * @return query_result
+     * Get the value for a name from a name-value table
+     * @param string $tablename The table to read from
+     * @param string $name The name of the entry to read
+     * @param mixed $default The default value which is returned upon
+     * error (or when there is no such db entry). Defaults to NULL.
+     * @return mixed Returns the retrieved value on success, or $default
+     * on failure
      */
-    public function getValueByNameD ($tablename, $name, $default) {
+    public function getValueByName ($tablename, $name, $default = null) {
         $result = mysql_query( "SELECT `value` FROM `$tablename` WHERE `name`='$name'", $this->lid );
         if (!$result) {
             return $default;
@@ -264,20 +282,11 @@ class MySQLConnection {
     }
     
     /**
-     * 
-     * @param $tablename
-     * @param $name
-     * @return query_result
-     */
-    public function getValueByName ($tablename, $name) {
-        return $this->getValueByNameD($tablename, $name, null);
-    }
-    
-    /**
-     * 
-     * @param $tablename
-     * @param $id
-     * @return query_result
+     * Get the value for an ID from a name-value table
+     * @param string $tablename The table to read from
+     * @param int $id The entry ID to read
+     * @return mixed Returns the retrieved value on success, or boolean false
+     * on failure.
      */
     public function getValueByID ($tablename, $id) {
         $result = mysql_query( "SELECT `value` FROM `$tablename` WHERE `id`=$id", $this->lid );
@@ -293,27 +302,29 @@ class MySQLConnection {
         }
     }
     
-    public function getOption($name) {
-        return $this->getValueByNameD("global_options", $name, null);
+    /**
+     * Get a value from the 'global_options' table
+     * @param string $name The name of the entry to read
+     * @param mixed $default The default value which is returned upon
+     * error (or when there is no such db entry). Defaults to NULL.
+     * @return mixed Returns the retrieved value on success, or $default
+     * on failure
+     */
+    public function getOption($name, $default = null) {
+        return $this->getValueByName("global_options", $name, $default);
     }
     
-    public function getOptionD($name, $default) {
-        return $this->getValueByNameD("global_options", $name, $default);
-    }
-    
-    public function getBoolOption($name) {
-        $r = $this->getValueByNameD("global_options", $name, null);
-        if (!is_null($r)) {
-            if ($r == 0)
-                return false;
-            else
-                return true;
-        } else
-            return null;
-    }
-    
-    public function getBoolOptionD($name, $default) {
-        $r = $this->getValueByNameD("global_options", $name, null);
+    /**
+     * Get a boolean value from the 'global_options' table.
+     * This functions provides proper bool casting to shorten calls.
+     * @param string $name The name of the entry to read
+     * @param bool $default The default value which is returned upon
+     * error (or when there is no such db entry). Defaults to false.
+     * @return mixed Returns the retrieved value on success, or $default
+     * on failure
+     */
+    public function getBoolOption($name, $default = false) {
+        $r = $this->getValueByName("global_options", $name, null);
         if (!is_null($r)) {
             if ($r == 0)
                 return false;
@@ -323,7 +334,7 @@ class MySQLConnection {
             return $default;
     }
     
-}
+} //end of class MySQLConnection
 
 if (!isset($db)) {
     $db = new MySQLConnection($dbhost, $dbuser, $dbpass, $dbname);

@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-19
+ * @version     2010-05-18
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
@@ -24,12 +24,13 @@
                     <li><strong>Global:</strong>
                         <ul>
                             <li><a href="?component=settings">General settings</a> <i>WIP</i></li>
+                            <li><a href="?component=prefsui">Preferences UI</a></li>
                         </ul>
                     </li>
                     <li><strong>Components:</strong>
                         <ul>
 <?php foreach (ComMan::$components as $com) { $v = $com->getPath(); ?>
-                            <li><?php if ($com->isEnabled() && !empty($v)) echo "<a href=\"?comID=" . $com->getId() . "\">" ; echo $com->getDname(); if ($com->isEnabled() && !empty($v)) echo "</a>"; ?> <i>(<?php echo $com->getComName(); ?>)</i></li>
+                            <li><?php if ($com->isEnabled() && $com->hasBackend() && !empty($v)) echo "<a href=\"?comID=" . $com->getId() . "\">" ; echo $com->getDname(); if ($com->isEnabled() && !empty($v)) echo "</a>"; ?> <i>(<?php echo $com->getComName(); ?>)</i></li>
 <?php } ?>
                         </ul>
                     </li>

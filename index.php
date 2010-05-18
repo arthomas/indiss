@@ -30,7 +30,7 @@ $logError = new Logger("error");
 $logDebug = new Logger("debug");
 
 //i18n
-$lang = getOptionD("frontend_lang", getOptionD("default_lang", "en"));
+$lang = $db->getOption("frontend_lang", $db->getOption("default_lang", "en"));
 include($FULL_BASEPATH . "/lang/lang.php");
 
 include_once($FULL_BASEPATH . "/components/com_ComMgr/ComMan.php");

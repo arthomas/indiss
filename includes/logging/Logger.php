@@ -94,9 +94,9 @@ class Logger {
             return false;
         }
         if (is_null($logToFile))
-            $logToFile = $db->getBoolOptionD("log_to_file", true);
+            $logToFile = $db->getBoolOption("log_to_file", true);
         if (is_null($logToDb))
-            $logToDb = $db->getBoolOptionD("log_to_db", false);
+            $logToDb = $db->getBoolOption("log_to_db", false);
         if ( !$logToFile && !$logToDb ) {
             trigger_error("Logger::__construct(): this logger ('$name') will do nothing (log neither to file nor to DB)", E_USER_NOTICE);
         }
