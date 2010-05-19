@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-05-16
+ * @version     2010-05-19
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
@@ -176,8 +176,24 @@ class MySQLConnection {
     public function q($query) {
         return mysql_query($query, $this->lid);
     }
+    /**
+     * Wrapper for mysql_query()
+     * @param string $query The MySQL query
+     * @return mixed The return value of the query; see php manual for more info
+     */
+    public function query($query) {
+        return mysql_query($query, $this->lid);
+    }
     
-    
+    /**
+     * Get the tables of the selected database as an array
+     * @param string $pattern The pattern to which to compare the table names; this is a
+     * MySQL simple regex; refer to MySQL docs for more info. Argument defaults to null
+     * which means that the pattern part of the query is left out.
+     * @param bool $silent True to suppress error messages; defaults to false.
+     * @return bool Returns the list of tables in an array (may be empty) on success, or
+     * boolean false on database error.
+     */
     public function getTables($pattern = null, $silent = false) {
         $query = "SHOW TABLES";
         if (!is_null($pattern) && is_string($pattern))
@@ -196,7 +212,7 @@ class MySQLConnection {
     }
     
     /**
-     * Gets the number of tables.
+     * Get the number of tables.
      * Gets the number of tables that match a pattern (or all tables
      * if $pattern is empty). If $silent is false, the sub-call to
      * getTables() will report an occurring error via trigger_error().
@@ -337,7 +353,9 @@ class MySQLConnection {
 } //end of class MySQLConnection
 
 if (!isset($db)) {
+    //create the new db object and give it the connection data
     $db = new MySQLConnection($dbhost, $dbuser, $dbpass, $dbname);
+    //connect to database
     $db->connect();
 }
 	

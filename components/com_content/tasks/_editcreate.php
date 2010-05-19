@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-13
+ * @version     2010-05-19
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -136,7 +136,7 @@ if ( $create ) {
 <?php  $item_count = ($create) ? $new_pages : $editcount; //move the two relevant count variables into a common one ?>
                 <form id="contentCreateForm" action="?comID=<?php echo $activeCom->getId();?>&view=list" method="post">
                     <input type="hidden" name="postview" value="<?php echo $view; //this will output either 'create' or 'edit' ?>" />
-                    <div id="contentCreateButtonBar"><input type="submit" value="<?php lang_echo("genSave");?>" /><input type="button" value="<?php lang_echo("genCancel"); ?>" onclick="window.location.href='index.php?component=content'" /></div>
+                    <div id="contentCreateButtonBar"><input type="submit" value="<?php lang_echo("genSave");?>" /><input type="button" value="<?php lang_echo("genCancel"); ?>" onclick="window.location.href='index.php?comID=<?php echo $activeCom->getId(); ?>'" /></div>
                     <input type="hidden" name="<?php echo ($create) ? "new_pages" : "editcount" ; ?>" value="<?php echo $item_count; ?>" />
                     <table id="contentCreateContainerTable" summary="" border="0" cellpadding="2" cellspacing="0">
                         <tbody>
@@ -159,7 +159,7 @@ if ( $create ) {
                                             </tr>
                                             <tr><td><label for="URL<?php echo $i;?>"><?php lang_echo("conURL");?>:</label></td><td><input type="text" class="URLInput" name="URL<?php echo $i;?>" id="URL<?php echo $i;?>" onchange="determineType(this, <?php echo $i; ?>);" <?php if ($edit) { echo 'value="' . $toEdit[$i]->url . '" '; } ?>/></td></tr>
                                             <tr><td><label for="disptime<?php echo $i;?>"><?php lang_echo("conDispTime"); ?>:</label></td><td><input type="text" class="timeInput" name="disptime<?php echo $i;?>" onchange="checkDispTime(this, <?php echo $i; ?>);" value="<?php echo ($edit) ? $toEdit[$i]->displaytime : getValueByNameD("com_content_options", "default_display_time", 120); ?>" />s</td></tr>
-                                            <tr><td><label for="tags<?php echo $i;?>"><?php lang_echo("conTags"); ?>:</label></td><td><input type="text" class="tagsInput" name="tags<?php echo $i;?>" value="<?php echo ($edit) ? $toEdit[$i]->tags : "default"; ?>" /></td></tr>
+                                            <tr><td><label for="tags<?php echo $i;?>"><?php lang_echo("conTags"); ?>:</label></td><td><input type="text" class="tagsInput" name="tags<?php echo $i;?>" value="<?php echo (($edit) ? $toEdit[$i]->tags : "default"); ?>" /></td></tr>
                                             <tr>
                                                 <td class="vertMiddle"><label><?php lang_echo("conDispFrom");?>:</label></td>
                                                 <td rowspan="2">

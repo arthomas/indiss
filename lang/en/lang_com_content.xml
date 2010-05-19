@@ -83,5 +83,6 @@
     <item name="conThisIsExternalFlash" value="This is an external flash file."/>
     <item name="conThisIsLocalOther" value="This is a local link (type not recognized)."/>
     <item name="conThisIsExternalOther" value="This is an external link (type not recognized)."/>
+    <item name="conTags" value="Tags" />
 </language>
 

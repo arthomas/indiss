@@ -271,8 +271,8 @@ define("__TICKERS_ADMIN",1);
                 <div id="tickermanNav">
                     <?php tickermanNavLink("list",      lang("ticNavList")); ?> 
                     <?php tickermanNavLink("create",    lang("ticNavCreate")); ?> 
-                    <?php tickermanNavLink("deleted",   lang("ticNavTrash")); ?> 
-                    <?php tickermanNavLink("options",   lang("ticNavOptions")); ?> 
+                    <?php tickermanNavLink("deleted",   lang("ticNavTrash")); /*?> 
+                    <?php tickermanNavLink("options",   lang("ticNavOptions")); */?> 
                 </div>
 <?php 
 

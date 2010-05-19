@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-05-02
+ * @version     2010-05-19
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      User manager core component
@@ -34,7 +34,12 @@ if (!$handler)
     $handler = LiveErrorHandler::add("UsrMan");
     
 include_once($FULL_BASEPATH . "/includes/logging/helper_loggers.php");
- 
+
+/**
+ * Class to manage user accounts internally.
+ * @author Patrick Lehner
+ *
+ */
 class UsrMan {
     
     //---- Class constants --------------------------------------------------------------
@@ -48,8 +53,8 @@ class UsrMan {
     //---- Static properties ------------------------------------------------------------
     
     public  static $users;
-    private static $dbTable = "users";
-    private static $ul_trans = array (  //user level translation table
+    private static $dbTable     = "users";
+    private static $ul_trans    = array (  //user level translation table
         //Note: Always make sure that the two corresponding entries have the same value 
         self::UL_UNKNOWN => 0,          "unknown" => 0,
         self::UL_UNREGISTERED => 1,     "unregistered" => 1,
@@ -60,23 +65,33 @@ class UsrMan {
     
     //---- Object properties ------------------------------------------------------------
     
-    private $id = 0;            //DB entry key (id)
-    private $uname = "";        //user name (login name)
-    private $fullname = "";     //full user name
-    private $email = "";        //user email address
-    private $createdAt = 0;     //date/time of account creation
-    private $createdBy = 0;     //creator of this account (uid); 0=System/undefined
-    private $pass = "";         //password hash
-    private $active = false;    //if this user account is currently active
-    private $level = self::UL_UNKNOWN;
+    private $id             = 0;                //DB entry key (id)
+    private $uname          = "";               //user name (login name)
+    private $fullname       = "";               //full user name
+    private $email          = "";               //user email address
+    private $createdAt      = 0;                //date/time of account creation
+    private $createdBy      = 0;                //creator of this account (uid); 0=System, null=unknown
+    private $pass           = "";               //password hash
+    private $active         = false;            //if this user account is currently active
+    private $level          = self::UL_UNKNOWN;
     
     
     //---- Static methods ---------------------------------------------------------------
     
+    /**
+     * Get the number of user accounts currently in the array.
+     * @return int Returns the count of items in the internal user account array.
+     */
     public static function count() {
         return count(self::$users);
     }
     
+    /**
+     * Get a user account by its ID and handle possible errors.
+     * @param int $id The ID of the user account.
+     * @param bool $silent If true, suppresses error output; defaults to false.
+     * @return mixed Returns the user account object on success, or boolean false on error.
+     */
     public static function getUsr($id, $silent = false) {
         global $logDebug, $logError;
         if (!is_int($id)) {
@@ -97,6 +112,12 @@ class UsrMan {
         }
     }
     
+    /**
+     * Get a user account by its user name and handle possible errors.
+     * @param string $uname The user name of the account.
+     * @param bool $silent If true, suppresses error output; defaults to false.
+     * @return mixed Returns the user account object on success, or boolean false on error.
+     */
     public static function getUsrByUname($uname, $silent = false) {
         global $logDebug, $logError;
         if (!is_string($uname)) {
@@ -121,6 +142,11 @@ class UsrMan {
         return false;
     }
     
+    /**
+     * Read the database table into the internal array.
+     * @param string $table The name of the table to read from (default: 'users').
+     * @return bool Returns true on success, or false on error.
+     */
     public static function readDB($table) {
         global $logDebug, $logError;
         if (!is_string($table)) {

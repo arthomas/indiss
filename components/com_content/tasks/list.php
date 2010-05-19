@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-13
+ * @version     2010-05-19
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -33,11 +33,11 @@ defined("__CONTENT_ADMIN") or die("Include the content manager backend first. ["
                 </script>
                 <span id="ruler" style="visibility: hidden;">&nbsp;</span>
                 <fieldset id="contentList"><legend><?php lang_echo("conExistingPages");?></legend>
-                    <form id="contentListForm" action="?component=content" method="post">
+                    <form id="contentListForm" action="?comID=<?php echo $activeCom->getId(); ?>" method="post">
                         <div id="contentListButtons">
                             <input type="hidden" name="postview" value="unset" id="postview" />
-                            <input type="submit" value="<?php lang_echo("conEditSelected");?>" onclick="this.form.action = './?component=content&view=edit'; document.getElementById('postview').value = 'multiEdit';" />
-                            <input type="submit" value="<?php lang_echo("conDeleteSelected");?>" onclick="this.form.action = './?component=content&view=delete'; document.getElementById('postview').value = 'multiDelete';" />
+                            <input type="submit" value="<?php lang_echo("conEditSelected");?>" onclick="this.form.action = this.form.action + '&view=edit'; document.getElementById('postview').value = 'multiEdit';" />
+                            <input type="submit" value="<?php lang_echo("conDeleteSelected");?>" onclick="this.form.action = this.form.action + '&view=delete'; document.getElementById('postview').value = 'multiDelete';" />
                         </div>
                         <table id="contentTable" summary="" border="0" cellpadding="0" cellspacing="0">
                             <thead>
@@ -56,8 +56,8 @@ defined("__CONTENT_ADMIN") or die("Include the content manager backend first. ["
                             </tfoot>
                         </table>
                         <div id="contentListButtons">
-                            <input type="submit" value="<?php lang_echo("conEditSelected");?>" onclick="this.form.action = './?component=content&view=edit'; document.getElementById('postview').value = 'multiEdit';" />
-                            <input type="submit" value="<?php lang_echo("conDeleteSelected");?>" onclick="this.form.action = './?component=content&view=delete'; document.getElementById('postview').value = 'multiDelete';" />
+                            <input type="submit" value="<?php lang_echo("conEditSelected");?>" onclick="this.form.action = this.form.action + '&view=edit'; document.getElementById('postview').value = 'multiEdit';" />
+                            <input type="submit" value="<?php lang_echo("conDeleteSelected");?>" onclick="this.form.action = this.form.action + '&view=delete'; document.getElementById('postview').value = 'multiDelete';" />
                         </div>
                     </form>
                 </fieldset>

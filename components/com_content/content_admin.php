@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-05-16
+ * @version     2010-05-19
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      content_admin -- HTML page manager (backend)
@@ -236,11 +236,11 @@ if (!$db->tableExists($optionsTable)) {
                         $query = "UPDATE `$itemTable` SET ";
                         $query .= "`name`='" . $_POST["name$i"] . "',";
                         $query .= "`url`='" . $_POST["URL$i"] . "',";
-                        $query .= "`displaytime`='" . $_POST["disptime$i"] . "',";
+                        $query .= "`displaytime`=" . $_POST["disptime$i"] . ",";
                         $query .= "`start`='" . $_POST["start".$i."result"] . "',";
                         $query .= "`end`='" . $_POST["end".$i."result"] . "',";
                         $query .= "`enabled`=" . ( ($_POST["enabled$i"]) ? "TRUE" : "FALSE" ) . ",";
-                        $query .= "`tags`=" . $_POST["tags$i"];
+                        $query .= "`tags`='" . $_POST["tags$i"] . "'";
                         if ( isset($_POST["wasdeleted$i"])) {
                             $query .= ",`deleted`=";
                             $query .= (isset($_POST["deleted$i"])) ? "TRUE" : "FALSE";
@@ -363,8 +363,8 @@ if (!$db->tableExists($optionsTable)) {
                 <div id="contentNav">
                     <?php contentmanNavLink("list",      lang("conNavList")); ?> 
                     <?php contentmanNavLink("create",    lang("conNavCreate")); ?> 
-                    <?php contentmanNavLink("deleted",   lang("conNavTrash")); ?> 
-                    <?php contentmanNavLink("options",   lang("conNavOptions")); ?> 
+                    <?php contentmanNavLink("deleted",   lang("conNavTrash"));/* ?> 
+                    <?php contentmanNavLink("options",   lang("conNavOptions"));*/ ?> 
                 </div>
 <?php 
 
@@ -385,9 +385,10 @@ else if ( ( $create = ($view == "create") ) || ( $edit = ($view == "edit") ) ) {
 
 //----DELETE/DELETE2--------------------------------------------------------------------------------------------------------------------------------
 
+//this is still here because it will become unnecessary once the component is overhauled (class design, new pv system)
 else if (($view == "delete") || ($view == "delete2")) { ?>
                 <div id="contentDeleteTop">
-                    <form id="contentDeleteForm" action="?component=content<?php if ($view == "delete2") echo "&view=deleted"; ?>" method="post">
+                    <form id="contentDeleteForm" action="?comID=<?php echo $activeCom->getId(); if ($view == "delete2") echo "&view=deleted"; ?>" method="post">
                         <div id="contentDeleteButtonBar">
                             <input type="hidden" name="postview" value="unset" id="postview" />
                             <input type="submit" value="<?php lang_echo("conYesReallyDelete");?>" onclick="document.getElementById('postview').value = '<?php echo ($view == "delete") ? "recycleYes" : "deletePermYes"; ?>';" />
@@ -401,7 +402,7 @@ else if (($view == "delete") || ($view == "delete2")) { ?>
                 <fieldset id="contentDeleteList"><legend><?php lang_echo("conPagesToDelete");?></legend>
                     <table id="contentTable">
                         <thead>
-                            <tr><th class="tName"><?php lang_echo("conName");?></th><th class="tURL"><?php lang_echo("conURL");?></th><th class="tType"><?php lang_echo("conType");?></th><th class="tDispTime"><?php lang_echo("conDispTime");?></th><th class="tFrom"><?php lang_echo("conDispFrom");?></th><th class="tUntil"><?php lang_echo("conDispUntil");?></th></tr>
+                            <tr><th class="tName"><?php lang_echo("conName");?></th><th class="tURL"><?php lang_echo("conURL");?></th><th class="tTags"><?php lang_echo("conTags");?></th><th class="tType"><?php lang_echo("conType");?></th><th class="tDispTime"><?php lang_echo("conDispTime");?></th><th class="tFrom"><?php lang_echo("conDispFrom");?></th><th class="tUntil"><?php lang_echo("conDispUntil");?></th></tr>
                         </thead>
                         <tbody>
 <?php contentmanOutputList("toDelete", 32, 0);?> 

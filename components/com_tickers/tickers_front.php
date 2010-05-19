@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-01-07
+ * @version     2010-05-19
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      tickers_front -- Display tickers in the frontend
@@ -77,7 +77,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
-    <meta http-equiv="refresh" content="300; URL=./bottom.php" /><?php //TODO: ticker: make refresh time customizable ?> 
+    <meta http-equiv="refresh" content="300; URL=?frame=bottom" /><?php //TODO: ticker: make refresh time customizable ?> 
     <meta name="author" content="Patrick Lehner" />
 
     <!-- <link rel="stylesheet" type="text/css" href="ticker.css" /> -->
