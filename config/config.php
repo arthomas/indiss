@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-20
+ * @version     2010-05-23
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
@@ -18,37 +18,21 @@
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//$configfile    = true;          //legacy
+defined("__MAIN") or die("Restricted access.");
+
 define("__CONFIGFILE", 1);
 
 include(dirname(__FILE__) . "/version.php");
 
+$basename = "/indiss";
 
-if (!file_exists(dirname(__FILE__) . "/config.xml")) {
-   die("Config file not found.");
-}
-$xml = simplexml_load_file(dirname(__FILE__) . "/config.xml");
-if (!$xml) {
-    die("Error while reading config file");
-}
+$dbhost = "localhost";
+$dbuser = "root";
+$dbpass = "";
+$dbname = "indiss";
 
-foreach ($xml as $option) {
-    switch((string)$option["type"]) {
-        case "string":
-            $value = (string)$option["value"];
-            break;
-        case "bool":
-            $value = (bool)$option["value"];
-            break;
-        case "int":
-            $value = (int)$option["value"];
-        default:
-            $value = $option["value"];
-            break;
-    }
-    $GLOBALS[(string)$option["name"]] = $value;
-}
+$datefmt = "YmdHis";
 
-unset($xml, $option, $value);
+$debug = true;
 
 ?>
