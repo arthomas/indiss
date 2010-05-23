@@ -62,18 +62,23 @@ br
     // this is the update rows in the table
     if (isset($_POST["save"]))
     {
+        $error = FALSE;
         $select = $_GET["select_table"];
         $elements = $db->query("SELECT * from $select");
         $typeres = $db->query("DESCRIBE $select");
+        if ($typeres === FALSE)
+        {
+            $handler->addMessage("Preferences UI", 
+                "Failed to select anything from the database!");
+        }
+
         while ($type[] = mysql_fetch_assoc($typeres));
         unset($typeres);
 
         while ($element = mysql_fetch_assoc($elements))
         {
             $tags = array_keys($element);
-             
             $command = "UPDATE $select SET ";
-             
             $i = 0;
 
             $numericTypeTable = array("int");
@@ -102,8 +107,16 @@ br
             $command .= "WHERE id=$t";
             
             //print $command;
-            $db->query($command);
+            if ($db->query($command) === FALSE)
+                $error = TRUE;
+  
         }
+        if ($error == TRUE)
+            $handler->addMsg("Preferences UI", "Failed to save the database!");  
+        else
+            $handler->addMsg("Preferences UI", "Saved Successfully!");  
+        
+        unset($type);
     }
 ?>
 
@@ -148,7 +161,12 @@ br
     
     // get all the elements in the mysql database
     $elements = $db->query("SELECT * from $select");   
-    
+    if ($elements === FALSE)
+    {
+        $handler->addMessage("Preferences UI", 
+            "Failed to select anything from the database!");
+    }
+
     echo "<form input=$location method=POST>";
     while ($element = mysql_fetch_assoc($elements))
     {
