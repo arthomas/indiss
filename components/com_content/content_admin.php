@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-05-19
+ * @version     2010-05-23
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      content_admin -- HTML page manager (backend)
@@ -35,21 +35,21 @@ $optionsTable = "com_" . $activeCom->getIname() . "_options";
 //dirty db fix because i have no time to implement a class system for components D:
 if (!$db->tableExists($itemTable))              //evil >:|
     $db->q("CREATE TABLE `$itemTable` (
-            `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-            `name` VARCHAR( 255 ) NOT NULL ,
-            `url` VARCHAR( 255 ) NOT NULL ,
-            `displaytime` INT NOT NULL ,
-            `start` DATETIME NOT NULL ,
-            `end` DATETIME NOT NULL ,
-            `type` enum('LocalPage','ExternalPage','LocalImage','ExternalImage','LocalPDF','ExternalPDF','LocalFlash','ExternalFlash','LocalOther','ExternalOther','Component','Unknown') NOT NULL DEFAULT 'Unknown' ,
-            `tags` VARCHAR( 255 ) NOT NULL ,
-            `createdBy` INT DEFAULT NULL ,
-            `createdAt` DATETIME NOT NULL ,
-            `modifiedBy` INT DEFAULT NULL ,
-            `modifiedAt` DATETIME DEFAULT NULL ,
-            `enabled` BOOL NOT NULL ,
+            `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            `name` VARCHAR( 255 ) NOT NULL,
+            `url` VARCHAR( 255 ) NOT NULL,
+            `displaytime` INT NOT NULL,
+            `start` DATETIME NOT NULL,
+            `end` DATETIME NOT NULL,
+            `type` enum('LocalPage','ExternalPage','LocalImage','ExternalImage','LocalPDF','ExternalPDF','LocalFlash','ExternalFlash','LocalOther','ExternalOther','Component','Unknown') NOT NULL DEFAULT 'Unknown',
+            `tags` VARCHAR( 255 ) NOT NULL,
+            `createdBy` INT DEFAULT NULL,
+            `createdAt` DATETIME NOT NULL,
+            `modifiedBy` INT DEFAULT NULL,
+            `modifiedAt` DATETIME DEFAULT NULL,
+            `enabled` BOOL NOT NULL,
             `deleted` BOOL NOT NULL
-            )");
+            ) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci");
 if (!$db->tableExists($optionsTable)) {
     $db->createNVTable($optionsTable);
 }

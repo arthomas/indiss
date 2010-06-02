@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!-- Insert DTD info here! -->
+<!--
+    Version:        2010-05-20
+    Authors:        Patrick Lehner <lehner.patrick@gmx.de>
+                    Jannik Rosenbauer
+    Copyright:      Copyright (C) 2010 Patrick Lehner 
+ -->
+<language lang="de" version="0.2" for="com_commgr">
+    <item name="commgrComponentManager"         value="Komponentenmanager"/>
+    <item name="commgrXMLNotFound"              value="XML-Datei konnte nicht gefunden werden" /> <!-- filename will be appended -->
+    <item name="commgrXMLInvalid"               value="Die Datei ist keine g&#252;ltige XML-Datei" /> <!-- filename will be appended -->
+    <item name="commgrXMLNotACom"               value="Dies ist keine Komponente" /> <!-- filename will be appended -->
+    <item name="commgrXMLNotValidComInfo"       value="Die XML-Datei ist keine g&#252;ltige Informationsdatei f&#252;r Komponenten" /> <!-- filename will be appended -->
+    <item name="commgrInameAlreadyExists"       value="Eine Komponente mit dem internen Namen'%s' exisitert bereits" /> <!-- %s: component internal name (iname) -->
+    <item name="commgrComDirInUse"              value="Das Komponentenverzeichnis wird bereits verwendet" /> <!-- dir name will be appended -->
+    <item name="commgrComInstallDBError"        value="W&#228;hrend der komponenteninstallation trat ein Datenbankfehler auf '%s'&#10;Datenbank: %s&#10;Abfrage: %s"/> <!-- %s: component dname; %s: db error msg (formatted); %s: db query (formatted) -->
+    <item name="commgrGetDBInsertIDFail"        value="Der Datenbankeintrag ID der Komponente '%s'konnte nicht empfangen werden"/> <!-- %s: component dname -->
+    <item name="commgrComInstallSuccess"        value="Die Komponente '%s' wurde erfolgreich installiert"/> <!-- %s: component dname -->
+    <item name="commgrCannotRemoveCom"          value="Die Komponente '%s' kann nicht entfernt werden"/> <!-- %s: component dname -->
+    <item name="commgrCannotDisableCom"         value="Die Komponente '%s' kann nicht deaktiviert werden"/> <!-- %s: component dname -->
+    <item name="commgrDisableComDBError"        value="Beim Deaktivieren der Komponente '%s'&#10; trat ein Datenbankfehler auf;Datenbank: %s&#10;Abfrage: %s"/> <!-- %s: component dname; %s: db error msg (formatted); %s: db query (formatted) -->
+    <item name="commgrEnableComDBError"         value="Beim Aktivieren der Komponente '%s'&#10; trat ein Datenbankfehler auf;Datenbank: %s&#10;Abfrage: %s"/> <!-- %s: component dname; %s: db error msg (formatted); %s: db query (formatted) -->
+    <item name="commgrRenameComDBError"         value="Beim Umbenennen der Komponente '%s'&#10; trat ein Datenbankfehler auf;Datenbank: %s&#10;Abfrage: %s"/> <!-- %s: component dname; %s: db error msg (formatted); %s: db query (formatted) -->
+    <item name="commgrChangeComPathDBError"     value="Beim &#196;ndern des Verzeichnisses der Komponente '%s'&#10; trat ein Datenbankfehler auf;Datenbank: %s&#10;Abfrage: %s"/> <!-- %s: component dname; %s: db error msg (formatted); %s: db query (formatted) -->
+    <item name="commgrRemoveComDBError"         value="Beim Entfernen der Komponente '%s'&#10; tat ein Datenbankfehler auf;Datenbank: %s&#10;Abfrage: %s"/> <!-- %s: component dname; %s: db error msg (formatted); %s: db query (formatted) -->
+    <item name="commgrCannotDuplicateCom"       value="Die Komponente '%s' konnte nicht verdoppelt werden"/> <!-- %s: component dname -->
+    <item name="commgrComDuplicateSuccess"      value="Die Komponente '%s' wurde erfolgreich zu '%s' verdoppelt"/> <!-- %s: old component dname; %s: duplicate dname -->
+    <item name="commgrComDuplicateError"        value="Beim verdoppeln der Komponente '%s' trat ein Fehler auf"/> <!-- %s: component dname -->
+    <item name="commgrRetrieveComFailed"        value="Die Komponenten-ID von '%s' konnte nicht empfangen werden"/> <!-- %s: component id -->
+    <item name="commgrDeletingFilesFailed"      value="Es konnten nicht alle Dateien der Komponente '%s' gel&#246;scht werden"/> <!-- %s: component dname -->
+    <item name="commgrComDeleteSuccess"         value="Die Komponente '%s' wurde erfogreich gel&#246;scht"/> <!-- %s: old component dname; %s: duplicate dname -->
+    <item name="commgrComDeleteError"           value="Beim L&#246;schen der Komponente '%s' trat ein Fehler auf"/> <!-- %s: component dname -->
+    
+    <item name="commgrUIComList"                value="Komponentenliste"/>
+    <item name="commgrUIInstallCom"             value="Neue komponente installieren"/>
+    <item name="commgrUIOptions"                value="Optionen"/>
+</language>
+

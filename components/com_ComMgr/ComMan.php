@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-05-16
+ * @version     2010-06-02
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that holds info about installed components
@@ -40,7 +40,7 @@ class ComMan {
     
     //---- Static properties ------------------------------------------------------------
     
-    private static $commonPath = "/components";
+    private static $commonPath = "components/";
     private static $dbTable = "components";
     public  static $components;
     
@@ -78,7 +78,7 @@ class ComMan {
             $logDebug->debuglog("Component manager", "Error", $dmsg);
             return false;
         }
-        $path = "/" . trim($path, "/\\");
+        $path = trim($path, "/\\") . "/";
         self::$commonPath = $path;
         return true;
     }
@@ -161,6 +161,12 @@ class ComMan {
         return true;
     }
     
+    /**
+     * 
+     * @param unknown_type $comName
+     * @param bool $mindPath If true, the function will return an iname that can also be used as a folder name (it
+     * checks that that folder name is not in use)
+     */
     private static function generateIname($comName, $mindPath = false) {
         global $logError, $logDebug;
         if (!is_string($comName)) {
@@ -174,7 +180,7 @@ class ComMan {
             return false;
         }
         global $FULL_BASEPATH;
-        $p = $FULL_BASEPATH . self::$commonPath;
+        $p = $FULL_BASEPATH . "/" . self::$commonPath;
         if (!self::getComByIname($comName, true) && (!$mindPath || !file_exists($p . "/$comName")))
             return $comName;
         $i = 1;
@@ -234,7 +240,7 @@ class ComMan {
         if (empty($iname))
             $iname = self::generateIname($comName, empty($dest));
         if (empty($dest))
-            $dest = "/$iname";
+            $dest = "$iname";
         if (empty($dname))
             $dname = ucfirst($iname);
         
@@ -244,7 +250,8 @@ class ComMan {
         }
         
         global $FULL_BASEPATH;
-        $p = $FULL_BASEPATH . self::$commonPath . $dest;
+        $p = $FULL_BASEPATH . "/" . self::$commonPath . $dest;
+        //echo "FILE PATH ]]]]]]]]]]]]]] "; var_dump($FULL_BASEPATH); var_dump($p);
         if (file_exists($p)) {
             $handler->addMsg(lang("commgrComponentManager"), lang("commgrComDirInUse") . " ($p)", LiveErrorHandler::EK_ERROR);
             return false;
@@ -301,7 +308,7 @@ class ComMan {
         }
         global $FULL_BASEPATH;
         include_once ("$FULL_BASEPATH/includes/filesystem/recursiveDelete.php");
-        if (recursiveDelete($FULL_BASEPATH . self::$commonPath . $com->path) === false) {
+        if (recursiveDelete($com->getFullPath()) === false) {
             $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrDeletingFilesFailed"), $com->dname), LiveErrorHandler::EK_ERROR);
             $logError->log("Component manager", "Error", "ComMan::remove(): Error while deleting the files of component '$com->dname'");
         }
@@ -458,12 +465,12 @@ class ComMan {
     
     public function getWebPath() {
         global $basepath;
-        return $basepath . self::$commonPath . $this->path;
+        return $basepath . "/" . self::$commonPath . $this->path;
     }
     
     public function getFullPath() {
         global $FULL_BASEPATH;
-        return $FULL_BASEPATH . self::$commonPath . $this->path;
+        return $FULL_BASEPATH . "/" . self::$commonPath . $this->path;
     }
     
     //Note: this function is deprecated! It will only change the path but will not move the files!

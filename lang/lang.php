@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-23
+ * @version     2010-05-26
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
@@ -18,73 +18,71 @@
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-    defined("__MAIN") or die("Restricted access.");
-    defined("__DIRAWARE") or die("Directory awareness not included [lang.php]");
-    
-    define("__LANG", 1);
-    
-    //create the languages list
-    $d = dirname(__FILE__);
-    $l = preg_grep("/\./i", scandir("$d"), PREG_GREP_INVERT);
-    foreach ($l as $dir) {
-        if (file_exists("$d/$dir/langinfo.xml")) {
-            $x = simplexml_load_file("$d/$dir/langinfo.xml");
-            if ($x !== false) {
-                if ((bool)$x->name && (bool)$x->code && (bool)$x->version && $dir == (string)$x->code) {
-                    $langList[$dir] = (string)$x->name;
-                }
+defined("__MAIN") or die("Restricted access.");
+defined("__DIRAWARE") or die("Directory awareness not included [lang.php]");
+
+define("__LANG", 1);
+
+//create the languages list
+$d = dirname(__FILE__);
+$l = preg_grep("/\./i", scandir("$d"), PREG_GREP_INVERT);
+foreach ($l as $dir) {
+    if (file_exists("$d/$dir/langinfo.xml")) {
+        $x = simplexml_load_file("$d/$dir/langinfo.xml");
+        if ($x !== false) {
+            if ((bool)$x->name && (bool)$x->code && (bool)$x->version && $dir == (string)$x->code) {
+                $langList[$dir] = (string)$x->name;
             }
         }
     }
-    
-    $_lang = $d . "/$lang"; //create the full path of the language directory
-    if (file_exists($_lang)) {
-        if (is_dir($_lang)) {
-            $langFiles = preg_grep("/lang_.+\.xml$/i", scandir("$_lang"));
-            if (!empty($langFiles)) {
-                foreach ($langFiles as $fn) {
-                    $x = simplexml_load_file("$_lang/$fn");
-                    if (($x === false) || $x->getName() != "language") {
-                        trigger_error("This file is not a valid language file ($_lang/$fn)");
-                        continue;
-                    }
-                    foreach ($x as $item) {
-                        $_LANG[(string)$item["name"]] = (string)$item["value"];
-                    }
+}
+
+$_lang = $d . "/$lang"; //create the full path of the language directory
+if (file_exists($_lang)) {
+    if (is_dir($_lang)) {
+        $langFiles = preg_grep("/lang_.+\.xml$/i", scandir("$_lang"));
+        if (!empty($langFiles)) {
+            foreach ($langFiles as $fn) {
+                $x = simplexml_load_file("$_lang/$fn");
+                if (($x === false) || $x->getName() != "language") {
+                    trigger_error("This file is not a valid language file ($_lang/$fn)");
+                    continue;
                 }
-            } else {
-                die ("Requested language '$lang' is not valid.");
+                foreach ($x as $item) {
+                    $_LANG[(string)$item["name"]] = (string)$item["value"];
+                }
             }
         } else {
             die ("Requested language '$lang' is not valid.");
         }
     } else {
-        die ("Requested language '$lang' not found.");
+        die ("Requested language '$lang' is not valid.");
     }
-    
-    unset($d, $_lang, $langFiles, $fn, $x);
-    
-    
-    
-    function lang($lang_content_string) {
-        global $_LANG;
-        return (isset($_LANG[$lang_content_string])) ? $_LANG[$lang_content_string] : '[' . $lang_content_string . ']';
-    }
-    
-    /*function _($lang_content_string) {
-        global $_LANG;
-        return (isset($_LANG[$lang_content_string])) ? $_LANG[$lang_content_string] : '[' . $lang_content_string . ']';
-    }*/
-    
-    function lang_echo($lang_content_string) {
-        echo lang($lang_content_string);
-    }
+} else {
+    die ("Requested language '$lang' not found.");
+}
+
+unset($d, $_lang, $langFiles, $fn, $x);
     
     
-    function html_escape_regional_chars($str) {
-        $old = array('/Ä/','/Ö/','/Ü/','/ä/','/ö/','/ü/','/ß/');
-        $new = array('&Auml;','&Ouml;','&Uuml;','&auml;','&ouml;','&uuml;','&szlig;');
-        return preg_replace($old, $new, htmlspecialchars($str));
-    }
+    
+function lang($lang_content_string, $forJS = false) {
+    global $_LANG;
+    $s = (isset($_LANG[$lang_content_string])) ? $_LANG[$lang_content_string] : '[' . $lang_content_string . ']';
+    if (!$forJS)
+        $s = html_escape_regional_chars($s);
+    return $s;
+}
+
+function lang_echo($lang_content_string, $forJS = false) {
+    echo lang($lang_content_string, $forJS);
+}
+
+
+function html_escape_regional_chars($str) {
+    $old = array('/Ä/','/Ö/','/Ü/','/ä/','/ö/','/ü/','/ß/');
+    $new = array('&Auml;','&Ouml;','&Uuml;','&auml;','&ouml;','&uuml;','&szlig;');
+    return preg_replace($old, $new, htmlspecialchars($str));
+}
 
 ?>

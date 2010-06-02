@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Insert DTD info here! -->
+<!--
+    Version:        2010-05-20
+    Authors:        Patrick Lehner <lehner.patrick@gmx.de>
+                    Najjik Rosenbauer
+    Copyright:      Copyright (C) 2010 Patrick Lehner 
+ -->
+<language lang="de" version="0.2" for="core">
+    <item name="errDBQryFailed" value="Die Datenbankabfrage schlug fehl."/>
+    <item name="errGeneralParamError" value="Es befand sich ein Fehler in den weitergeleiteten Parametern.&lt;br /&gt;Bitte &lt;a href=&quot;index.php&quot;&gt;gehen Sie zur&#252;ck zum index&lt;/a&gt;."/>
+    <item name="errCantLogout" value="Fehler: Sie sind nicht eingeloggt. Sie k&#246;nnen sich nicht ausloggen."/>
+    <item name="errComNotFound" value="Fehler: Die Komponente, die Sie &#246;ffnen wollten, konnte nicht gefunden werden."/>
+    <item name="errDBError" value="Datenbankfehler: %s"/>
+    <item name="errDBErrorQry" value="Abfrage: &lt;pre&gt;%s&lt;/pre&gt;"/>
+    
+    <item name="msgWrongPWorUN" value="Entschuldigung, falsches Passwort oder Username."/>
+    <item name="msgLoginSuccess" value="Sie haben sich erfolgreich eingeloggt."/>
+    <item name="msgLogoutSuccess" value="Sie haben sich erfolgreich ausgeloggt."/>
+    
+    <item name="genYes" value="Ja"/>
+    <item name="genNo" value="Nein"/>
+    <item name="genNone" value="Nichts"/>
+    <item name="genSave" value="Speichern"/>
+    <item name="genCancel" value="Abbrechen"/>
+    <item name="genLanguage" value="Sprache"/>
+    <item name="genLogin" value="Einloggen"/>
+    <item name="genLogout" value="Ausloggen"/>
+    <item name="genClose" value="Schlie&#223;en"/>
+    <item name="genBack" value="Zur&#252;ck"/>
+    <item name="genForward" value="Vorw&#228;rts"/>
+    <item name="genDate" value="Datum"/>
+    <item name="genTime" value="Zeit"/>
+    <item name="genToday" value="Heute"/>
+    <item name="genTomorrow" value="Morgen"/>
+    <item name="genInTwoDays" value="In zwei Tagen"/>
+    <item name="genCustomDate" value="Eigenes Datum"/>
+    <item name="genCustomTime" value="Eigene Zeit"/>
+    <item name="genMorning" value="Morgen"/>
+    <item name="genMorningBreak" value="Morgenpause"/>
+    <item name="genNoon" value="Mittag"/>
+    <item name="genEvening" value="Abend"/>
+    <item name="genResultingTimeStamp" value="Erzeugte Zeitmarke"/>
+    <item name="genDebug" value="Fehlersuche"/>
+    <item name="genNotice" value="Benachrichtigen"/>
+    <item name="genWarning" value="Warnung"/>
+    <item name="genError" value="Fehler"/>
+    <item name="genFatalError" value="Schwerer Fehler"/>
+    <item name="genSuccess" value="Erfolg"/>
+    
+    <item name="navContentManager" value="Inhaltsmanager"/>
+    <item name="navContentFilesManager" value="Inhalt des Dateimanagers"/>
+    
+    <item name="admLayoutAndRealization" value="Layout und Umsetzung"/>
+    <item name="admIndissIsFreeSoftware" value="INDISS ist freie Software unter der GNU GPLv3-Lizenz"/>
+    <item name="admPageCreatedIn" value="Diese Seite wurde in %s c erstellt."/>
+</language>
+

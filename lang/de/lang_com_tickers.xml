@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!-- Insert DTD info here! -->
+<!--
+    Version:        2010-05-20
+    Authors:        Patrick Lehner <lehner.patrick@gmx.de>
+                    Jannik Rosenbauer
+    Copyright:      Copyright (C) 2010 Patrick Lehner 
+ -->
+<language lang="de" version="0.2" for="com_tickers">
+    <item name="ticTickManHeadline" value="Tickermanager"/>
+    <item name="ticNavList" value="Liste der Tickers"/>
+    <item name="ticNavCreate" value="Neuen Ticker erstellen"/>
+    <item name="ticNavTrash" value="Papierkorb f&#252;r Ticker"/>
+    <item name="ticNavOptions" value="Tickeroptionen"/>
+    <item name="ticCreateSuccess" value="%d Ticker wurden erfolgreich hinzugef&#252;gt."/>
+    <item name="ticRestoreFromTrashSuccess" value="%d Ticker wurden erfolgreich aus dem Papierkorb wiederhergestellt."/>
+    <item name="ticMoveToTrashSuccess" value="%s Ticker wurden erfolgreich in den Papierkorb verschoben."/>
+    <item name="ticPermDeleteSuccess" value="%s Ticker wurden erfolgreich gel&#246;scht."/>
+    <item name="ticEditSaveSuccess" value="&#196;nderungen an %d Tickern wurden erfolgreich gespeichert."/>
+    <item name="ticExistingTickers" value="Vorhandene Ticker"/>
+    <item name="ticCaption" value="&#220;berschrift"/>
+    <item name="ticContent" value="Inhalt"/>
+    <item name="ticDispFrom" value="Gezeigt von"/>
+    <item name="ticDispUntil" value="Gezeigt bis"/>
+    <item name="ticPastTickers" value="Vorherige Ticker"/>
+    <item name="ticPresentTickers" value="Momentane Ticker"/>
+    <item name="ticFutureTickers" value="Zuk&#252;nftige Ticker"/>
+    <item name="ticEdit" value="Bearbeiten"/>
+    <item name="ticEditShort" value="B"/>
+    <item name="ticEditSelected" value="Auswahl bearbeiten"/>
+    <item name="ticDelete" value="L&#246;schen"/>
+    <item name="ticDeleteShort" value="L"/>
+    <item name="ticDeleteSelected" value="Auswahl l&#246;schen"/>
+    <item name="ticDelete2" value="Endg&#252;ltig l&#246;schen"/>
+    <item name="ticDelete2Short" value="L"/>
+    <item name="ticDelete2Selected" value="Auswahl endg&#252;ltig l&#246;schen"/>
+    <item name="ticRestor" value="Wiederherstellen"/>
+    <item name="ticRestoreShort" value="W"/>
+    <item name="ticRestoreSelected" value="Auswahl wiederherstellen"/>
+    <item name="ticSelectMultiple" value="Mehrfachauswahl"/>
+    <item name="ticCreateTicker" value="Ticker erstellen"/>
+    <item name="ticReloadCreate1" value="Laden und erstellen"/>
+    <item name="ticReloadCreate2" value="Neue Ticker."/>
+    <item name="ticEmptyCapConNotice" value="Ticker mit Inhalt &lt;i&gt;and&lt;/i&gt; und &#220;berschrift werden ignoriert (Sie k&#246;nnen Ticker nur erstellen, wenn eines dieser beiden Felder leer bleibt)."/>
+    <item name="ticYesReallyDelete" value="Ja, wirklich l&#246;schen"/>
+    <item name="ticNoDontDelete" value="Nein, nicht l&#246;schen"/>
+    <item name="ticMoveToTrash?" value="M&#246;chten Sie wirklich alle unten gelisteten Ticker in den Papierkorb verschieben? (Sie k&#246;nnen sie sp&#228;ter  wiederherstellen, solange sie sich noch im Papierkorb befinden)"/>
+    <item name="ticDeletePermanently?" value="M&#246;chten Sie wirklich alle unten gelisteten Ticker endg&#252;ltig l&#246;schen? (Dies kann nicht wieder r&#252;ckg&#228;ngig gemacht werden!)"/>
+    <item name="ticTickersToDelete" value="Zu l&#246;schende Ticker"/>
+    <item name="ticTrashBin" value="Gel&#246;schte Ticker - Papierkorb"/>
+    <item name="ticEditTicker" value="Ticker bearbeiten"/>
+    <item name="ticDeleted" value="Gel&#246;scht"/>
+    <item name="ticDeletedInfo" value="Dieser Ticker ist momentan im Papierkorb. Wenn Sie ihn wiederherstellen m&#246;chten, wenn sie 'Speichern' klicken, deaktivieren Sie dieses K&#228;stchen. Andernfalls, lassen Sie sie aktiviert."/>
+</language>
+
