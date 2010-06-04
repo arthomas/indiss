@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-06-02
+ * @version     2010-06-04
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that holds info about installed components
@@ -268,7 +268,10 @@ class ComMan {
             $logDebug->debuglog("Component manager", "Notice", "ComMan::add(): Copying file '$source/$filename' to '$p/$filename'... " . (($r) ? "Success" : "Fail"));
         }
         
-        $installedAt = date($GLOBALS["datefmt"]);
+        global $datefmt;
+        if (empty($datefmt))
+            $datefmt = "YmdHis";    //default this in case it's not set (e.g. when using ComMan from the installer)
+        $installedAt = date($datefmt);
         $installedBy = "NULL";
         global $activeUsr;
         if (defined("__USRMAN"))

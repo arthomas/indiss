@@ -1,8 +1,9 @@
 <?php
 /**
- * @version     2010-05-23
+ * @version     2010-06-04
  * @author      Quan Tran
- * @copyright   Copyright (C) 2009-2010 Quan Tran
+ * @author      Patrick Lehner <lehner.patrick@gmx.de>
+ * @copyright   Copyright (C) 2009-2010 Quan Tran, Patrick Lehner
  * 
  * @license     This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU General Public License as published by
@@ -29,7 +30,7 @@
 <style type="text/css">
 <!--
 
-label,input 
+div#prefsui label, div#prefsui input 
 {
         display: block;
         width: 250px;
@@ -37,14 +38,14 @@ label,input
         margin-bottom: 10px;
 }
 
-label 
+div#prefsui label 
 {
         text-align: right;
         width: 75px;
         padding-right: 20px;
 }
 
-br 
+div#prefsui br 
 {
         clear: left;
 }

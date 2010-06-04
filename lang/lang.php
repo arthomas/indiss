@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-05-26
+ * @version     2010-06-04
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
@@ -49,7 +49,7 @@ if (file_exists($_lang)) {
                     continue;
                 }
                 foreach ($x as $item) {
-                    $_LANG[(string)$item["name"]] = (string)$item["value"];
+                    $_LANG[(string)$item["name"]] = utf8_decode((string)$item["value"]);    //need utf8_decode() because we dont work with unicode otherwise
                 }
             }
         } else {
@@ -69,6 +69,8 @@ unset($d, $_lang, $langFiles, $fn, $x);
 function lang($lang_content_string, $forJS = false) {
     global $_LANG;
     $s = (isset($_LANG[$lang_content_string])) ? $_LANG[$lang_content_string] : '[' . $lang_content_string . ']';
+    //$s = htmlspecialchars($s);
+    //$s = utf8_decode($s);       //note: we need this because those XML files are 
     if (!$forJS)
         $s = html_escape_regional_chars($s);
     return $s;
@@ -82,7 +84,7 @@ function lang_echo($lang_content_string, $forJS = false) {
 function html_escape_regional_chars($str) {
     $old = array('/Ä/','/Ö/','/Ü/','/ä/','/ö/','/ü/','/ß/');
     $new = array('&Auml;','&Ouml;','&Uuml;','&auml;','&ouml;','&uuml;','&szlig;');
-    return preg_replace($old, $new, htmlspecialchars($str));
+    return preg_replace($old, $new, $str);
 }
 
 ?>
