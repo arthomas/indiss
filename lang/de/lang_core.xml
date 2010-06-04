@@ -53,6 +53,6 @@
     
     <item name="admLayoutAndRealization" value="Layout und Umsetzung"/>
     <item name="admIndissIsFreeSoftware" value="INDISS ist freie Software unter der GNU GPLv3-Lizenz"/>
-    <item name="admPageCreatedIn" value="Diese Seite wurde in %s c erstellt."/>
+    <item name="admPageCreatedIn" value="Diese Seite wurde in %s s erstellt."/>
 </language>
 
