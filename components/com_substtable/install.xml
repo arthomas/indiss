@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Insert DTD info here! -->
+<install type="component">
+    <name>Substitution table</name>
+    <comName>com_substtable</comName>
+    <type>substtable</type>
+    <created>2009-09-11</created>
+    <author>Patrick Lehner</author>
+    <authorEmail>lehner.patrick@gmx.de</authorEmail>
+    <authorUrl>http://indiss.net</authorUrl>
+    <copyright>Copyright (C) 2009-2010 Patrick Lehner</copyright>
+    <license>GNU GPLv3</license>
+    <version>0.2</version>
+    <description></description>
+    <files>
+        <filename>index.html</filename>
+        <filename>install.xml</filename>
+        <filename>substtable_error.php</filename>
+        <filename>substtable_front.php</filename>
+        <filename>main.php</filename>
+    </files>
+</install>

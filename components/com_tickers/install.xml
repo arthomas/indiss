@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Insert DTD info here! -->
+<install type="component">
+    <name>Tickers</name>
+    <comName>com_tickers</comName>
+    <type>ticker</type>
+    <created>2009-09-11</created>
+    <author>Patrick Lehner</author>
+    <authorEmail>lehner.patrick@gmx.de</authorEmail>
+    <authorUrl>http://indiss.net</authorUrl>
+    <copyright>Copyright (C) 2009-2010 Patrick Lehner</copyright>
+    <license>GNU GPLv3</license>
+    <version>0.2</version>
+    <description></description>
+    <files>
+        <filename>index.html</filename>
+        <filename>install.xml</filename>
+        <filename>admin.php</filename>
+        <filename>admin.css.php</filename>
+        <filename>tickers_admin.php</filename>
+        <filename>tickers_front.php</filename>
+        <filename>main.php</filename>
+    </files>
+</install>

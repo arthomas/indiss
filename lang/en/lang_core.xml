@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Insert DTD info here! -->
+<!--
+    Version:        2010-05-02
+    Author:         Patrick Lehner <lehner.patrick@gmx.de>
+    Copyright:      Copyright (C) 2010 Patrick Lehner 
+ -->
+<language lang="en" version="0.2" for="core">
+    <item name="errDBQryFailed" value="The database query failed."/>
+    <item name="errGeneralParamError" value="There was an error in the parameters passed on.&lt;br /&gt;Please &lt;a href=&quot;index.php&quot;&gt;go back to the index&lt;/a&gt;."/>
+    <item name="errCantLogout" value="Error: You are not logged in. You cannot log out."/>
+    <item name="errComNotFound" value="Error: The component you tried to open was not found."/>
+    <item name="errDBError" value="Database error: %s"/>
+    <item name="errDBErrorQry" value="Query: &lt;pre&gt;%s&lt;/pre&gt;"/>
+    
+    <item name="msgWrongPWorUN" value="Sorry, wrong password or username."/>
+    <item name="msgLoginSuccess" value="You have successfully logged in."/>
+    <item name="msgLogoutSuccess" value="You have successfully logged out."/>
+    
+    <item name="genYes" value="Yes"/>
+    <item name="genNo" value="No"/>
+    <item name="genNone" value="None"/>
+    <item name="genSave" value="Save"/>
+    <item name="genCancel" value="Cancel"/>
+    <item name="genLanguage" value="Language"/>
+    <item name="genLogin" value="Log in"/>
+    <item name="genLogout" value="Log out"/>
+    <item name="genClose" value="Close"/>
+    <item name="genBack" value="Back"/>
+    <item name="genForward" value="Forward"/>
+    <item name="genDate" value="Date"/>
+    <item name="genTime" value="Time"/>
+    <item name="genToday" value="Today"/>
+    <item name="genTomorrow" value="Tomorrow"/>
+    <item name="genInTwoDays" value="In two days"/>
+    <item name="genCustomDate" value="Custom date"/>
+    <item name="genCustomTime" value="Custom time"/>
+    <item name="genMorning" value="Morning"/>
+    <item name="genMorningBreak" value="Morning break"/>
+    <item name="genNoon" value="Noon"/>
+    <item name="genEvening" value="Evening"/>
+    <item name="genResultingTimeStamp" value="Resulting time stamp"/>
+    <item name="genDebug" value="Debug"/>
+    <item name="genNotice" value="Notice"/>
+    <item name="genWarning" value="Warning"/>
+    <item name="genError" value="Error"/>
+    <item name="genFatalError" value="Fatal error"/>
+    <item name="genSuccess" value="Success"/>
+    
+    <item name="navContentManager" value="Content manager"/>
+    <item name="navContentFilesManager" value="Content files manager"/>
+    
+    <item name="admLayoutAndRealization" value="Layout and realization"/>
+    <item name="admIndissIsFreeSoftware" value="INDISS is free software under the GNU GPLv3"/>
+    <item name="admPageCreatedIn" value="Page was created in: %s sec"/>
+</language>
+

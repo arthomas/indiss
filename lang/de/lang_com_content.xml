@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Insert DTD info here! -->
+<!--
+    Version:        2010-05-20
+    Authors:        Patrick Lehner <lehner.patrick@gmx.de>
+                    Jannik Rosenbauer
+    Copyright:      Copyright (C) 2010 Patrick Lehner 
+ -->
+<language lang="de" version="0.2" for="com_content">
+    <item name="conPageManHeadline" value="Inhaltsmanager"/>
+    <item name="conNavList" value="Verzeichnis der Inhalte"/>
+    <item name="conNavCreate" value="Neuen Inhalt hinzuf&#252;gen"/>
+    <item name="conNavTrash" value="Inhalte des Papierkorbs"/>
+    <item name="conNavOptions" value="Inhaltsoptionen"/>
+    <item name="conCreateSuccess" value="%d Inhalte wurden erfolgreich hinzugef&#252;gt."/>
+    <item name="conRestoreFromTrashSuccess" value="%d Inhalte wurden erfolgreich wiederhergestellt."/>
+    <item name="conMoveToTrashSuccess" value="%s Inhalte wurden erfolgreich in den Papierkorb verschoben."/>
+    <item name="conPermDeleteSuccess" value="%s Inhalte wurden erfolgreich gel&#246;scht."/>
+    <item name="conEditSaveSuccess" value="&#196;nderungen an %d Inhalten wurden erfolgreich gespeichert."/>
+    <item name="conExistingPages" value="Vorhandene Inhalte"/>
+    <item name="conName" value="Name"/>
+    <item name="conURL" value="URL"/>
+    <item name="conDispTime" value="Gezeigt f&#252;r"/>
+    <item name="conDispFrom" value="Gezeigt von"/>
+    <item name="conDispUntil" value="Gezeigt bis"/>
+    <item name="conType" value="Typ"/>
+    <item name="conTypeLocalPage" value="Lokale Seite"/>
+    <item name="conTypeExternalPage" value="Externe Seite"/>
+    <item name="conTypeLocalImage" value="Lokales Bild"/>
+    <item name="conTypeExternalImage" value="Externes Bild"/>
+    <item name="conTypeLocalPDF" value="Lokale PDF-Datei"/>
+    <item name="conTypeExternalPDF" value="Externe PDF-Datei"/>
+    <item name="conTypeLocalFlash" value="Lokale Flash-Datei"/>
+    <item name="conTypeExternalFlash" value="Externe Flash-Datei"/>
+    <item name="conTypeLocalOther" value="Andere lokale Datei"/>
+    <item name="conTypeExternalOther" value="Andere externe Datei"/>
+    <item name="conTypeUnknown" value="Unbekannt"/>
+    <item name="conPastPages" value="Vorherige Inhalte"/>
+    <item name="conPresentPages" value="Momentane Inhalte"/>
+    <item name="conFuturePages" value="Zuk&#252;nftige Inhalte"/>
+    <item name="conEdit" value="Bearbeiten"/>
+    <item name="conEditShort" value="B"/>
+    <item name="conEditSelected" value="Auswahl bearbeiten"/>
+    <item name="conDelete" value="L&#246;schen"/>
+    <item name="conDeleteShort" value="L"/>
+    <item name="conDeleteSelected" value="Auswahl l&#246;schen"/>
+    <item name="conDelete2" value="Endg&#252;ltig l&#246;schen"/>
+    <item name="conDelete2Short" value="L"/>
+    <item name="conDelete2Selected" value="Auswahl endg&#252;ltig l&#246;schen"/>
+    <item name="conRestor" value="Wiederherstellen"/>
+    <item name="conRestoreShort" value="W"/>
+    <item name="conRestoreSelected" value="Auswahl wiederherstellen"/>
+    <item name="conSelectMultiple" value="Mehrfachauswahl"/>
+    <item name="conCreateItem" value="Neuen Inhalt hinzuf&#252;gen"/>
+    <item name="conReloadCreate1" value="Laden mit"/>
+    <item name="conReloadCreate2" value="Neue Inhalte."/>
+    <item name="conEmptyURLNotice" value="Inhalte ohne URL werden ignoriert (Namen sind optional)."/>
+    <item name="conYesReallyDelete" value="Ja, wirklich l&#246;schen"/>
+    <item name="conNoDontDelete" value="Nein, nicht l&#246;schen"/>
+    <item name="conMoveToTrash?" value="M&#246;chten Sie wirklich alle unten gelisteten Inhalte in den Papierkorb verschieben? (Sie k&#246;nnen sie sp&#228;ter  wiederherstellen, solange sie sich noch im Papierkorb befinden)"/>
+    <item name="conDeletePermanently?" value="M&#246;chten Sie wirklich alle unten gelisteten Inhalte endg&#252;ltig l&#246;schen? (Dies kann nicht wieder r&#252;ckg&#228;ngig gemacht werden!)"/>
+    <item name="conPagesToDelete" value="Zu L&#246;schende Inhalte"/>
+    <item name="conTrashBin" value="gel&#246;schte Inhalte - Papierkorb"/>
+    <item name="conEditItem" value="Inhalt Bearbeiten"/>
+    <item name="conDeleted" value="Gel&#246;scht"/>
+    <item name="conDeletedInfo" value="Dieser Inhalt ist momentan im Papierkorb. Wenn Sie ihn wiederherstellen m&#246;chten, wenn sie 'Speichern' klicken, deaktivieren Sie dieses K&#228;stchen. Andernfalls, lassen Sie sie aktiviert."/>
+    <item name="conEnabled" value="Aktiviert"/>
+    <item name="conBrowseServer" value="Server durchsuchen..."/>
+    <item name="conUploadFile" value="Datei hochladen..."/>
+    <item name="conCreateFile" value="Datei erstellen..."/>
+    <item name="conEditFile" value="Datei bearbeiten..."/>
+    <item name="conOpenEditor" value="Editor &#246;ffnen..."/>
+    <item name="conIgnore1" value="Dieser Eintrag wird ignoriert werden: "/>
+    <item name="conIgnoreEmptyURL" value="Kein URL."/>
+    <item name="conIgnoreUnsuppProt" value="Nicht unterst&#252;tztes Protokoll."/>
+    <item name="conIgnoreDispTime" value="Inkorrekte Bildschirmzeit."/>
+    <item name="conThisIsLocalPage" value="Dies ist eine lokale Seite."/>
+    <item name="conThisIsExternalPage" value="Dies ist eine externe Seite."/>
+    <item name="conThisIsLocalImage" value="Dies ist ein lokales Bild."/>
+    <item name="conThisIsExternalImage" value="Dies ist ein externes Bild."/>
+    <item name="conThisIsLocalPDF" value="Dies ist eine lokale PDF-Datei."/>
+    <item name="conThisIsExternalPDF" value="Dies ist eine externe PDF-Datei."/>
+    <item name="conThisIsLocalFlash" value="Dies ist eine lokale Flash-Datei."/>
+    <item name="conThisIsExternalFlash" value="Dies ist eine externe Flash-Datei."/>
+    <item name="conThisIsLocalOther" value="Dies ist ein lokaler Link (Typ unbekannt)."/>
+    <item name="conThisIsExternalOther" value="Dies ist ein externer Link (Typ unbekannt)."/>
+    <item name="conTags" value="Tags" />
+</language>
+
