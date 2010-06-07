@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-05-19
+ * @version     2010-06-06
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
@@ -126,6 +126,7 @@ class MySQLConnection {
     private $dbpass = "";
     private $dbname = "";
     private $lid;                       //MySQL link identifier
+    private $lastError;                 //remembers last error (if any; null otherwise)
     
     
     //---- Static methods ---------------------------------------------------------------
@@ -174,7 +175,12 @@ class MySQLConnection {
      * @return mixed The return value of the query; see php manual for more info
      */
     public function q($query) {
-        return mysql_query($query, $this->lid);
+        $r = mysql_query($query, $this->lid);
+        if ($r === false)
+            $this->lastError = mysql_error();
+        else 
+            $this->lastError = null;
+        return $r;
     }
     /**
      * Wrapper for mysql_query()
@@ -182,7 +188,24 @@ class MySQLConnection {
      * @return mixed The return value of the query; see php manual for more info
      */
     public function query($query) {
-        return mysql_query($query, $this->lid);
+        return $this->q($query);
+    }
+    
+    /**
+     * Get the last error (if any).
+     * @return mixed Returns the mysql_error() for the last query, or NULL if no
+     * error occurred.
+     */
+    public function e() {
+        return $this->lastError;
+    }
+    /**
+     * Get the last error (if any).
+     * @return mixed Returns the mysql_error() for the last query, or NULL if no
+     * error occurred.
+     */
+    public function getLastError() {
+        return $this->lastError;
     }
     
     /**

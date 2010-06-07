@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-05-19
+ * @version     2010-06-06
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      User manager core component
