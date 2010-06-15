@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-05-16
+ * @version     2010-06-15
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Backend main page
@@ -23,15 +23,7 @@ $__startTime = microtime(true);
 
 define("__MAIN", 1);
 
-include_once("../config/config.php");
-include_once("../includes/dir_awareness.php");
-include_once("../includes/database.php");
-
-include_once($FULL_BASEPATH . "/includes/logging/Logger.php");
-include_once($FULL_BASEPATH . "/includes/logging/helper_loggers.php");
-
-//load additional options into variables for convenience
-$defaultlang = $db->getOption("default_lang", "en");
+require_once("../includes/loader_web.php");
 
 session_name("INDISSAdmin");
 session_start();
@@ -43,16 +35,7 @@ if (!isset($_SESSION["lang"])) {
 }
 if (isset($_POST["newlang"]))
     $_SESSION["lang"] = $lang = $_POST["newlang"];
-include($FULL_BASEPATH . "/lang/lang.php");
-
-include_once($FULL_BASEPATH . "/includes/error_handling/LiveErrorHandler.php");
-$handler = LiveErrorHandler::add("Admin");
-
-include_once($FULL_BASEPATH . "/components/com_UsrMgr/UsrMan.php");
-UsrMan::readDB("users");
-
-include_once($FULL_BASEPATH . "/components/com_ComMgr/ComMan.php");
-ComMan::readDB("components");
+include("$FBP2/lang/lang.php");
     
     if (isset($_POST['submit'])) {
         switch ($_POST["task"]) {

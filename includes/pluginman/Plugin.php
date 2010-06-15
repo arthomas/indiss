@@ -3,7 +3,7 @@
  * @version     2010-06-07
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
- * @module      
+ * @module      class that holds info about installed plugins
  * 
  * @license     This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU General Public License as published by
@@ -19,8 +19,17 @@
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once("PluginMan.php");
- 
+defined("__CONFIGFILE") or die("Config file not included [" . __FILE__ . "]");
+defined("__DATABASE") or die("Database connection not included [" . __FILE__ . "]");
+defined("__LANG") or die("Database connection not included [" . __FILE__ . "]");
+defined("__PLUGINMAN") or die("Database connection not included [" . __FILE__ . "]");
+
+/**
+ * Class that contains the data and operations of a plugin. This is also the common
+ * super-class for all plugins.
+ * @author Patrick Lehner
+ *
+ */
 class Plugin {
     
     //---- Object properties ------------------------------------------------------------

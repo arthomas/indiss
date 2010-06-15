@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-06-06
+ * @version     2010-06-07
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      User manager core component
@@ -20,20 +20,19 @@
  */
 
 defined("__CONFIGFILE") or die("Config file not included [" . __FILE__ . "]");
-defined("__DIRAWARE") or die("Directory awareness not included [" . __FILE__ . "]");
 defined("__DATABASE") or die("Database connection not included [" . __FILE__ . "]");
 defined("__LANG") or die("Language file not included [" . __FILE__ . "]");
 
 define("__USRMAN", 1);
 
-include_once($FULL_BASEPATH . "/includes/error_handling/LiveErrorHandler.php");
-include_once($FULL_BASEPATH . "/includes/logging/Logger.php");
+include_once($FBP . "includes/error_handling/LiveErrorHandler.php");
+include_once($FBP . "includes/logging/Logger.php");
 
 $handler = LiveErrorHandler::getLastHandler();
 if (!$handler)
     $handler = LiveErrorHandler::add("UsrMan");
     
-include_once($FULL_BASEPATH . "/includes/logging/helper_loggers.php");
+include_once($FBP . "includes/logging/helper_loggers.php");
 
 /**
  * Class to manage user accounts internally.

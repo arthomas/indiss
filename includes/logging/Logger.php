@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-05-03
+ * @version     2010-06-15
  * @author      Myriam Leggieri <myriam.leggieri@gmail.com>
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Myriam Leggieri, Patrick Lehner
@@ -24,7 +24,6 @@
  */
 
 defined("__CONFIGFILE") or die("Config file not included [" . __FILE__ . "]");
-defined("__DIRAWARE") or die("Directory awareness not included [" . __FILE__ . "]");
 defined("__DATABASE") or die("Database connection not included [" . __FILE__ . "]");
 
 define("__LOGGER", 1);
@@ -33,19 +32,70 @@ class Logger {
     
     //---- Class constants --------------------------------------------------------------
 
-	const filesize = 104857600;            //maximum file size of log file, in bytes
+    /** 
+     * Maximum size of log file before rotation, in bytes.
+     * @var int
+     */
+	const maxFilesize = 104857600;
+	/**
+	 * Delimiter for the search queries entered by the user.
+	 * @var string
+	 */
 	const searchQueryDelimiter = ",";
+	/**
+	 * The prefix for INDISS log files.
+	 * @var string
+	 */
 	const fileNamePrefix = "indiss_";
+	/**
+	 * The delimiter inserted between the root filename and the count (for archived files).
+	 * @var string
+	 */
 	const fileNameDelimiter = "_";
+	/**
+	 * The suffix (including file extension) for log files
+	 * @var string
+	 */
 	const fileNameSuffix = ".log";
+	/**
+	 * Prefix for log tables in the database.
+	 * @var string
+	 */
 	const tablePrefix = "logs_";
-	const csvDelimiter = ";";              //cell delimiter for the CSV file; Note: changing this will make all previously created log files unreadable!
-	const logsFolder = "/logs";             //directory within the INDISS folder to place the log files in; it is assumed this folder already exists
+	/**
+	 * Cell delimiter for the CSV file. Note: changing this will make all previously
+	 * created log files unreadable!
+	 * @var string
+	 */
+	const csvDelimiter = ";";
+	/**
+	 * Directory within the INDISS folder to place the log files in. This folder must exist
+	 * and be writable by PHP.
+	 * @var string
+	 */
+	const logsFolder = "logs/";
 	
 	
     //---- Static properties ------------------------------------------------------------
 
-	public static $parameters = array('when', 'uid', 'origin', 'type', 'message');  //these are the values inserted below for $col_datetime, $col_user, $col_origin, $col_type and $col_info, respectively
+	/**
+	 * These are the values inserted below for $col_datetime, $col_user, $col_origin,
+	 * $col_type and $col_info, respectively
+	 * @var array
+	 */
+	public static $parameters = array('when', 'uid', 'origin', 'type', 'message');
+	/**
+	 * The log event levels. These will be translated to global constants; e.g. for the
+	 * level 'error' with the index 3, a global constant names LEL_ERROR will be created.
+	 * @var array
+	 */
+	public static $levels = array(
+        0 => "debug",
+        1 => "notice",
+        2 => "warning",
+        3 => "error",
+        4 => "critical"
+	);
 	
 	
     //---- Object properties ------------------------------------------------------------
@@ -57,88 +107,30 @@ class Logger {
 	private $col_origin = null;
 	private $col_type = null;
 	private $col_info = null;
-	private $name;
-	private $logToFile = true;
-	private $logToDb = true;
-	private $firstEvent = true;    //this remembers if we need to output a separator before logging the first event after creation
-	private $passthrough = false;  //if true, log events will be passed through
-	private $passthroughTo;        //reference(s) to other logger(s) to pass events through to
+	private $logs = array();
+	private $liveEvents = array();
 	
 	
     //---- Object methods ---------------------------------------------------------------
     
-	
-	// Constructor:
-	
     /**
-     * @desc Constructor for logger objects. Each concurrently used logger should get a unique name
-     * which determines db table name and file name; the name must thus be compatible with db
-     * and file system naming conventions, i.e. lower-case letters, numbers and underscore only.
-     * @param <i>string</i> <b>$name</b>: The name of this logger, will determine db table name and 
-     * file name. Due to PHP's auto-casting feature, this can theoretically also be a number
-     * (int/float) -- no promises though.
-     * @return void
+     * Construct a logger object.
      */
-    public function __construct($name, $logToFile = null, $logToDb = null) {
-        global $db;
-        if (!is_string($name)) {
-            trigger_error("Logger::__construct(): first argument must be of type string", E_USER_WARNING);
-            return false;
-        }
-        if (!(is_bool($logToFile) || is_null($logToFile))) {
-            trigger_error("Logger::__construct(): second argument must be NULL or of type bool", E_USER_WARNING);
-            return false;
-        }
-        if (!(is_bool($logToDb) || is_null($logToDb))) {
-            trigger_error("Logger::__construct(): third argument must be NULL or of type bool", E_USER_WARNING);
-            return false;
-        }
-        if (is_null($logToFile))
-            $logToFile = $db->getBoolOption("log_to_file", true);
-        if (is_null($logToDb))
-            $logToDb = $db->getBoolOption("log_to_db", false);
-        if ( !$logToFile && !$logToDb ) {
-            trigger_error("Logger::__construct(): this logger ('$name') will do nothing (log neither to file nor to DB)", E_USER_NOTICE);
-        }
-        $this->name = $name;
-        $this->logToFile = $logToFile;
-        $this->logToDb = $logToDb;
-        if ($logToFile) {
-            if (!file_exists($this->constructLogFileCompletePath())){
-                $this->createNewLogFile();
-            }
-        }
-        if ($logToDb) {
-                $this->col_datetime = self::$parameters[0];
-                $this->col_user = self::$parameters[1];
-                $this->col_origin = self::$parameters[2];
-                $this->col_type = self::$parameters[3];
-                $this->col_info = self::$parameters[4];
-                $tablename = self::tablePrefix . $name;
-                $query = "CREATE TABLE IF NOT EXISTS `$tablename` (
-                    `$this->col_key` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                    `$this->col_datetime` DATETIME NOT NULL,
-                    `$this->col_user` INT DEFAULT NULL ,
-                    `$this->col_origin` VARCHAR( 255 ) NOT NULL,
-                    `$this->col_type` VARCHAR( 255 ) NOT NULL,
-                    `$this->col_info` VARCHAR( 1023 ) NOT NULL
-                    )";
-                if (!mysql_query($query)){
-                    trigger_error("Logger::__construct(): Cannot create the db table '$tablename'.\nmysql error:".mysql_error(), E_USER_ERROR);
-                }
-        }
+    public function __construct() {
+        $this->col_datetime = self::$parameters[0];
+        $this->col_user = self::$parameters[1];
+        $this->col_origin = self::$parameters[2];
+        $this->col_type = self::$parameters[3];
+        $this->col_info = self::$parameters[4];
     }
     
-    
-    
-    
-    // General utility functions:
 
     /**
-     * @desc Formats the date passed as $time or the current time() if NULL is passed
-     * to be used in a mysql query.
-     * @param $time
-     * @return Formatted DATETIME string
+     * Format the date passed as $time, or the current time() if NULL is passed,
+     * to be used in a MySQL query.
+     * @param string $time The time stamp to be formatted, or NULL to use the
+     * current system time. Defaults to NULL.
+     * @return string Returns the formatted DATETIME string
      */
     private function datetimeFormatter($time=NULL){
         if (!is_null($time)){
@@ -150,78 +142,81 @@ class Logger {
     }
     
     
-    
-    
-    // CSV-related utility functions:
-
-    private function constructLogFileCompletePath($index = null){
-        global $FULL_BASEPATH;
+    /**
+     * Construct the complete log file path, consisting of:
+     * full base path to INDISS, the logs subfolder, the file name prefix,
+     * the name of the log, the index (if any) and the file name suffix.
+     * @param string $basename The name of the log
+     * @param int $index The index of the file. Will be formatted as a
+     * 3 character-wide number, if given. If NULL, will be ignored. Defaults
+     * to NULL.
+     */
+    private function constructLogFileCompletePath($basename, $index = null){
+        global $FBP;
         $indexbit = (is_null($index)) ? "" : self::fileNameDelimiter . sprintf("%03d", $index);
-        return $FULL_BASEPATH . self::logsFolder . "/" . self::fileNamePrefix . $this->name . $indexbit . self::fileNameSuffix;
+        return $FBP . self::logsFolder . self::fileNamePrefix . $basename . $indexbit . self::fileNameSuffix;
     }
     
     /**
-     * @desc When the file exceeds the maximum file size, a new one is created
-     * @return (bool) True on success or false on failure.
+     * Create a new log file if necessary, and move an existing log file exceeding
+     * maximum file size to an archive location.
+     * @param string $basename The log name.
+     * @return bool Returns true on success or false on failure.
      */
-    private function createNewLogFile(){
-        $ret = true;
-
-        $f = fopen($this->constructLogFileCompletePath(), "w");
-        if (!$f) {
-            trigger_error("Logger::createNewLogFile(): Cannot create new log file", E_USER_ERROR);
-            $ret = false;
+    private function createNewLogFile($basename){
+        //check if file exists and, if so, if it exceeds the max file size
+        $fn = $this->constructLogFileCompletePath($basename);
+        if (file_exists($fn) && filesize($fn) > self::maxFilesize) { //if so, rename it to the next unused numbered file
+            $i = 1;
+            while (file_exists($fn2 = $this->constructLogFileCompletePath($basename, $i))){
+                $i++;
+            }
+            if (rename($fn, $fn2) === false)
+                return false;
         }
-        fclose($f);
-        return $ret;
+
+        if (!file_exists($fn)) {
+            //create the new log file, then close it again
+            $f = fopen($fn, "w");
+            if ($f === false) {
+                trigger_error("Logger::createNewLogFile(): Cannot create new log file", E_USER_ERROR);
+                return false;
+            }
+            fclose($f);
+        }
+        return true;
     }
 
-	private function renameOldLogFile(){
-		$i = 1;
-		while (file_exists($fn = constructLogFileCompletePath($i))){
-			$i++;
-		}
-		return rename($this->constructLogFileCompletePath(), $fn);
-	}
-
 	/**
-	 * @desc Append a new event to the log file after checking if a new log file
-	 * needs to be created becuase of file size exceeding.
-	 * @param $row
-	 * @return (bool)
+	 * Append a new event to the log file.
+	 * @param string $basename The basename of the file to which will be added the relative
+	 * path, prefix and suffix as defined the class constants.
+	 * @param array $row The data to be written to the file.
+	 * @return bool Returns true on success or false on failure.
 	 */
-	private function appendEventToCsv($row){
+	private function appendEventToCsv($basename, $row){
 		$ret = true;
-		$logfile = $this->constructLogFileCompletePath();
-		if (filesize($logfile) > self::filesize){
-			$this->renameOldLogFile();
-			$this->createNewLogFile();
-		}
 
-		$f = fopen($logfile, "a");
-		if (!$f) {
-			$ret = false;
+		$f = fopen($this->constructLogFileCompletePath($basename), "a");
+		if ($f === false) {
+			return false;
 		} else {
-			if (!fputcsv($f, $row, self::csvDelimiter)){
-				$ret = false;
-			}
+			$ret = fputcsv($f, $row, self::csvDelimiter) !== false;
 		}
 		fclose($f);
 		return $ret;
 	}
 
     /**
-     *
-     * @param <i>string</i> <b>$filename</b>: the log file's name, without the path
+     * Read a CSV log file into an array.
+     * @param string $filename The path to the log file
      * @return 2-D array, where the first dimension is the line and the second dimension is the column in the CSV file.
      */
     private function getCsvFileContent($filename){
         $ret = array();
-        global $FULL_BASEPATH;
-        $filename = $FULL_BASEPATH . self::logsFolder . $filename;
         if (!$f = fopen($filename, "r")) {
-            trigger_error("Logger::getCsvFileContent(): Cannot open in read mode the file ($filename)", E_USER_ERROR);
-            $ret = null;
+            trigger_error("Logger::getCsvFileContent(): Cannot open file in read mode ($filename)", E_USER_ERROR);
+            return null;
         } else {
             while (($csv_line = fgetcsv($f, 1000, self::csvDelimiter)) !== FALSE) {
                 $ret[] = $csv_line;
@@ -232,17 +227,18 @@ class Logger {
     }
 
     /**
-     *
-     * @return One big array with all existing log files appended one after another
+     * Read the current and all archived log files of a certain log into an array.
+     * @return One big array with all existing log files appended one after another (old to new)
      */
-    private function getAllCsvFilesContent(){
+    private function getAllCsvFilesContent($basename){
+        global $FBP;
         $result_array = array();
         $i = 1;
-        while ( file_exists($fn=sprintf("%s%s%s%03d%s", self::fileNamePrefix, $this->name, self::fileNameDelimiter, $i++, self::fileNameSuffix)) )
+        while ( file_exists($fn=$this->constructLogFileCompletePath($basename, $i++)) )
         {
-            $result_array[] = array_merge($result_array, $this->getCsvFileContent($fn));
+            $result_array = array_merge($result_array, $this->getCsvFileContent($fn));
         }
-        $result_array[] = array_merge($result_array, $this->getCsvFileContent(self::fileNamePrefix . $this->name . self::fileNameSuffix));
+        $result_array = array_merge($result_array, $this->getCsvFileContent($this->constructLogFileCompletePath($basename)));
         return $result_array;
     }
 
@@ -319,10 +315,6 @@ class Logger {
         return $eligible;
     }
     
-    
-    
-    
-    // Database-related utility functions
 
     /**
      * split a string that contains values separated by a specific delimiter
@@ -349,103 +341,171 @@ class Logger {
     
     
     
-    
-    // Publicly relevant functions:
-    
-    public function passthrough($enablePassthrough, $passthroughTo = null) {
-        //note: "passthrough" is abbreviated as PT in the comments here
-        if (!is_bool($enablePassthrough)) {
-            trigger_error("Logger::passthrough(): first argument must be of type bool", E_USER_ERROR);
-            return false;
+    public function addLog($name, $minLevel, $logLive = false, $logToFile = null, $logToDb = null, $isDebug = false) {
+        global $db;
+        foreach ($this->logs as $l)
+            if ($l["name"] == $name)
+                return false;
+        if ( !$logLive && !$logToFile && !$logToDb ) {
+            trigger_error(__CLASS__ . "::" . __METHOD__ . "(): this logger will do nothing", E_USER_NOTICE);
         }
-        if (is_array($passthroughTo)) {
-            foreach ($passthroughTo as $p) {
-                if (!($p instanceof Logger)) {
-                    trigger_error("Logger::passthrough(): second argument must be NULL, a Logger object or an array of Logger objects", E_USER_ERROR);
-                    return false;
-                }
+        if ($logToFile) {
+            //if necessary, move the old log file and create a new one
+            $this->createNewLogFile($name);
+        }
+        if ($logToDb) {
+            //create table if necessary
+            $tablename = self::tablePrefix . $name;
+            $query = "CREATE TABLE IF NOT EXISTS `$tablename` (
+                `$this->col_key` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                `$this->col_datetime` DATETIME NOT NULL,
+                `$this->col_user` INT DEFAULT NULL ,
+                `$this->col_origin` VARCHAR( 255 ) NOT NULL,
+                `$this->col_type` VARCHAR( 255 ) NOT NULL,
+                `$this->col_info` VARCHAR( 1023 ) NOT NULL
+                )";
+            if (!mysql_query($query)){
+                trigger_error("Logger::__construct(): Cannot create the db table '$tablename'.\nmysql error:".mysql_error(), E_USER_ERROR);
             }
-        } else if (!(is_null($passthroughTo) || $passthroughTo instanceof Logger)) {
-            trigger_error("Logger::passthrough(): second argument must be NULL, a Logger object or an array of Logger objects", E_USER_ERROR);
-            return false;
         }
-        
-        if (!is_null($passthroughTo)) {                 //if a PT target is passed on, save it; otherwise leave target unchanged
-            if (!is_array($passthroughTo)) {
-                $passthroughTo = array($passthroughTo);
-            }
-            $this->passthroughTo = $passthroughTo;
-        }
-        
-        if (!is_null($this->passthroughTo)) {           //if there is a PT target, save the PT-enable status from the argument
-            $this->passthrough = $enablePassthrough;
-        } else {                                        //otherwise disable PT
-            $this->passthrough = false;
-        }
-        
-        //note: the implemented behaviour allows you to temporarily disable PT without forgetting the target
-        
+        $l["name"] = $name;
+        $l["minLevel"] = $minLevel;
+        $l["logLive"] = $logLive;
+        if (is_null($logToFile))
+            $logToFile = $db->getBoolOption("log_to_file", true);
+        $l["logToFile"] = $logToFile;
+        if (is_null($logToDb))
+            $logToDb = $db->getBoolOption("log_to_db", false);
+        $l["logToDb"] = $logToDb;
+        $l["isDebug"] = $isDebug;
+        $this->logs[] = $l;
         return true;
     }
-	
-	/**
-	 * @desc Log an event.
-	 * @param $origin
-	 * @param $type
-	 * @param $message
-	 * @param $userId
-	 * @return (bool)
-	 */
-	public function log($origin, $type, $message, $userId = null, $PToverride = false) {
-        $ret = true;
-        if ($firstEvent) {
-            $firstEvent = false;
-            $this->log("Logger created", "Notice", "--------------------------------------------------------------------------------------", $userId, true);
-        }
+    
+    public function removeLog($name) {
+        foreach ($this->logs as $k => $l)
+            if ($l["name"] == $name) {
+                unset($this->logs[$k]);
+                return true;
+            }
+        return false;
+    }
+    
+    /**
+     * Actually add a log event to all logs that fulfill the level condition.
+     * (An event is logged when its level is equal to or higher than the minimum
+     * level of a log).
+     * @param string $origin
+     * @param int $level
+     * @param string $message
+     * @param int $userId
+     * @param array $logTo
+     */
+    private function logEvent($origin, $level, $message, $userId, $logTo) {
+        $r = true;  //return value
         $when = $this->datetimeFormatter();
         global $activeUsr;
         if (defined("__USRMAN"))
-            if (isset($activeUsr) && is_null($userId))
+            if (isset($activeUsr) && $userId == 0)
                 $userId = $activeUsr->getId();
-        if ($this->logToFile) {
-            $str = array($when, $userId, $origin, $type, $message);
-            $ret = $ret && $this->appendEventToCsv($str);
-        }
-        if ($this->logToDb) {
-            $tablename = self::tablePrefix . $this->name;
-            if (!is_null($userId))
-                $uid = "'$userId'";
-            else
-                $uid = "NULL";
-            $origin = mysql_real_escape_string($origin);
-            $type = mysql_real_escape_string($type);
-            $message = mysql_real_escape_string($message);
-            $query = "INSERT INTO `$tablename` (`$this->col_datetime`, `$this->col_user`, `$this->col_origin`, `$this->col_type`, `$this->col_info`)
-                     VALUES ('$when', $uid, '$origin', '$type', '$message')";
-    
-            if (!mysql_query($query)){
-                trigger_error("Logger::log(): Cannot insert log event into db table '$tablename'.\nmysql error: ".mysql_error(), E_USER_WARNING);
-                $ret = false;
+        $CSVdata = array($when, $userId, $origin, $this->levels[$level], $message);
+        $DBorigin = mysql_real_escape_string($origin);
+        $DBlevel = mysql_real_escape_string($this->levels[$level]);
+        $DBmessage = mysql_real_escape_string($message);
+        $query_template = "INSERT INTO `%s` (`$this->col_datetime`, `$this->col_user`, `$this->col_origin`, `$this->col_type`, `$this->col_info`)
+                          VALUES ('$when', $userId, '$DBorigin', '$DBlevel', '$DBmessage')";
+            
+        foreach ($logTo as $index) {
+            $l = $this->logs[$index];
+            if ($l["logLive"]) {
+                $m["level"] = $level;
+                $m["origin"] = $origin;
+                $m["message"] = $message;
+                $this->liveEvents[$l["name"]][] = $m;
+            }
+            if ($l["logToFile"]) {
+                $r = $r && $this->appendEventToCsv($l["name"], $CSVdata);
+            }
+            if ($l["logToDb"]) {
+                $tablename = self::tablePrefix . $l["name"];
+                if (!mysql_query(sprint($query_template, $tablename))){
+                    trigger_error(__CLASS__ . "::" . __METHOD__ . "(): Cannot insert log event into db table '$tablename'. MySQL error: " . mysql_error(), E_USER_WARNING);
+                    $r = false;
+                }
             }
         }
-        if ($this->passthrough && !(is_null($this->passthroughTo)) && !$PToverride) {
-            foreach ($this->passthroughTo as $pt)
-                $pt->log($origin, $type, $message, $userId);
+        
+        return $r;
+    }
+    
+    public function getMsgCount($logName) {
+        return count($this->liveEvents[$logName]);
+    }
+    
+    public function getMessages($logName) {
+        return $this->liveEvents[$logName];
+    }
+    
+    public function getFormatted($logName) {
+        $str  = "<div class=\"messagebox\" id=\"log_$logName\">\n";
+        $str .= "<table summary=\"\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"messagetable\"><tbody>\n";
+        if (count($this->liveEvents[$logName]) == 0) {
+            $str .= "<tr><td class=\"noMessages\">(No messages)</td></tr>\n";
+        } else {
+            foreach ($this->liveEvents[$logName] as $msg) {
+                $message = preg_replace(array('@(?<!<br />|<br>)(?:<br>|)$@im'), array("<br />"), $msg["message"]); //this line turns all simple line breaks and <br>'s into XHTML-compliant <br />'s
+                $str .= "<tr>";
+                $str .= "<td class=\"origin" . ((empty($msg["origin"])) ? " noOrigin" : "" ) . "\">" . $msg["origin"] . ((empty($msg["origin"])) ? "" : ":" ) . "</td>";
+                $str .= "<td class=\"message\">$message</td>";
+                $str .= "</tr>\n";
+            }
         }
-        return $ret;
+        $str .= "</tbody></table>\n";
+        $str .= "</div>\n";
+        return $str;
+    }
+    
+	
+	/**
+	 * Log an event. Adds the event to all logs marked to log events whose 
+	 * level is equal or lower than or equal to this one's. If the global
+	 * debug flag is set, also adds the event to all debug logs that fulfill
+	 * the level condition.
+	 * @param string $origin
+	 * @param int $level
+	 * @param string $message
+	 * @param int $userId
+	 */
+	public function log($origin, $level, $message, $userId = 0) {
+        $logTo = array();
+        foreach ($this->logs as $k => $v)
+            if ($level >= $v["minLevel"])
+                $logTo[] = $k;
+        if (empty($logTo))
+            return false;
+        return $this->logEvent($origin, $level, $message, $userId, $logTo);
 	}
 	
-	public function debuglog($origin, $type, $message, $userId = null) {
+	/**
+	 * Debug-log an event. Only adds the event to the logs if the global
+	 * debug flag is set, and only adds the event to logs marked for debug
+	 * logging.
+	 * @param string $origin
+	 * @param int $level
+	 * @param string $message
+	 * @param int $userId
+	 */
+	public function dlog($origin, $level, $message, $userId = 0) {
 	    global $debug;
-	    if ($debug) {
-            if ($this->passthrough && !(is_null($this->passthroughTo))) {
-                foreach ($this->passthroughTo as $pt)
-                    $pt->debuglog($origin, $type, $message, $userId);
-            }
-            return $this->log($origin, "$type", $message, $userId, true);
-	    }
-        else
+	    if (!$debug)
             return false;
+        $logTo = array();
+        foreach ($this->logs as $k => $v)
+            if ($v["isDebug"] && $level >= $v["minLevel"])
+                $logTo[] = $k;
+        if (empty($logTo))
+            return false;
+        return $this->logEvent($origin, $level, $message, $userId, $logTo);
 	}
 
 	/**
@@ -459,8 +519,9 @@ class Logger {
 	 * @param unknown_type $bool_keywords
 	 * @return array of search results.
 	 */
-	public function searchDb($timebefore, $timeafter, $users, $origins, $types, $keywords, $bool_keywords){
-		$query = "SELECT * FROM `$this->tablename` WHERE ";
+	public function searchDb($basename, $timebefore, $timeafter, $users, $origins, $types, $keywords, $bool_keywords){
+	    $tablename = self::tablePrefix . $basename;
+		$query = "SELECT * FROM `$tablename` WHERE ";
 		$items = array();
 		if (!is_null($timebefore)) {
 			$items[] = "$this->col_datetime < '".$this->datetimeFormatter($timebefore)."' ";
@@ -510,9 +571,9 @@ class Logger {
 	 * of the specified keywords or everyone of them.
 	 * @return array of arrays each one containing fields of a log event that match the user query.
 	 */
-	public function searchCsv($timebefore, $timeafter, $users, $origins, $types, $keywords, $bool_keywords){
+	public function searchCsv($basename, $timebefore, $timeafter, $users, $origins, $types, $keywords, $bool_keywords){
 		$search_result = array();
-		$csv_data = $this->getAllCsvFilesContent();
+		$csv_data = $this->getAllCsvFilesContent($basename);
 		
 		//check every line of the complete log array against our search criteria
 		foreach ($csv_data as $line_array) {
@@ -541,4 +602,10 @@ class Logger {
 	}
 
 }
+
+
+//Create global constants for the log event levels
+foreach (Logger::$levels as $key => $value)
+    define("LEL_" . strtoupper($value), $key);
+
 ?>

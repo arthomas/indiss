@@ -1,9 +1,9 @@
 <?php
 /**
- * @version     2010-06-06
+ * @version     2010-06-07
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
- * @module      class that holds info about installed components
+ * @module      class that manages installed plugins
  * 
  * @license     This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@
  */
 
 defined("__CONFIGFILE") or die("Config file not included [" . __FILE__ . "]");
-defined("__DIRAWARE") or die("Directory awareness not included [" . __FILE__ . "]");
 defined("__DATABASE") or die("Database connection not included [" . __FILE__ . "]");
 defined("__LANG") or die("Database connection not included [" . __FILE__ . "]");
 
@@ -36,7 +35,12 @@ if (!$handler)
 include_once($FULL_BASEPATH . "/includes/logging/helper_loggers.php");
 
 require_once("Plugin.php");
- 
+
+/**
+ * Class to manage Plugins internally and keep them in sync with the database.
+ * @author Patrick Lehner
+ *
+ */
 class PluginMan {
     
     //---- Static properties ------------------------------------------------------------
