@@ -23,12 +23,27 @@ defined("__MAIN") or die("Restricted access.");
  
 //Note: this has to be changed if this file is moved somewhere else
 $FBP = dirname(dirname(__FILE__)) . "/";
-$FBP2 = $FULL_BASEPATH = dirname(dirname(__FILE__)); //legacy
+$FBP2 = $FULL_BASEPATH = dirname(dirname(__FILE__)); //FULL_BASEPATH is legacy
 
 require("$FBP2/config/config.php");
 require("$FBP2/config/version.php");
 
 require("$FBP2/includes/database.php");
+$db = new MySQLConnection($dbhost, $dbuser, $dbpass, $dbname); //create the new db object and give it the connection data
+$db->connect(); //connect to database
+
+//load additional options into variables for convenience
+$lang = $defaultlang = $db->getOption("default_lang", "en");
+
+require("$FBP2/lang/lang.php");
+if (isset($_SESSION["lang"]))
+    $lang = $_SESSION["lang"];
+if (isset($_POST["newlang"]))
+    $_SESSION["lang"] = $lang = $_POST["newlang"];
+Lang::createLangList("$FBP2/lang", true);
+Lang::readLangFilesFromDir("$FBP2/lang/$defaultlang", true);
+if ($lang != $defaultlang)
+    Lang::readLangFilesFromDir("$FBP2/lang/$lang");
 
 require("$FBP2/includes/logging/Logger.php");
 $log = new Logger;
@@ -36,13 +51,10 @@ $log->addLog("live", LEL_NOTICE, true, false, false, false);
 $log->addLog("error", LEL_ERROR, false, true, false, false);
 $log->addLog("debug", LEL_DEBUG, false, true, false, true);
 
-//load additional options into variables for convenience
-$defaultlang = $db->getOption("default_lang", "en");
-
 require("$FBP2/includes/usrman/UsrMan.php");
-UsrMan::readDB("users");
+UsrMan::readDB();
 
 require("$FBP2/includes/pluginman/PluginMan.php");
-ComMan::readDB("plugins");
+ComMan::readDB();
 
 ?>

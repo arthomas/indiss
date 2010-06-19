@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-06-06
+ * @version     2010-06-19
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
@@ -374,13 +374,6 @@ class MySQLConnection {
     }
     
 } //end of class MySQLConnection
-
-if (!isset($db)) {
-    //create the new db object and give it the connection data
-    $db = new MySQLConnection($dbhost, $dbuser, $dbpass, $dbname);
-    //connect to database
-    $db->connect();
-}
 	
 
 ?>

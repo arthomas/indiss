@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-06-15
+ * @version     2010-06-19
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Backend main page
@@ -23,19 +23,11 @@ $__startTime = microtime(true);
 
 define("__MAIN", 1);
 
-require_once("../includes/loader_web.php");
-
 session_name("INDISSAdmin");
 session_start();
 
-if (!isset($_SESSION["lang"])) {
-    $_SESSION["lang"] = $lang = $defaultlang;
-} else {
-    $lang = $_SESSION["lang"];
-}
-if (isset($_POST["newlang"]))
-    $_SESSION["lang"] = $lang = $_POST["newlang"];
-include("$FBP2/lang/lang.php");
+//initialize it all
+require_once("../includes/loader_web.php");
     
     if (isset($_POST['submit'])) {
         switch ($_POST["task"]) {
