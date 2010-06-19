@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-06-15
+ * @version     2010-06-19
  * @author      Myriam Leggieri <myriam.leggieri@gmail.com>
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Myriam Leggieri, Patrick Lehner
@@ -391,53 +391,6 @@ class Logger {
         return false;
     }
     
-    /**
-     * Actually add a log event to all logs that fulfill the level condition.
-     * (An event is logged when its level is equal to or higher than the minimum
-     * level of a log).
-     * @param string $origin
-     * @param int $level
-     * @param string $message
-     * @param int $userId
-     * @param array $logTo
-     */
-    private function logEvent($origin, $level, $message, $userId, $logTo) {
-        $r = true;  //return value
-        $when = $this->datetimeFormatter();
-        global $activeUsr;
-        if (defined("__USRMAN"))
-            if (isset($activeUsr) && $userId == 0)
-                $userId = $activeUsr->getId();
-        $CSVdata = array($when, $userId, $origin, $this->levels[$level], $message);
-        $DBorigin = mysql_real_escape_string($origin);
-        $DBlevel = mysql_real_escape_string($this->levels[$level]);
-        $DBmessage = mysql_real_escape_string($message);
-        $query_template = "INSERT INTO `%s` (`$this->col_datetime`, `$this->col_user`, `$this->col_origin`, `$this->col_type`, `$this->col_info`)
-                          VALUES ('$when', $userId, '$DBorigin', '$DBlevel', '$DBmessage')";
-            
-        foreach ($logTo as $index) {
-            $l = $this->logs[$index];
-            if ($l["logLive"]) {
-                $m["level"] = $level;
-                $m["origin"] = $origin;
-                $m["message"] = $message;
-                $this->liveEvents[$l["name"]][] = $m;
-            }
-            if ($l["logToFile"]) {
-                $r = $r && $this->appendEventToCsv($l["name"], $CSVdata);
-            }
-            if ($l["logToDb"]) {
-                $tablename = self::tablePrefix . $l["name"];
-                if (!mysql_query(sprint($query_template, $tablename))){
-                    trigger_error(__CLASS__ . "::" . __METHOD__ . "(): Cannot insert log event into db table '$tablename'. MySQL error: " . mysql_error(), E_USER_WARNING);
-                    $r = false;
-                }
-            }
-        }
-        
-        return $r;
-    }
-    
     public function getMsgCount($logName) {
         return count($this->liveEvents[$logName]);
     }
@@ -465,6 +418,62 @@ class Logger {
         return $str;
     }
     
+    /**
+     * Actually add a log event to all logs that fulfill the level condition.
+     * (An event is logged when its level is equal to or higher than the minimum
+     * level of a log).
+     * @param string $origin
+     * @param int $level
+     * @param string $message
+     * @param int $userId
+     * @param array $logTo
+     * @param bool[optional] $translate
+     */
+    private function logEvent($origin, $level, $message, $userId, $logTo, $translate = false) {
+        $r = true;  //return value
+        if (is_array($message))
+            $translate = true;
+        $when = $this->datetimeFormatter();
+        global $activeUsr;
+        if (defined("__USRMAN"))
+            if (isset($activeUsr) && $userId == 0)
+                $userId = $activeUsr->getId();
+        if ($translate)
+            $msg = Lang::translate($message, true, true);
+        $msg = preg_replace(array("/<[^>]*>/i"), "", $msg);
+        $CSVdata = array($when, $userId, $origin, $this->levels[$level], $msg);
+        $DBorigin = mysql_real_escape_string($origin);
+        $DBlevel = mysql_real_escape_string($this->levels[$level]);
+        $DBmessage = mysql_real_escape_string($msg);
+        $query_template = "INSERT INTO `%s` (`$this->col_datetime`, `$this->col_user`, `$this->col_origin`, `$this->col_type`, `$this->col_info`)
+                          VALUES ('$when', $userId, '$DBorigin', '$DBlevel', '$DBmessage')";
+            
+        foreach ($logTo as $index) {
+            $l = $this->logs[$index];
+            if ($l["logLive"]) {
+                $m["level"] = $level;
+                $m["origin"] = $origin;
+                if ($translate)
+                    $m["message"] = Lang::translate($message);
+                else
+                    $m["message"] = $message;
+                $this->liveEvents[$l["name"]][] = $m;
+            }
+            if ($l["logToFile"]) {
+                $r = $r && $this->appendEventToCsv($l["name"], $CSVdata);
+            }
+            if ($l["logToDb"]) {
+                $tablename = self::tablePrefix . $l["name"];
+                if (!mysql_query(sprint($query_template, $tablename))){
+                    trigger_error(__CLASS__ . "::" . __METHOD__ . "(): Cannot insert log event into db table '$tablename'. MySQL error: " . mysql_error(), E_USER_WARNING);
+                    $r = false;
+                }
+            }
+        }
+        
+        return $r;
+    }
+    
 	
 	/**
 	 * Log an event. Adds the event to all logs marked to log events whose 
@@ -474,7 +483,7 @@ class Logger {
 	 * @param string $origin
 	 * @param int $level
 	 * @param string $message
-	 * @param int $userId
+	 * @param int[optional] $userId
 	 */
 	public function log($origin, $level, $message, $userId = 0) {
         $logTo = array();
@@ -486,6 +495,16 @@ class Logger {
         return $this->logEvent($origin, $level, $message, $userId, $logTo);
 	}
 	
+	public function llog($origin, $level, $message, $userId = 0) {
+	    $logTo = array();
+        foreach ($this->logs as $k => $v)
+            if ($level >= $v["minLevel"])
+                $logTo[] = $k;
+        if (empty($logTo))
+            return false;
+        return $this->logEvent($origin, $level, $message, $userId, $logTo, true);
+	}
+	
 	/**
 	 * Debug-log an event. Only adds the event to the logs if the global
 	 * debug flag is set, and only adds the event to logs marked for debug
@@ -493,7 +512,7 @@ class Logger {
 	 * @param string $origin
 	 * @param int $level
 	 * @param string $message
-	 * @param int $userId
+	 * @param int[optional] $userId
 	 */
 	public function dlog($origin, $level, $message, $userId = 0) {
 	    global $debug;
@@ -506,6 +525,19 @@ class Logger {
         if (empty($logTo))
             return false;
         return $this->logEvent($origin, $level, $message, $userId, $logTo);
+	}
+	
+	public function ldlog($origin, $level, $message, $userId = 0) {
+        global $debug;
+        if (!$debug)
+            return false;
+        $logTo = array();
+        foreach ($this->logs as $k => $v)
+            if ($v["isDebug"] && $level >= $v["minLevel"])
+                $logTo[] = $k;
+        if (empty($logTo))
+            return false;
+        return $this->logEvent($origin, $level, $message, $userId, $logTo, true);
 	}
 
 	/**
