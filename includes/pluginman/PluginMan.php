@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-06-07
+ * @version     2010-06-20
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that manages installed plugins
@@ -19,20 +19,13 @@
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+defined("__MAIN") or die("Restricted access.");
+
 defined("__CONFIGFILE") or die("Config file not included [" . __FILE__ . "]");
 defined("__DATABASE") or die("Database connection not included [" . __FILE__ . "]");
 defined("__LANG") or die("Database connection not included [" . __FILE__ . "]");
 
 define("__PLUGINMAN", 1);
-
-include_once($FULL_BASEPATH . "/includes/error_handling/LiveErrorHandler.php");
-include_once($FULL_BASEPATH . "/includes/logging/Logger.php");
-
-$handler = LiveErrorHandler::getLastHandler();
-if (!$handler)
-    $handler = LiveErrorHandler::add("PluginMan");
-    
-include_once($FULL_BASEPATH . "/includes/logging/helper_loggers.php");
 
 require_once("Plugin.php");
 
@@ -73,65 +66,76 @@ class PluginMan {
      * @return bool At the moment, always returns true.
      */
     public static function setCommonPath($path) {
+        global $log;
         $path = trim($path, "/\\") . "/";
         self::$commonPath = $path;
+        $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Changed common path to $path");
         return true;
     }
     
     /**
-     * 
+     * Retrieve a plugin by its ID.
      * @param int $id
-     * @param bool $silent
+     * @param bool[optional] $silent
+     * @return mixed Returns the Plugin object on success or boolean false on failure.
      */
     public static function getPlugin($id, $silent = false) {
-        global $logError, $logDebug;
+        global $log;
         if (isset(self::$plugins[$id])) {
-            $logDebug->debuglog("Plugin manager", "Notice", "Successfully retrieved plugin '" . self::$plugins[$id]->iname . "' by id '$id'");
+            $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully retrieved plugin '" . self::$plugins[$id]->getIname() . "' by ID '$id'");
             return self::$plugins[$id];
         } else {
-            $emsg = "PuginMan::getPlugin(): plugin with id '$id' was not found";
+            $emsg = __CLASS__ . "::" . __METHOD__ . "(): Plugin with id '$id' was not found";
             if (!$silent) {
                 trigger_error($emsg, E_USER_WARNING);
-                $logError->log("Plugin manager", "Error", $emsg);
+                $log->log("Plugin manager", LEL_ERROR, $emsg);
+            } else {
+                $log->dlog("Plugin manager", LEL_NOTICE, $emsg . " (silent mode)");
             }
             return false;
         }
     }
     
     /**
-     * 
+     * Retrieve a plugin by its iname.
      * @param string $iname
-     * @param bool $silent
+     * @param bool[optional] $silent
+     * @return mixed Returns the Plugin object on success or boolean false on failure.
      */
     public static function getPluginByIname($iname, $silent = false) {
-        global $logError, $logDebug;
+        global $log;
         foreach (self::$plugins as $plugin)
             if ($plugin->iname == $iname) {
-                $logDebug->debuglog("Component manager", "Notice", "Successfully retrieved component '" . $plugin->iname . "' by internal name");
+                $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully retrieved component '" . $plugin->getIname() . "' by internal name");
                 return $plugin;
             }
-        $emsg = "ComMan::getComByName(): no component named '$iname' was found";
+        $emsg = __CLASS__ . "::" . __METHOD__ . "(): no plugin named '$iname' was found";
         if (!$silent) {
             trigger_error($emsg, E_USER_WARNING);
-            $logError->log("Component manager", "Warning", $emsg);
+            $log->log("Plugin manager", LEL_WARNING, $emsg);
+        } else {
+            $log->dlog("Plugin manager", LEL_NOTICE, $emsg . " (silent mode)");
         }
         return false;
     }
     
     /**
-     * 
-     * @param string $table
+     * Read all plugins from the database into the internal array.
+     * @param string[optional] $table
+     * @return bool Returns true on success or false on failure.
      */
     public static function readDB($table = null) {
-        global $logError, $logDebug, $db;
+        global $log, $db;
         if (!is_null($table))
             self::$dbTable = $table;
+        else
+            $table = self::$dbTable;
         self::$plugins = array(); //reset the plugin array -- that way this function can also refresh the DB array
         $query = "SELECT * FROM `$table`";
         $result = $db->q($query);
         if (!$result) {
-            trigger_error($emsg = "UsrMan::readDB(): database error: " . mysql_error() . "; query: " . $query, E_USER_WARNING);
-            $logError->log("Component manager", "Error", $emsg);
+            trigger_error($emsg = __CLASS__ . "::" . __METHOD__ . "(): database error: " . $db->e() . "; query: " . $query, E_USER_WARNING);
+            $log->log("Plugin manager", LEL_ERROR, $emsg);
             return false;
         }
         while ($rows[] = mysql_fetch_assoc($result)) ; //fetch all resulting rows and save them into our array
@@ -141,97 +145,113 @@ class PluginMan {
                 self::$plugins[(int)$row["id"]] = $plugin;
             }
         } else {
-            trigger_error($emsg = "UsrMan::readDB(): The database contained no entries for components", E_USER_WARNING);
-            $logError->log("Component manager", "Error", $emsg);
+            trigger_error($emsg = __CLASS__ . "::" . __METHOD__ . "(): The database contained no entries for plugins", E_USER_WARNING);
+            $log->log("Plugin manager", LEL_ERROR, $emsg);
             return false;
         }
-        $logDebug->debuglog("Component manager", "Notice", "Successfully read " . count(self::$plugins) . " components from database table $table");
+        $log->dlog("Plugin manager", LEL_NOTICE, "Successfully read " . count(self::$plugins) . " plugins from database table $table");
         return true;
     }
     
     /**
-     * 
-     * @param unknown_type $comName
-     * @param bool $mindPath If true, the function will return an iname that can also be used as a folder name (it
-     * checks that that folder name is not in use)
+     * Generate a new iname from a plugins pName.
+     * @param string $pName
+     * @param bool[optional] $mindPath If true, the function will return an iname that can also be used as a folder name (it
+     * checks that that folder name is not in use). Defaults to false.
      */
     private static function generateIname($pName, $mindPath = false) {
-        global $logError, $logDebug;
-        global $FBP;
+        global $FBP, $log;
         $p = $FBP . self::$commonPath;
-        if (!self::getPluginByIname($pName, true) && (!$mindPath || !file_exists($p . "/$pName")))
-            return $pName;
-        $i = 1;
-        while (self::getPluginByIname($iname = sprintf("%s_%03d", $pName, $i), true) || ($mindPath && file_exists("$p/$iname")))    //note that his line relies on the fact that the || operator is evaluated left-to-right
-            $i++;
-        return $iname;
+        if (!self::getPluginByIname($pName, true) && (!$mindPath || !file_exists($p . "$pName")))
+            $r = $pName;
+        else {
+            $i = 1;
+            while (self::getPluginByIname($iname = sprintf("%s_%03d", $pName, $i), true) || ($mindPath && file_exists($p . $iname)))    //note that his line relies on the fact that the || operator is evaluated left-to-right
+                $i++;
+            $r = $iname;
+        }
+        $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Generated new iname '$r' from pName '$pName', mindPath is " . (($mindPath) ? "true" : "false"));
+        return $r;
     }
     
     /**
-     * 
+     * Add a new plugin to the internal array and to the database.
      * @param string $source
-     * @param string $dname
-     * @param string $iname
-     * @param string $dest
-     * @return mixed
+     * @param string[optional] $dname
+     * @param string[optional] $iname
+     * @param string[optional] $dest
+     * @return mixed Returns the new Plugin object on success or boolean false on failure. 
      */
     public static function add($source, $dname = "", $iname = "", $dest = "") {
-        global $logError, $logDebug, $handler, $db;
+        global $log, $db;
         
         $source = rtrim($source, "/\\");
         
         if (!file_exists($source . "/install.xml")) {
-            $handler->addMsg(lang("commgrComponentManager"), lang("commgrXMLNotFound") . " ($source/install.xml)", LiveErrorHandler::EK_ERROR);
+            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): XML file not found ($source/install.xml)");
             return false;
         }
         
         $xml = simplexml_load_file($source . "/install.xml");
         if ( !$xml ) {
-            $handler->addMsg(lang("commgrComponentManager"), lang("commgrXMLInvalid") . " ($source/install.xml)", LiveErrorHandler::EK_ERROR);
+            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): XML file is not valid ($source/install.xml)");
             return false;
         }
-        if ((string)$xml["type"] != "component") {
-            $handler->addMsg(lang("commgrComponentManager"), lang("commgrXMLNotACom") . " ($source/install.xml)", LiveErrorHandler::EK_ERROR);
+        if ((string)$xml["type"] != "plugin") {
+            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): XML file does not describe a plugin ($source/install.xml)");
             return false;
         }
-        if ( !(bool)$xml->comName || !(bool)$xml->version || !(bool)$xml->description || !(bool)$xml->files || count($xml->files->filename) < 1 ) {
-            $handler->addMsg(lang("commgrComponentManager"), lang("commgrXMLNotValidComInfo") . " ($source/install.xml)", LiveErrorHandler::EK_ERROR);
+        if ( !(bool)$xml->pName || !(bool)$xml->version || !(bool)$xml->description || !(bool)$xml->files || count($xml->files->filename) < 1 ) {
+            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): The plugin info contained in the XML file is not valid ($source/install.xml)");
             return false;
         }
-        $pName = (string)$xml->comName;
+        $pName = (string)$xml->pName;
         $version = (string)$xml->version;
         $desc = (string)$xml->description;
         $files = $xml->files->filename;
         if (empty($iname))
-            $iname = self::generateIname($comName, empty($dest));
+            $iname = self::generateIname($pName, empty($dest));
         $dest = rtrim($dest, "/\\");
         if (empty($dest))
             $dest = "$iname";
         $dest .= "/";
         if (empty($dname))
             $dname = ucfirst($iname);
+            
+        $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Attempting to install a plugin with these parameters: source=$source; dname=$dname; iname=$iname; dest=$dest; pName=$pName; version=$version");
         
-        if (self::getComByIname($iname, true) !== false) {
-            $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrInameAlreadyExists"), $iname), LiveErrorHandler::EK_ERROR);
+        if (self::getPluginByIname($iname, true) !== false) {
+            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): A plugin with the internal name '$iname' already exists. Please choose a different internal name.");
             return false;
         }
         
         global $FBP;
         $p = $FBP . self::$commonPath . $dest;
         if (file_exists($p)) {
-            $handler->addMsg(lang("commgrComponentManager"), lang("commgrComDirInUse") . " ($p)", LiveErrorHandler::EK_ERROR);
+            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): The destination folder for this plugin already exists (folder: $p)");
             return false;
         }
-        mkdir($p);
-        foreach ($files as $filename) {
-            if ( strpos($filename, "/") !== false || strpos($filename, "\\") !== false) {  //if the current file goes into a sub-directory
-                if (!file_exists(dirname("$p/$filename"))) {                //check if this sub-directory exists
-                    $r = mkdir(dirname("$p/$filename"), 0777, true);        //and create it if necessary
-                    $logDebug->debuglog("Component manager", "Notice", "ComMan::add(): Recursively creating directory '" . dirname("$p/$filename") . "'... " . (($r) ? "Success" : "Fail"));
+        if ($ret = mkdir($p)) {
+            foreach ($files as $filename) {
+                if ( strpos($filename, "/") !== false || strpos($filename, "\\") !== false) {  //if the current file goes into a sub-directory (sub-dirs do not have their own entries)
+                    if (!file_exists(dirname("$p/$filename"))) {                //check if this sub-directory exists
+                        $r = mkdir(dirname("$p/$filename"), 0777, true);        //and create it if necessary
+                        $ret = $ret && $r;
+                        $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Recursively creating directory '" . dirname("$p/$filename") . "'... " . (($r) ? "Success" : "Fail"));
+                    }
                 }
+                $r = copy("$source/$filename", "$p/$filename");
+                $ret = $ret && $r;
+                $log->dlog("Component manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Copying file '$source/$filename' to '$p/$filename'... " . (($r) ? "Success" : "Fail"));
             }
-            $r = copy("$source/$filename", "$p/$filename");
-            $logDebug->debuglog("Component manager", "Notice", "ComMan::add(): Copying file '$source/$filename' to '$p/$filename'... " . (($r) ? "Success" : "Fail"));
+        } else {
+            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): Creating the destination folder for this plugin failed (folder: $p)");
+            return false;
+        }
+        
+        if (!$ret) {
+            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): Copying file to destination folder failed (folder: $p)");
+            return false;
         }
         
         global $datefmt;
@@ -247,18 +267,18 @@ class PluginMan {
         $query = "INSERT INTO `" . self::$dbTable . "` (`dname`, `iname`, `comName`, `installedAt`, `installedBy`, `path`, `enabled`) 
             VALUES ('$dname', '$iname', '$pName', '$installedAt', $installedBy, '$dest', TRUE)";
         if (!$db->q($query)) {
-            $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrComInstallDBError"), $dname, "<i>".$db->e()."</i>", "<pre>$query</pre>"), LiveErrorHandler::EK_ERROR);
+            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): Database error while installing plugin '$dname'; database error: " . $db->e() . "; query: " . $query);
             return false;
         }
         if (!($id = mysql_insert_id())) {
-            $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrGetDBInsertIDFail"), $dname), LiveErrorHandler::EK_ERROR);
+            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): Error while retrieving database ID for plugin '$dname'");
             return false;
         }
         
         $plugin = new Plugin($id, $dname, $iname, $pName, $installedAt, $installedBy, $dest, true);
         self::$plugins[(int)$id] = $plugin;
         
-        //$handler->addMsg("Component manager", "Component $dname successfully installed", LiveErrorHandler::EK_SUCCESS);
+        $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully installed plugin '$dname'; id=$id");
         return $plugin;
     }
     
