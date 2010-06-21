@@ -283,55 +283,53 @@ class PluginMan {
     }
     
     /**
-     * 
-     * @param Plugin $plugin
+     * Remove a plugin by reference.
+     * @param Plugin $plugin A reference to the Plugin to be removed.
      * @return bool Returns true on success or false on failure.
      */
     public static function remove(Plugin $plugin) {
-        global $logDebug, $logError, $handler, $db;
+        global $log, $db;
         if ($plugin->core) {
-            $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrCannotRemoveCom"), $plugin->dname), LiveErrorHandler::EK_ERROR);
+            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): Cannot remove plugin '" . $plugin->getDname() . "'");
             return false;
         }
-        $query = "DELETE FROM `" . self::$dbTable . "` WHERE `id`=$plugin->id";
+        $query = sprintf("DELETE FROM `%s` WHERE `id`=%d", self::$dbTable, $plugin->getId());
         if (!$db->q($query)) {
             $me = $db->e();
-            $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrRemoveComDBError"), $plugin->dname, "<i>$me</i>", "<pre>$query</pre>"), LiveErrorHandler::EK_ERROR);
-            $logError->log("Component manager", "Error", "ComMan::remove(): Error while removing component '$plugin->dname'; Database said: $me; Query: $query");
+            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): Error while removing component '" . $plugin->getDname() . "'; Database said: $me; Query: $query");
             return false;
         }
-        global $FBP;
-        include_once ($FBP . "includes/filesystem/recursiveDelete.php");
+        global $FBP2;
+        include_once ("$FBP2/includes/filesystem/recursiveDelete.php");
         if (recursiveDelete( $plugin->getFullPath() ) === false) {
-            $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrDeletingFilesFailed"), $plugin->dname), LiveErrorHandler::EK_ERROR);
-            $logError->log("Component manager", "Error", "ComMan::remove(): Error while deleting the files of component '$plugin->dname'");
+            $log->log("Plugin manager", "Error", __CLASS__ . "::" . __METHOD__ . "(): Error while deleting the files of component '" . $plugin->getDname() . "'");
         }
         unset (self::$plugins[$plugin->id]);        //remove the component from the internal array
         return true;
     }
     
     /**
-     * 
-     * @param int $id
+     * Remove a plugin by ID.
+     * @param int $id The ID of the Plugin to be removed.
      * @return bool Returns true on success or false on failure.
      */
     public static function removeById($id) {
-        global $logDebug, $logError, $handler;
+        global $log;
         if (isset(self::$plugins[$id])) {
-            trigger_error($emsg = "ComMan::removeById(): component ID '$id' was not found", E_USER_ERROR);
-            $logError->log("Component manager", "Error", $emsg);
+            $log->log("Plugin manager", "Error", $emsg = __CLASS__ . "::" . __METHOD__ . "(): component ID '$id' was not found");
+            trigger_error($emsg, E_USER_ERROR);
             return false;
         }
         return remove(self::$plugins[$id]);
     }
     
     /**
-     * 
-     * @param string $iname
+     * Remove a plugin by iname.
+     * @param string $iname The internal name of the Plugin to be removed
      * @return bool Returns true on success or false on failure.
      */
     public static function removeByIname($iname) {
-        global $logDebug, $logError, $handler;
+        global $log;
         $found = false;
         foreach (self::$plugins as $plugins)
             if ($plugin->iname == $iname) {
@@ -339,7 +337,8 @@ class PluginMan {
                 break;
             }
         if (!$found) {
-            trigger_error("ComMan::removeByIname(): component named '$iname' was not found", E_USER_ERROR);
+            $log->log("Plugin manager", "Error", $emsg = __CLASS__ . "::" . __METHOD__ . "(): component named '$iname' was not found");
+            trigger_error($emsg, E_USER_ERROR);
             return false;
         }
         return remove($plugin);
