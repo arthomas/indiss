@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-04-20
+ * @version     2010-07-04
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module
@@ -23,8 +23,8 @@ defined("__MAIN") or die("Restricted access.");
 defined("__CONFIGFILE") or die("Config file not included [" . __FILE__ . "]");
 
 $main_ver = 0;
-$sub_ver  = 1;
-$dev_ver  = 1;
+$sub_ver  = 2;
+$dev_ver  = 2;
 
 $ver_sep  = ".";
 

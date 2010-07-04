@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-05-19
+ * @version     2010-07-04
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -151,8 +151,8 @@ if ( $create ) {
                                                 <td>
                                                     <div class="FileButtons">
                                                         <input type="button" value="<?php lang_echo("conBrowseServer"); ?>" disabled="disabled"/>
-                                                        <input type="button" value="<?php lang_echo("conUploadFile"); ?>" onclick="window.open('<?php echo $basepath; ?>/components/com_content/popup_upload_file.php?index=<?php echo $i; ?>', 'Upload File', 'menubar=no,location=no,height=200,width=500,toolbar=no,status=yes,dependent=yes');" />
-                                                        <input type="button" value="<?php lang_echo("conOpenEditor"); ?>" onclick="window.open('<?php echo $basepath; ?>/components/com_content/popup_edit_html_file.php?index=<?php echo $i; ?><?php if ($edit) echo "&oldfile=" . $toEdit[$i]->url; ?>', 'Create File', 'menubar=no,location=no,height=600,width=800,toolbar=no,status=yes,dependent=yes');" <?php if ($edit) echo "onmouseover=\"editorBtnCheck('in', $i);\" onmouseout=\"editorBtnCheck('out', $i);\" "; ?>/>
+                                                        <input type="button" value="<?php lang_echo("conUploadFile"); ?>" onclick="window.open('<?php echo $activeCom->getWebPath(); ?>/popup_upload_file.php?index=<?php echo $i; ?>', 'Upload File', 'menubar=no,location=no,height=200,width=500,toolbar=no,status=yes,dependent=yes');" />
+                                                        <input type="button" value="<?php lang_echo("conOpenEditor"); ?>" disabled="disabled"/>
                                                     </div>
                                                     <input type="text" class="nameInput" name="name<?php echo $i;?>" <?php if ($edit) { echo 'value="' . $toEdit[$i]->name . '" '; } ?>/>
                                                 </td>

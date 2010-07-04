@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-11-29
+ * @version     2010-07-01
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      
@@ -24,7 +24,7 @@
 
     include_once "../../config/config.php";
     
-    session_name("InfoScreenAdmin");
+    session_name("INDISSAdmin");
     session_start();
     
     $template_basepath = $_SERVER["DOCUMENT_ROOT"] . $basepath . "/components/com_content/files/templates";

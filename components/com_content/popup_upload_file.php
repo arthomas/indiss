@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2009-11-28
+ * @version     2010-07-04
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009 Patrick Lehner
  * @module      
@@ -19,9 +19,11 @@
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+    define("__MAIN", 1);
+
     include_once "../../config/config.php";
     
-    session_name("InfoScreenAdmin");
+    session_name("INDISSAdmin");
     session_start();
     
     $acceptedFileExts = array ( "htm", "html", "jpg", "jpeg", "png", "gif", "pdf", "swf" );
