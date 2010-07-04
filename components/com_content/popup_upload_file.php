@@ -52,7 +52,7 @@
 </body>
 <?php   } else if ( isset( $_POST["submit"] ) ) {
             $pathinfo = pathinfo($_FILES["file"]["name"]);
-            if ( !( in_array($pathinfo["extension"], $acceptedFileExts) ) ) { ?>
+            if ( !( in_array(strtolower($pathinfo["extension"]), $acceptedFileExts) ) ) { ?>
 <body>
     <fieldset><legend>Datei hochgeladen:</legend>
             Fehler: Der Dateityp wird nicht akzeptiert.
