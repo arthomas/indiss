@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-06-20
+ * @version     2010-07-07
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that manages installed plugins
@@ -40,16 +40,17 @@ class PluginMan {
     
     private static $commonPath = "plugins/";
     private static $dbTable = "plugins";
-    public  static $plugins;
+    private static $pluginInfo = array();
+    private static $pluginObjects = array();
     
     //---- Static methods ---------------------------------------------------------------
     
     /**
-     * Get the number of plugins currently in the internal array.
-     * @return int Returns the number of plugins currently in the internal array.
+     * Get the number of plugins currently in the info array.
+     * @return int Returns the number of plugins currently in the info array.
      */
     public static function count() {
-        return count(self::$plugins);
+        return count(self::$pluginInfo);
     }
     
     /**
@@ -73,6 +74,22 @@ class PluginMan {
         return true;
     }
     
+    private static function loadPlugin($id) {
+        if (!isset(self::$pluginObjects[$id])) {
+            global $FBP;
+            $pluginClass = "Plugin" . self::$pluginInfo["id"]["pName"];
+            include($s = $FBP . self::$commonPath . self::$pluginInfo[$id]["pName"] . "/$pluginClass.class.php");
+            self::$pluginObjects[$id] = new $pluginClass(self::$pluginInfo[$id]);
+            $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Loaded Plugin class file $s and created new object");
+        }
+        if (!self::$pluginObjects[$id]->isInitialized()) {
+            self::$pluginObjects[$id]->initialize();
+            $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Initialized Plugin '" . self::$pluginInfo[$id]["iname"] . "'");
+        }
+        $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully loaded Plugin '" . self::$pluginInfo[$id]["iname"] . "'");
+        return self::$pluginObjects[$id];
+    }
+    
     /**
      * Retrieve a plugin by its ID.
      * @param int $id
@@ -81,9 +98,9 @@ class PluginMan {
      */
     public static function getPlugin($id, $silent = false) {
         global $log;
-        if (isset(self::$plugins[$id])) {
-            $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully retrieved plugin '" . self::$plugins[$id]->getIname() . "' by ID '$id'");
-            return self::$plugins[$id];
+        if (isset(self::$pluginInfo[$id])) {
+            //debug-log events are located in loadPlugin()
+            return self::loadPlugin($id);
         } else {
             $emsg = __CLASS__ . "::" . __METHOD__ . "(): Plugin with id '$id' was not found";
             if (!$silent) {
@@ -104,10 +121,10 @@ class PluginMan {
      */
     public static function getPluginByIname($iname, $silent = false) {
         global $log;
-        foreach (self::$plugins as $plugin)
-            if ($plugin->iname == $iname) {
-                $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully retrieved component '" . $plugin->getIname() . "' by internal name");
-                return $plugin;
+        foreach (self::$pluginInfo as $pI)
+            if ($pI["iname"] == $iname) {
+                //debug-log events are located in loadPlugin()
+                return self::loadPlugin($pI["id"]);
             }
         $emsg = __CLASS__ . "::" . __METHOD__ . "(): no plugin named '$iname' was found";
         if (!$silent) {
@@ -130,7 +147,7 @@ class PluginMan {
             self::$dbTable = $table;
         else
             $table = self::$dbTable;
-        self::$plugins = array(); //reset the plugin array -- that way this function can also refresh the DB array
+        self::$pluginInfo = array(); //reset the plugin info array -- that way this function can also refresh the DB array
         $query = "SELECT * FROM `$table`";
         $result = $db->q($query);
         if (!$result) {
@@ -138,40 +155,31 @@ class PluginMan {
             $log->log("Plugin manager", LEL_ERROR, $emsg);
             return false;
         }
-        while ($rows[] = mysql_fetch_assoc($result)) ; //fetch all resulting rows and save them into our array
-        if (!empty($rows)) {        //lest we "provide an illegal argument to foreach"
-            foreach ($rows as $row) {   //create a new object for each plugin and save it into our internal array
-                $plugin = new Plugin($row["id"], $row["dname"], $row["iname"], $row["comName"], $row["installedAt"], $row["installedBy"], $row["path"], $row["enabled"], $row["oneOfAKind"], $row["alwaysOn"], $row["core"]);
-                self::$plugins[(int)$row["id"]] = $plugin;
-            }
-        } else {
+        while ($row = mysql_fetch_assoc($result)) { //fetch all resulting rows and save them into our array
+            $pI = array_intersect_key($row, array("id", "dname", "iname", "pName", "installedAt", "installedBy", "enabled"));
+            self::$pluginInfo[(int)$row["id"]] = $pI;
+        }
+        if (empty(self::$pluginInfo)) {
             trigger_error($emsg = __CLASS__ . "::" . __METHOD__ . "(): The database contained no entries for plugins", E_USER_WARNING);
             $log->log("Plugin manager", LEL_ERROR, $emsg);
             return false;
         }
-        $log->dlog("Plugin manager", LEL_NOTICE, "Successfully read " . count(self::$plugins) . " plugins from database table $table");
+        $log->dlog("Plugin manager", LEL_NOTICE, "Successfully read " . count(self::$pluginInfo) . " plugins from database table $table");
         return true;
     }
     
     /**
-     * Generate a new iname from a plugins pName.
+     * Generate a new iname from a plugin's pName.
      * @param string $pName
-     * @param bool[optional] $mindPath If true, the function will return an iname that can also be used as a folder name (it
-     * checks that that folder name is not in use). Defaults to false.
      */
-    private static function generateIname($pName, $mindPath = false) {
-        global $FBP, $log;
-        $p = $FBP . self::$commonPath;
-        if (!self::getPluginByIname($pName, true) && (!$mindPath || !file_exists($p . "$pName")))
-            $r = $pName;
-        else {
-            $i = 1;
-            while (self::getPluginByIname($iname = sprintf("%s_%03d", $pName, $i), true) || ($mindPath && file_exists($p . $iname)))    //note that his line relies on the fact that the || operator is evaluated left-to-right
-                $i++;
-            $r = $iname;
-        }
-        $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Generated new iname '$r' from pName '$pName', mindPath is " . (($mindPath) ? "true" : "false"));
-        return $r;
+    private static function generateIname($pName) {
+        global $log;
+        $i = 1;
+        while (self::getPluginByIname($iname = sprintf("%s_%03d", $pName, $i), true))
+            $i++;
+        $iname;
+        $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Generated new iname '$iname' from pName '$pName'");
+        return $iname;
     }
     
     /**
@@ -182,31 +190,33 @@ class PluginMan {
      * @param string[optional] $dest
      * @return mixed Returns the new Plugin object on success or boolean false on failure. 
      */
-    public static function add($source, $dname = "", $iname = "", $dest = "") {
+    public static function install($sourceDir, $dname = "", $iname = "") {
         global $log, $db;
         
-        $source = rtrim($source, "/\\");
+        $sourceDir = rtrim($sourceDir, "/\\");
+        $xmlFilename = "$sourceDir/pluginInfo.xml";
         
-        if (!file_exists($source . "/install.xml")) {
-            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): XML file not found ($source/install.xml)");
+        if (!file_exists($xmlFilename)) {
+            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): XML file not found ($xmlFilename)");
             return false;
         }
         
-        $xml = simplexml_load_file($source . "/install.xml");
+        $xml = simplexml_load_file($xmlFilename);
         if ( !$xml ) {
-            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): XML file is not valid ($source/install.xml)");
+            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): XML file is not valid ($xmlFilename)");
             return false;
         }
         if ((string)$xml["type"] != "plugin") {
-            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): XML file does not describe a plugin ($source/install.xml)");
+            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): XML file does not describe a plugin ($xmlFilename)");
             return false;
         }
-        if ( !(bool)$xml->pName || !(bool)$xml->version || !(bool)$xml->description || !(bool)$xml->files || count($xml->files->filename) < 1 ) {
-            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): The plugin info contained in the XML file is not valid ($source/install.xml)");
+        if ( !(bool)$xml->pName || !(bool)$xml->minVersion || !(bool)$xml->maxVersion || !(bool)$xml->description || !(bool)$xml->files || count($xml->files->filename) < 1 ) {
+            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): The plugin info contained in the XML file is not valid ($xmlFilename)");
             return false;
         }
         $pName = (string)$xml->pName;
-        $version = (string)$xml->version;
+        $minVersion = (string)$xml->minVersion;
+        $maxVersion = (string)$xml->maxVersion;
         $desc = (string)$xml->description;
         $files = $xml->files->filename;
         if (empty($iname))
@@ -218,7 +228,7 @@ class PluginMan {
         if (empty($dname))
             $dname = ucfirst($iname);
             
-        $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Attempting to install a plugin with these parameters: source=$source; dname=$dname; iname=$iname; dest=$dest; pName=$pName; version=$version");
+        $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Attempting to install a plugin with these parameters: sourceDir=$sourceDir; dname=$dname; iname=$iname; pName=$pName; version=$version");
         
         if (self::getPluginByIname($iname, true) !== false) {
             $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): A plugin with the internal name '$iname' already exists. Please choose a different internal name.");
@@ -240,9 +250,9 @@ class PluginMan {
                         $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Recursively creating directory '" . dirname("$p/$filename") . "'... " . (($r) ? "Success" : "Fail"));
                     }
                 }
-                $r = copy("$source/$filename", "$p/$filename");
+                $r = copy("$sourceDir/$filename", "$p/$filename");
                 $ret = $ret && $r;
-                $log->dlog("Component manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Copying file '$source/$filename' to '$p/$filename'... " . (($r) ? "Success" : "Fail"));
+                $log->dlog("Component manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Copying file '$sourceDir/$filename' to '$p/$filename'... " . (($r) ? "Success" : "Fail"));
             }
         } else {
             $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): Creating the destination folder for this plugin failed (folder: $p)");

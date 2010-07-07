@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-06-07
+ * @version     2010-07-07
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      class that holds info about installed plugins
@@ -25,17 +25,21 @@ defined("__LANG") or die("Database connection not included [" . __FILE__ . "]");
 defined("__PLUGINMAN") or die("Database connection not included [" . __FILE__ . "]");
 
 /**
- * Class that contains the data and operations of a plugin. This is also the common
- * super-class for all plugins.
+ * Common super-class of all plugins.
  * @author Patrick Lehner
  *
  */
-class Plugin {
+abstract class Plugin {
+    
+    //---- Static properties ------------------------------------------------------------
+    
+    private static $dbTable = "plugins";
     
     //---- Object properties ------------------------------------------------------------
     
     protected $id = 0;
     protected $installed = false;
+    protected $initialized = false;
     protected $enabled = false;
     protected $oneOfAKind = false;    //means that this plugin cannot be duplicated
     protected $alwaysOn = false;      //means that this plugin cannot be disabled
@@ -52,20 +56,10 @@ class Plugin {
     
     /**
      * Create a plugin object with its necessary properties.
-     * @param string $id
-     * @param string $dname
-     * @param string $iname
-     * @param string $pName
-     * @param string $installedAt
-     * @param string $installedBy
-     * @param string $path
-     * @param string $enabled
-     * @param string $oneOfAKind
-     * @param string $alwaysOn
-     * @param string $core
+     * @param array $pluginInfo
      */
-    public function __construct($id, $dname, $iname, $pName, $installedAt, $installedBy, $path, $enabled = true, $oneOfAKind = false, $alwaysOn = false, $core = false) {
-        //would have liked to keep the constructor 'private' but since ComMan now is a different class, that's not possible :(
+    public function __construct($pluginInfo) {
+        //would have liked to keep the constructor 'private' but since PluginMan now is a different class, that's not possible :(
         //thinking about making the constructor final. will see about that.....
         $this->id = $id;
         $this->dname = $dname;
@@ -83,6 +77,10 @@ class Plugin {
     
     
     //---- Object methods ---------------------------------------------------------------
+    
+    public function isInitialized() {
+        return $this->initialized;
+    }
     
     /**
      * Check if the plugin is installed (or only virtually in the internal array)
@@ -211,7 +209,7 @@ class Plugin {
      * Get the descriptive name of the plugin.
      * @return string Returns the descriptive name of the plugin.
      */
-    public function getDname() {
+    final public function getDname() {
         return $this->dname;
     }
     
@@ -220,7 +218,7 @@ class Plugin {
      * @param string $dname The new descriptive name for the plugin.
      * @return bool Returns true on success or false on failuer.
      */
-    public function setDname($dname) {
+    final public function setDname($dname) {
         global $logDebug, $logError, $handler;
         $result = mysql_query("UPDATE `" . self::$dbTable . "` SET `dname`='$dname' WHERE `id`=" . $this->id);
         if (!$result) {
@@ -235,34 +233,26 @@ class Plugin {
      * Get the internal (unique) name of the plugin.
      * @return string Returns the internal name of the plugin.
      */
-    public function getIname() {
+    final public function getIname() {
         return $this->iname;
-    }
-    
-    /**
-     * Get the relative path of the plugin's folder.
-     * @return string Returns the relative path of the plugin.
-     */
-    public function getPath() {
-        return $this->path;
     }
     
     /**
      * Get the complete web path of the plugin's folder.
      * @return string Returns the complete web path of the plugin.
      */
-    public function getWebPath() {
+    final public function getWebPath() {
         global $basepath;
-        return $basepath . "/" . PluginMan::getCommonPath() . $this->path;
+        return $basepath . "/" . PluginMan::getCommonPath() . $this->pName;
     }
     
     /**
      * Get the absolute file system path of the plugin's folder.
      * @return string Returns the absolute file system path of the plugin.
      */
-    public function getFullPath() {
+    final public function getFullPath() {
         global $FBP;
-        return $FBP . PluginMan::getCommonPath() . $this->path;
+        return $FBP . PluginMan::getCommonPath() . $this->pName;
     }
     
     /**
@@ -284,6 +274,14 @@ class Plugin {
             $handler->addMsg("Component manager", "Component $this->dname was successfully duplicated to $com->dname", LiveErrorHandler::EK_SUCCESS);*/
         return $plugin; 
     }
+    
+    
+    abstract public function initialize();
+    
+    abstract public function install();
+    abstract public function uninstall();
+    
+    abstract public function output();
 }
 
 ?>

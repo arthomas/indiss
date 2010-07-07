@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Insert DTD info here! -->
+<install type="plugin">
+    <pName>Content</pName>
+    <type>content</type>
+    <created>2010-07-07</created>
+    <author>Patrick Lehner</author>
+    <authorEmail>lehner.patrick@gmx.de</authorEmail>
+    <authorUrl>http://indiss.net</authorUrl>
+    <copyright>Copyright (C) 2010 Patrick Lehner</copyright>
+    <license>GNU GPLv3</license>
+    <minVersion>0.3.0</minVersion>
+    <maxVersion>0.3.x</maxVersion>
+    <pluginVersion>0.3</pluginVersion>
+    <description>A plugin which can display different kinds of web content (HTML pages, images, flash files, PDF files) as well as other plugins.</description>
+    <files>
+        <filename>index.html</filename>
+        <filename>pluginInfo.xml</filename>
+        <filename>PluginContent.class.php</filename>
+    </files>
+    <dataFiles>
+        <filename>index.html</filename>
+        <filename>html/index.html</filename>
+        <filename>images/index.html</filename>
+        <filename>templates/index.html</filename>
+    </dataFiles>
+</install>
