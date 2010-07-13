@@ -1,9 +1,9 @@
 <?php
 /**
- * @version     2010-06-15
+ * @version     2010-07-13
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
- * @module      Includes necessary files for a web-call
+ * @module      Includes the absolutely necessary files.
  * 
  * @license     This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU General Public License as published by
@@ -18,8 +18,6 @@
  *              You should have received a copy of the GNU General Public License
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-defined("__MAIN") or die("Restricted access.");
  
 //Note: this has to be changed if this file is moved somewhere else
 $FBP = dirname(dirname(__FILE__)) . "/";
@@ -50,11 +48,5 @@ $log = new Logger;
 $log->addLog("live", LEL_NOTICE, true, false, false, false);
 $log->addLog("error", LEL_ERROR, false, true, false, false);
 $log->addLog("debug", LEL_DEBUG, false, true, false, true);
-
-require("$FBP2/includes/usrman/UsrMan.php");
-UsrMan::readDB();
-
-require("$FBP2/includes/pluginman/PluginMan.php");
-ComMan::readDB();
 
 ?>

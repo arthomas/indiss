@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-06-19
+ * @version     2010-07-13
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Backend main page
@@ -27,7 +27,7 @@ session_name("INDISSAdmin");
 session_start();
 
 //initialize it all
-require_once("../includes/loader_web.php");
+require_once("../includes/loaders/loader_web.php");
     
     if (isset($_POST['submit'])) {
         switch ($_POST["task"]) {
