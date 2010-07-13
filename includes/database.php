@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-07-08
+ * @version     2010-07-13
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
@@ -199,11 +199,12 @@ class MySQLConnection {
      */
     public function createNVTable($name, $silent = false) {
         $query = "CREATE TABLE `$name` (
-                    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-                    `name` VARCHAR( 255 ) NOT NULL ,
-                    `value` VARCHAR( 255 ) NOT NULL ,
-                    `comment` VARCHAR( 255 ) NOT NULL
-                    )";
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+            `value` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+            `comment` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+            PRIMARY KEY (`id`)
+        ) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
         if (!mysql_query($query)) {
             if (!$silent)
                 trigger_error("MySQLConnection::createNVTable(): database error: " . mysql_error() . "; query: $query", E_USER_ERROR);
