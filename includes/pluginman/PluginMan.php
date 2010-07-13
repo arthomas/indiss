@@ -39,6 +39,7 @@ class PluginMan {
     //---- Static properties ------------------------------------------------------------
     
     private static $commonPath = "plugins/";
+    //private static $dataPath = "pluginData/";
     private static $pluginTable = "plugins";
     private static $pluginInfoTable = "plugin_info";
     private static $pluginInfo = array();
@@ -79,9 +80,9 @@ class PluginMan {
     private static function loadPlugin($id) {
         if (!isset(self::$pluginObjects[$id])) {
             global $FBP;
-            $pluginClass = "Plugin" . self::$pluginInfo["id"]["pName"];
+            $pluginClass = "Plugin" . self::$pluginInstanceInfo["id"]["pName"];
             if (!class_exists($pluginClass)) {
-                include_once($s = $FBP . self::$commonPath . self::$pluginInfo[$id]["pName"] . "/$pluginClass.class.php");
+                include_once($s = $FBP . self::$commonPath . self::$pluginInstanceInfo[$id]["pName"] . "/$pluginClass.class.php");
                 if (file_exists($l = (dirname($s) . "/lang"))) {
                     global $defaultlang, $lang;
                     if (file_exists("$l/$defaultlang"))
@@ -91,14 +92,14 @@ class PluginMan {
                 }
                 $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Loaded Plugin class file $s");
             }
-            self::$pluginObjects[$id] = new $pluginClass(self::$pluginInfo[$id]);
+            self::$pluginObjects[$id] = new $pluginClass(self::$pluginInstanceInfo[$id], self::$pluginInfo[self::$pluginInstanceInfo[$id]["pName"]]);
             $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Created new plugin object of class $pluginClass");
         }
         if (!self::$pluginObjects[$id]->isInitialized()) {
             self::$pluginObjects[$id]->initialize();
-            $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Initialized Plugin '" . self::$pluginInfo[$id]["iname"] . "'");
+            $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Initialized Plugin '" . self::$pluginInstanceInfo[$id]["iname"] . "'");
         }
-        $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully loaded Plugin '" . self::$pluginInfo[$id]["iname"] . "'");
+        $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully loaded Plugin '" . self::$pluginInstanceInfo[$id]["iname"] . "'");
         return self::$pluginObjects[$id];
     }
     
@@ -158,16 +159,22 @@ class PluginMan {
         $pTable = self::$pluginTable;
         $pInfoTable = self::$pluginInfoTable;
         
-        if ((self::$pluginInfo = $db->readTable(self::$pluginInfoTable)) === false) {
+        if (($t = $db->readTable(self::$pluginInfoTable)) === false) {
             $log->log("Plugin manager", LEL_ERROR, $emsg = __CLASS__ . "::" . __METHOD__ . "(): database error: " . $db->e());
             trigger_error($emsg, E_USER_ERROR);
             return false;
         }
-        if ((self::$pluginInstanceInfo = $db->readTable(self::$pluginTable)) === false){
+        self::$pluginInfo = array();
+        foreach ($t as $item)
+            self::$pluginInfo[$item["pName"]] = $item;
+        if (($t = $db->readTable(self::$pluginTable)) === false){
             $log->log("Plugin manager", LEL_ERROR, $emsg = __CLASS__ . "::" . __METHOD__ . "(): database error: " . $db->e());
             trigger_error($emsg, E_USER_ERROR);
             return false;
         }
+        self::$pluginInstanceInfo = array();
+        foreach ($t as $item)
+            self::$pluginInstanceInfo[(int)$item["id"]] = $item;
         if (empty(self::$pluginInfo) || empty(self::$pluginInstanceInfo)) {
             $log->log("Plugin manager", LEL_WARNING, $emsg = __CLASS__ . "::" . __METHOD__ . "(): The database contained no entries for plugins");
             trigger_error($emsg, E_USER_WARNING);
