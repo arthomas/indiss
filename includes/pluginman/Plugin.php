@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-07-07
+ * @version     2010-07-13
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      class that holds info about installed plugins
@@ -78,7 +78,7 @@ abstract class Plugin {
     
     //---- Object methods ---------------------------------------------------------------
     
-    public function isInitialized() {
+    final public function isInitialized() {
         return $this->initialized;
     }
     
@@ -86,24 +86,8 @@ abstract class Plugin {
      * Check if the plugin is installed (or only virtually in the internal array)
      * @return bool Returns true if the plugin is installed or false otherwise.
      */
-    public function isInstalled() {
+    final public function isInstalled() {
         return $this->installed;
-    }
-    
-    /**
-     * Check if the plugin has a front end
-     * @return bool Returns true if the plugin has a front end or false otherwise.
-     */
-    public function hasFrontend() {
-        return file_exists($this->getFullPath() . "main.php");
-    }
-    
-    /**
-     * Check if the plugin has a back end
-     * @return bool Returns true if the plugin has a back end or false otherwise.
-     */
-    public function hasBackend() {
-        return file_exists($this->getFullPath() . "admin.php");
     }
     
     /**
@@ -111,7 +95,7 @@ abstract class Plugin {
      * @return bool Returns true if the plugin is "one of a kind" (and cannot be
      * duplicated) or false otherwise (it CAN be duplicated).
      */
-    public function isOneOfAKind() {
+    final public function isOneOfAKind() {
         //this line means that if there is no install.xml (yet), we cant duplicate it
         if (!file_exists($this->getFullPath() . "install.xml"))
             return true;
@@ -122,7 +106,7 @@ abstract class Plugin {
      * Check if the plugin can be duplicated (provided for a more logical approach)
      * @return bool Returns true if the plugin can be duplicated or false otherwise.
      */
-    public function isDuplicable() {
+    final public function isDuplicable() {
         return !$this->isOneOfAKind();
     }
     
@@ -131,7 +115,7 @@ abstract class Plugin {
      * @return bool Returns true of the plugin is "always on" or false if it can
      * be disabled.
      */
-    public function isAlwaysOn() {
+    final public function isAlwaysOn() {
         return $this->alwaysOn;
     }
     
@@ -140,7 +124,7 @@ abstract class Plugin {
      * @return bool Returns true of the plugin is a core plugin or false if
      * it can be removed. 
      */
-    public function isCore() {
+    final public function isCore() {
         return $this->core;
     }
     
@@ -148,7 +132,7 @@ abstract class Plugin {
      * Get the internal ID of the plugin.
      * @return int Returns the ID of the plugin.
      */
-    public function getId() {
+    final public function getId() {
         return $this->id;
     }
     
@@ -156,7 +140,7 @@ abstract class Plugin {
      * Get the plugin name of the plugin
      * @return string Returns the plugin name of the plugin.
      */
-    public function getPname() {
+    final public function getPname() {
         return $this->pName;
     }
     
@@ -164,7 +148,7 @@ abstract class Plugin {
      * Get the timestamp of when the plugin was installed.
      * @return int Returns the UNIX timestamp of this plugin's installation.
      */
-    public function getInstalledAt() {
+    final public function getInstalledAt() {
         return $this->installedAt;
     }
     
@@ -173,7 +157,7 @@ abstract class Plugin {
      * @return int Returns the user ID of the user who installed this plugin,
      * or 0 for "system" (e.g. during installation script).
      */
-    public function getInstalledBy() {
+    final public function getInstalledBy() {
         return $this->installedBy;
     }
     
@@ -181,7 +165,7 @@ abstract class Plugin {
      * Check if the plugin is enabled.
      * @return bool Returns true of the plugin is enabled or false otherwise.
      */
-    public function isEnabled() {
+    final public function isEnabled() {
         return $this->enabled;
     }
     
@@ -281,7 +265,10 @@ abstract class Plugin {
     abstract public function install();
     abstract public function uninstall();
     
-    abstract public function output();
+    abstract public function outputFront();
+    abstract public function outputAdmin();
+    
+    abstract public function hasFrontend();
 }
 
 ?>
