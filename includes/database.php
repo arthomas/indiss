@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-06-19
+ * @version     2010-07-08
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
@@ -22,90 +22,6 @@ defined("__MAIN") or die("Restricted access.");
 defined("__CONFIGFILE") or die("Config file not included [" . __FILE__ . "]");
 
 define("__DATABASE", 1);
-
-
-/**
- * 
- * @param $tablename
- * @param $name
- * @return query_result
- */
-function getValueByName ($tablename, $name) {
-    return getValueByNameD($tablename, $name, null);
-}
-
-/**
- * 
- * @param $tablename
- * @param $name
- * @param $default
- * @return query_result
- */
-function getValueByNameD ($tablename, $name, $default) {
-    $result = mysql_query( "SELECT value
-                                FROM `$tablename`
-                                WHERE `name`='$name'" );
-    if (!$result) {
-        return $default;
-    } else {
-        //var_dump($result); echo "\n";
-        if (mysql_num_rows($result) <= 0) {
-            return $default;
-        } else {
-            $rows = mysql_fetch_assoc($result);
-            return $rows["value"];
-        }
-    }
-}
-
-/**
- * 
- * @param $tablename
- * @param $id
- * @return query_result
- */
-function getValueByID ($tablename, $id) {
-    $result = mysql_query( "SELECT value
-                                FROM `$tablename`
-                                WHERE `id`=$id" );
-    if (!$result) {
-        return false;
-    } else {
-        if (mysql_num_rows($result) <= 0) {
-            return false;
-        } else {
-            $rows = mysql_fetch_row($result);
-            return $rows[0];
-        }
-    }
-}
-
-function getOption($name) {
-    return getValueByNameD("global_options", $name, null);
-}
-
-function getOptionD($name, $default) {
-    return getValueByNameD("global_options", $name, $default);
-}
-
-function db_commit ( $query ) {
-    $result = mysql_query($query);
-    if ( !$result ) {
-        return mysql_error();
-    } else {
-        return true;
-    }
-}
-
-function db_commit2 ( $query, $errors, $line = 0 ) {
-    $error = db_commit($query);
-    if ( $error !== true ) {
-        $errors[] = (($line) ? $line . ": " : "" ) . $error;
-        return false;
-    } else {
-        return true;
-    }
-}
 
 /**
  * Connection to MySQL server and according utility functions.
@@ -371,6 +287,33 @@ class MySQLConnection {
                 return true;
         } else
             return $default;
+    }
+    
+    /**
+     * Read all returned rows from a given result into an associative array.
+     * @param resource $r The MySQL result returned by query().
+     * @return mixed Returns a 2D array containing all rows. The first dimension
+     * is numeric with incremental keys, the second dimension is associative with
+     * the keys being the column names. Returns boolean false on error.
+     */
+    public function getArrayA($r) {
+        if ($r === false)
+            return false;
+        $a = array();
+        while ($row = mysql_fetch_assoc($r))
+            $a[] = $row;
+        return $a;
+    }
+    
+    /**
+     * Read all rows from a table.
+     * @param string $tableName The name of the table to read.
+     * @return mixed Returns a 2D array containing all rows. The first dimension
+     * is numeric with incremental keys, the second dimension is associative with
+     * the keys being the column names. Returns boolean false on error.
+     */
+    public function readTable($tableName) {
+        return $this->getArrayA($this->q("SELECT * FROM `$tableName`"));
     }
     
 } //end of class MySQLConnection
