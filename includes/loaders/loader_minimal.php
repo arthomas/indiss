@@ -33,15 +33,15 @@ $db->connect(); //connect to database
 //load additional options into variables for convenience
 $lang = $defaultlang = $db->getOption("default_lang", "en");
 
-require("$FBP2/lang/lang.php");
+require("$FBP2/includes/lang/lang.php");
 if (isset($_SESSION["lang"]))
     $lang = $_SESSION["lang"];
 if (isset($_POST["newlang"]))
     $_SESSION["lang"] = $lang = $_POST["newlang"];
-Lang::createLangList("$FBP2/lang", true);
-Lang::readLangFilesFromDir("$FBP2/lang/$defaultlang", true);
+Lang::createLangList("$FBP2/includes/lang", true);
+Lang::readLangFilesFromDir("$FBP2/includes/lang/$defaultlang", true);
 if ($lang != $defaultlang)
-    Lang::readLangFilesFromDir("$FBP2/lang/$lang");
+    Lang::readLangFilesFromDir("$FBP2/includes/lang/$lang");
 
 require("$FBP2/includes/logging/Logger.php");
 $log = new Logger;
