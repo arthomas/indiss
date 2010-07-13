@@ -32,6 +32,31 @@ class PluginContent extends Plugin {
 
     //---- Static properties ------------------------------------------------------------
     
+    private static $itemTableQuery =
+        "CREATE TABLE `%s` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `name` varchar(127) COLLATE utf8_unicode_ci NOT NULL,
+            `url` varchar(1023) COLLATE utf8_unicode_ci NOT NULL,
+            `displaytime` int(11) NOT NULL,
+            `start` datetime NOT NULL,
+            `end` datetime NOT NULL,
+            `type` enum('LocalPage','ExternalPage','LocalImage','ExternalImage','LocalPDF','ExternalPDF','LocalFlash','ExternalFlash','LocalOther','ExternalOther','Plugin','Unknown') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'Unknown',
+            `enabled` tinyint(1) NOT NULL,
+            `deleted` tinyint(1) NOT NULL,
+            `tags` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+            `createdBy` int(11) NOT NULL DEFAULT '0',
+            `createdAt` datetime NOT NULL,
+            `modifiedBy` int(11) NOT NULL DEFAULT '0',
+            `modifiedAt` datetime NOT NULL,
+            PRIMARY KEY (`id`)
+        ) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;";
+    private static $optionValues = array (
+        "INSERT INTO `%s` (`name`,`value`,`comment`) VALUES ('default_display_time', '120', 'The default display time for a content item, in seconds');",
+        "INSERT INTO `%s` (`name`,`value`,`comment`) VALUES ('error_display_time', '30', 'The display time for errors, e.g. if an item cannot be found');",
+        "INSERT INTO `%s` (`name`,`value`,`comment`) VALUES ('max_width', 'auto', 'The maximum width of displayed images, in pixels. \"auto\" for using the frame''s width');",
+        "INSERT INTO `%s` (`name`,`value`,`comment`) VALUES ('max_height', '30', 'The maximum height of displayed images, in pixels. \"auto\" for using the frame''s height');"
+    );
+    
     
     //---- Object properties ------------------------------------------------------------
     
@@ -65,26 +90,27 @@ class PluginContent extends Plugin {
         global $log, $db;
         
         //create database tables
-        $query = "CREATE TABLE IF NOT EXISTS `com_content_1` (
-                `id` int(11) NOT NULL AUTO_INCREMENT,
-                `name` varchar(127) COLLATE utf8_unicode_ci NOT NULL,
-                `url` varchar(1023) COLLATE utf8_unicode_ci NOT NULL,
-                `displaytime` int(11) NOT NULL,
-                `start` datetime NOT NULL,
-                `end` datetime NOT NULL,
-                `type` enum('LocalPage','ExternalPage','LocalImage','ExternalImage','LocalPDF','ExternalPDF','LocalFlash','ExternalFlash','LocalOther','ExternalOther','Plugin','Unknown') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'Unknown',
-                `enabled` tinyint(1) NOT NULL,
-                `deleted` tinyint(1) NOT NULL,
-                `tags` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-                `createdBy` int(11) NOT NULL DEFAULT '0',
-                `createdAt` datetime NOT NULL,
-                `modifiedBy` int(11) NOT NULL DEFAULT '0',
-                `modifiedAt` datetime NOT NULL,
-                PRIMARY KEY (`id`)
-            ) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;";
-        if (!$db->q()) {
+        $query = sprintf(self::$itemTableQuery, $this->itemTable);
+        if (!$db->q($query)) {
             
+            return false;
         }
+        $log->dlog("Plugin: $this->pName", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully created item table '$this->itemTable'");
+        
+        if (!$db->createNVTable($optionTable)) {
+            
+            return false;
+        }
+        $log->dlog("Plugin: $this->pName", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully created option table '$this->optionTable'");
+        
+        foreach (self::$optionValues as $qry) {
+            $query = sprintf($qry, $this->optionTable);
+            if (!$db->q($query)) {
+                
+                return false;
+            }
+        }
+        $log->dlog("Plugin: $this->pName", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully saved all values to table '$this->optionTable'");
     }
     
     public function uninstall() {
