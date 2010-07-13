@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-07-07
+ * @version     2010-07-13
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that manages installed plugins
@@ -39,8 +39,10 @@ class PluginMan {
     //---- Static properties ------------------------------------------------------------
     
     private static $commonPath = "plugins/";
-    private static $dbTable = "plugins";
+    private static $pluginTable = "plugins";
+    private static $pluginInfoTable = "plugin_info";
     private static $pluginInfo = array();
+    private static $pluginInstanceInfo = array();
     private static $pluginObjects = array();
     
     //---- Static methods ---------------------------------------------------------------
@@ -78,9 +80,19 @@ class PluginMan {
         if (!isset(self::$pluginObjects[$id])) {
             global $FBP;
             $pluginClass = "Plugin" . self::$pluginInfo["id"]["pName"];
-            include($s = $FBP . self::$commonPath . self::$pluginInfo[$id]["pName"] . "/$pluginClass.class.php");
+            if (!class_exists($pluginClass)) {
+                include_once($s = $FBP . self::$commonPath . self::$pluginInfo[$id]["pName"] . "/$pluginClass.class.php");
+                if (file_exists($l = (dirname($s) . "/lang"))) {
+                    global $defaultlang, $lang;
+                    if (file_exists("$l/$defaultlang"))
+                        Lang::readLangFilesFromDir("$l/$defaultlang", true);
+                    if ($lang != $defaultlang && file_exists("$l/$lang"))
+                        Lang::readLangFilesFromDir("$l/$lang");
+                }
+                $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Loaded Plugin class file $s");
+            }
             self::$pluginObjects[$id] = new $pluginClass(self::$pluginInfo[$id]);
-            $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Loaded Plugin class file $s and created new object");
+            $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Created new plugin object of class $pluginClass");
         }
         if (!self::$pluginObjects[$id]->isInitialized()) {
             self::$pluginObjects[$id]->initialize();
@@ -141,30 +153,27 @@ class PluginMan {
      * @param string[optional] $table
      * @return bool Returns true on success or false on failure.
      */
-    public static function readDB($table = null) {
+    public static function readDB() {
         global $log, $db;
-        if (!is_null($table))
-            self::$dbTable = $table;
-        else
-            $table = self::$dbTable;
-        self::$pluginInfo = array(); //reset the plugin info array -- that way this function can also refresh the DB array
-        $query = "SELECT * FROM `$table`";
-        $result = $db->q($query);
-        if (!$result) {
-            trigger_error($emsg = __CLASS__ . "::" . __METHOD__ . "(): database error: " . $db->e() . "; query: " . $query, E_USER_WARNING);
-            $log->log("Plugin manager", LEL_ERROR, $emsg);
+        $pTable = self::$pluginTable;
+        $pInfoTable = self::$pluginInfoTable;
+        
+        if ((self::$pluginInfo = $db->readTable(self::$pluginInfoTable)) === false) {
+            $log->log("Plugin manager", LEL_ERROR, $emsg = __CLASS__ . "::" . __METHOD__ . "(): database error: " . $db->e());
+            trigger_error($emsg, E_USER_ERROR);
             return false;
         }
-        while ($row = mysql_fetch_assoc($result)) { //fetch all resulting rows and save them into our array
-            $pI = array_intersect_key($row, array("id", "dname", "iname", "pName", "installedAt", "installedBy", "enabled"));
-            self::$pluginInfo[(int)$row["id"]] = $pI;
-        }
-        if (empty(self::$pluginInfo)) {
-            trigger_error($emsg = __CLASS__ . "::" . __METHOD__ . "(): The database contained no entries for plugins", E_USER_WARNING);
-            $log->log("Plugin manager", LEL_ERROR, $emsg);
+        if ((self::$pluginInstanceInfo = $db->readTable(self::$pluginTable)) === false){
+            $log->log("Plugin manager", LEL_ERROR, $emsg = __CLASS__ . "::" . __METHOD__ . "(): database error: " . $db->e());
+            trigger_error($emsg, E_USER_ERROR);
             return false;
         }
-        $log->dlog("Plugin manager", LEL_NOTICE, "Successfully read " . count(self::$pluginInfo) . " plugins from database table $table");
+        if (empty(self::$pluginInfo) || empty(self::$pluginInstanceInfo)) {
+            $log->log("Plugin manager", LEL_WARNING, $emsg = __CLASS__ . "::" . __METHOD__ . "(): The database contained no entries for plugins");
+            trigger_error($emsg, E_USER_WARNING);
+            return false;
+        }
+        $log->dlog("Plugin manager", LEL_NOTICE, "Successfully read information about %d plugins and %d plugin instances from the database");
         return true;
     }
     
@@ -274,7 +283,7 @@ class PluginMan {
             if (isset($activeUsr))
                 $installedBy = $activeUsr->getId();
         
-        $query = "INSERT INTO `" . self::$dbTable . "` (`dname`, `iname`, `comName`, `installedAt`, `installedBy`, `path`, `enabled`) 
+        $query = "INSERT INTO `" . self::$pluginTable . "` (`dname`, `iname`, `comName`, `installedAt`, `installedBy`, `path`, `enabled`) 
             VALUES ('$dname', '$iname', '$pName', '$installedAt', $installedBy, '$dest', TRUE)";
         if (!$db->q($query)) {
             $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): Database error while installing plugin '$dname'; database error: " . $db->e() . "; query: " . $query);
@@ -294,16 +303,18 @@ class PluginMan {
     
     /**
      * Remove a plugin by reference.
-     * @param Plugin $plugin A reference to the Plugin to be removed.
+     * @param int $id The ID of the Plugin to be removed.
      * @return bool Returns true on success or false on failure.
      */
-    public static function remove(Plugin $plugin) {
+    public static function uninstall($id) {
         global $log, $db;
-        if ($plugin->core) {
-            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): Cannot remove plugin '" . $plugin->getDname() . "'");
+        $plugin = self::$pluginObjects[$id];
+        if ($plugin->isCore()) {
+            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): Cannot remove plugin '" . $plugin->getDname() . "' because it is a core plugin");
             return false;
         }
-        $query = sprintf("DELETE FROM `%s` WHERE `id`=%d", self::$dbTable, $plugin->getId());
+        $plugin->uninstall();
+        $query = sprintf("DELETE FROM `%s` WHERE `id`=%d", self::$pluginTable, $plugin->getId());
         if (!$db->q($query)) {
             $me = $db->e();
             $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): Error while removing component '" . $plugin->getDname() . "'; Database said: $me; Query: $query");
@@ -316,42 +327,6 @@ class PluginMan {
         }
         unset (self::$plugins[$plugin->id]);        //remove the component from the internal array
         return true;
-    }
-    
-    /**
-     * Remove a plugin by ID.
-     * @param int $id The ID of the Plugin to be removed.
-     * @return bool Returns true on success or false on failure.
-     */
-    public static function removeById($id) {
-        global $log;
-        if (isset(self::$plugins[$id])) {
-            $log->log("Plugin manager", "Error", $emsg = __CLASS__ . "::" . __METHOD__ . "(): component ID '$id' was not found");
-            trigger_error($emsg, E_USER_ERROR);
-            return false;
-        }
-        return remove(self::$plugins[$id]);
-    }
-    
-    /**
-     * Remove a plugin by iname.
-     * @param string $iname The internal name of the Plugin to be removed
-     * @return bool Returns true on success or false on failure.
-     */
-    public static function removeByIname($iname) {
-        global $log;
-        $found = false;
-        foreach (self::$plugins as $plugins)
-            if ($plugin->iname == $iname) {
-                $found = true;
-                break;
-            }
-        if (!$found) {
-            $log->log("Plugin manager", "Error", $emsg = __CLASS__ . "::" . __METHOD__ . "(): component named '$iname' was not found");
-            trigger_error($emsg, E_USER_ERROR);
-            return false;
-        }
-        return remove($plugin);
     }
     
     
