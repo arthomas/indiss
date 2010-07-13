@@ -33,7 +33,10 @@ abstract class Plugin {
     
     //---- Static properties ------------------------------------------------------------
     
-    private static $dbTable = "plugins";
+    private static $pluginTable = "plugins";
+    private static $pluginInfoTable = "plugin_info";
+    private static $commonPath = "plugins/";
+    private static $dataPath = "pluginData/";
     
     //---- Object properties ------------------------------------------------------------
     
@@ -58,7 +61,7 @@ abstract class Plugin {
      * Create a plugin object with its necessary properties.
      * @param array $pluginInfo
      */
-    public function __construct($pluginInfo) {
+    public function __construct($pluginInstanceInfo, $pluginInfo) {
         //would have liked to keep the constructor 'private' but since PluginMan now is a different class, that's not possible :(
         //thinking about making the constructor final. will see about that.....
         $this->id = $id;
@@ -180,7 +183,7 @@ abstract class Plugin {
             $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrCannotDisableCom"), $this->dname), LiveErrorHandler::EK_ERROR);
             return false;
         }
-        $result = mysql_query("UPDATE `" . self::$dbTable . "` SET `enabled`=" . (($enabled) ? "TRUE" : "FALSE") . " WHERE `id`=" . $this->id);
+        $result = mysql_query("UPDATE `" . self::$pluginTable . "` SET `enabled`=" . (($enabled) ? "TRUE" : "FALSE") . " WHERE `id`=" . $this->id);
         if (!$result) {
             $handler->addMsg(lang("commgrComponentManager"), sprintf(lang(($enabled) ? "commgrDisableComDBError" : "commgrEnableComDBError"), $this->dname, "<i>" . mysql_error() . "</i>", "<pre>$query</pre>"), LiveErrorHandler::EK_ERROR);
             return false;
@@ -204,7 +207,7 @@ abstract class Plugin {
      */
     final public function setDname($dname) {
         global $logDebug, $logError, $handler;
-        $result = mysql_query("UPDATE `" . self::$dbTable . "` SET `dname`='$dname' WHERE `id`=" . $this->id);
+        $result = mysql_query("UPDATE `" . self::$pluginTable . "` SET `dname`='$dname' WHERE `id`=" . $this->id);
         if (!$result) {
             $handler->addMsg(lang("commgrComponentManager"), sprintf(lang("commgrRenameComDBError"), $this->dname, "<i>" . mysql_error() . "</i>", "<pre>$query</pre>"), LiveErrorHandler::EK_ERROR);
             return false;
@@ -227,7 +230,7 @@ abstract class Plugin {
      */
     final public function getWebPath() {
         global $basepath;
-        return $basepath . "/" . PluginMan::getCommonPath() . $this->pName;
+        return $basepath . "/" . self::$commonPath . $this->pName;
     }
     
     /**
@@ -236,7 +239,25 @@ abstract class Plugin {
      */
     final public function getFullPath() {
         global $FBP;
-        return $FBP . PluginMan::getCommonPath() . $this->pName;
+        return $FBP . self::$commonPath . $this->pName;
+    }
+    
+    /**
+     * Get the complete web path of the plugin's data folder.
+     * @return string Returns the complete web path of the plugin.
+     */
+    final public function getDataWebPath() {
+        global $basepath;
+        return $basepath . "/" . self::$dataPath . $this->iname;
+    }
+    
+    /**
+     * Get the absolute file system path of the plugin's data folder.
+     * @return string Returns the absolute file system path of the plugin.
+     */
+    final public function getDataFullPath() {
+        global $FBP;
+        return $FBP . self::$dataPath . $this->iname;
     }
     
     /**
