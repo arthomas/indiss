@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-07-13
+ * @version     2010-07-14
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
@@ -68,11 +68,11 @@ class MySQLConnection {
      */
     public function connect() {
         if (!($this->lid = mysql_connect($this->dbhost, $this->dbuser, $this->dbpass))) {
-            die("Error: Cannot connect to MySQL server. Server said: " . mysql_error());
+            die("Error: Cannot connect to MySQL server. Server said: " . mysql_error($this->lid));
         }
         if (!mysql_select_db($this->dbname)) { 
             mysql_close($this->lid);
-            die("Error: Cannot select database. Server said: " . mysql_error());
+            die("Error: Cannot select database. Server said: " . mysql_error($this->lid));
         }
     }
     
@@ -93,7 +93,7 @@ class MySQLConnection {
     public function q($query) {
         $r = mysql_query($query, $this->lid);
         if ($r === false)
-            $this->lastError = mysql_error();
+            $this->lastError = mysql_error($this->lid);
         else 
             $this->lastError = null;
         return $r;
@@ -137,10 +137,10 @@ class MySQLConnection {
         $query = "SHOW TABLES";
         if (!is_null($pattern) && is_string($pattern))
             $query .= " LIKE '$pattern'";
-        $result = mysql_query($query);
+        $result = $this->q($query);
         if (!$result) {
             if (!$silent)
-                trigger_error("MySQLConnection::getTables(): database error: " . mysql_error() . "; query: $query", E_USER_ERROR);
+                trigger_error(__CLASS__ . "::" . __METHOD__ . "(): database error: " . $this->e() . "; query: $query", E_USER_ERROR);
             return false;
         } else {
             $list = array();
@@ -205,9 +205,9 @@ class MySQLConnection {
             `comment` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
             PRIMARY KEY (`id`)
         ) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
-        if (!mysql_query($query)) {
+        if (!$this->q($query)) {
             if (!$silent)
-                trigger_error("MySQLConnection::createNVTable(): database error: " . mysql_error() . "; query: $query", E_USER_ERROR);
+                trigger_error(__CLASS__ . "::" . __METHOD__ . "(): database error: " . $this->e() . "; query: $query", E_USER_WARNING);
             return false;
         } else
             return true;
@@ -223,7 +223,7 @@ class MySQLConnection {
      * on failure
      */
     public function getValueByName ($tablename, $name, $default = null) {
-        $result = mysql_query( "SELECT `value` FROM `$tablename` WHERE `name`='$name'", $this->lid );
+        $result = $this->q( "SELECT `value` FROM `$tablename` WHERE `name`='$name'" );
         if (!$result) {
             return $default;
         } else {
@@ -245,7 +245,7 @@ class MySQLConnection {
      * on failure.
      */
     public function getValueByID ($tablename, $id) {
-        $result = mysql_query( "SELECT `value` FROM `$tablename` WHERE `id`=$id", $this->lid );
+        $result = $this->q( "SELECT `value` FROM `$tablename` WHERE `id`=$id" );
         if (!$result) {
             return false;
         } else {
@@ -315,6 +315,16 @@ class MySQLConnection {
      */
     public function readTable($tableName) {
         return $this->getArrayA($this->q("SELECT * FROM `$tableName`"));
+    }
+    
+    public function dropTable($name, $silent = false) {
+        $query = "DROP TABLE `$name`;";
+        if (!$this->q($query)) {
+            if (!$silent)
+                trigger_error(__CLASS__ . "::" . __METHOD__ . "(): database error: " . $this->e() . "; query: $query", E_USER_WARNING);
+            return false;
+        } else
+            return true;
     }
     
 } //end of class MySQLConnection
