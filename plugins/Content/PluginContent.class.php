@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-07-13
+ * @version     2010-07-15
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -56,12 +56,15 @@ class PluginContent extends Plugin {
         "INSERT INTO `%s` (`name`,`value`,`comment`) VALUES ('max_width', 'auto', 'The maximum width of displayed images, in pixels. \"auto\" for using the frame''s width');",
         "INSERT INTO `%s` (`name`,`value`,`comment`) VALUES ('max_height', '30', 'The maximum height of displayed images, in pixels. \"auto\" for using the frame''s height');"
     );
+    private static $defaultTask = "list";
+    private static $tasksNeedingItemList = array("list");
+    private static $tasksNeedingDeletedItemList = array("trash");
     
     
     //---- Object properties ------------------------------------------------------------
     
-    private $itemTable;
-    private $optionTable;
+    private $itemTable = "";
+    private $optionTable = "";
     
     
     //---- Static methods ---------------------------------------------------------------
@@ -82,8 +85,21 @@ class PluginContent extends Plugin {
         return true;
     }
     
+    public function getPluginNav() {
+        $r = array(
+            array("task" => "list", "label" => "Item list")
+        );
+        return $r;
+    }
+    
+    private function getItems($deleted = false) {
+        global $db;
+        $query = "SELECT * FROM `$this->itemTable` WHERE `deleted`=" . (($deleted) ? "1" : "0");
+        return $db->getArrayA($db->q($query));
+    }
+    
     public function initialize() {
-        
+        global $log, $db;
     }
     
     public function install() {
@@ -103,6 +119,7 @@ class PluginContent extends Plugin {
         }
         $log->dlog("Plugin: $this->pName", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully created option table '$this->optionTable'");
         
+        //insert necessary option values
         foreach (self::$optionValues as $qry) {
             $query = sprintf($qry, $this->optionTable);
             if (!$db->q($query)) {
@@ -114,6 +131,21 @@ class PluginContent extends Plugin {
     }
     
     public function uninstall() {
+        global $log, $db;
+        
+        if (!$db->dropTable($this->itemTable)) {
+            
+        } else {
+            $log->dlog("Plugin: $this->pName", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully dropped item table '$this->itemTable'");
+        }
+        if (!$db->dropTable($this->optionTable)) {
+            
+        } else {
+            $log->dlog("Plugin: $this->pName", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully dropped option table '$this->optionTable'");
+        }
+    }
+    
+    public function processInput($postview) {
         
     }
     
@@ -121,8 +153,16 @@ class PluginContent extends Plugin {
         
     }
     
-    public function outputAdmin() {
+    public function outputAdmin($task = null) {
+        if (is_null($task))
+            $task = self::$defaultTask;
         
+        if (in_array($task, self::$tasksNeedingItemList))
+            $items = $this->getItems();
+        if (in_array($task, self::$tasksNeedingDeletedItemList))
+            $deletedItems = $this->getItems(true);
+        
+        include($this->getFullPath() . "/tasks/$task.php");
     }
     
 

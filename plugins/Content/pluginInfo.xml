@@ -17,6 +17,8 @@
         <filename>index.html</filename>
         <filename>pluginInfo.xml</filename>
         <filename>PluginContent.class.php</filename>
+        <filename>tasks/index.html</filename>
+        <filename>tasks/list.php</filename>
     </files>
     <dataFiles>
         <filename>index.html</filename>
