@@ -1,9 +1,9 @@
 <?php
 /**
- * @version     2010-07-13
+ * @version     2010-07-22
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
- * @module      Includes necessary files for a web entry point
+ * @module      Includes necessary files for the front page entry point
  * 
  * @license     This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU General Public License as published by
@@ -23,10 +23,9 @@ defined("__MAIN") or die("Restricted access.");
  
 require(dirname(__FILE__) . "/loader_minimal.php");
 
-require("$FBP2/includes/markup/CSSJSHandler.php");
+$lang = $db->getOption("front_lang", $lang);
 
-require("$FBP2/includes/usrman/UsrMan.php");
-UsrMan::readDB();
+require("$FBP2/includes/markup/CSSJSHandler.php");
 
 require("$FBP2/includes/pluginman/PluginMan.php");
 ComMan::readDB();
