@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-07-14
+ * @version     2010-07-22
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
@@ -57,6 +57,10 @@ class MySQLConnection {
         $this->dbname = $dbname;
     }
     
+    public function __destruct () {
+        $this->disconnect();    //disconnects the db server, if a connection is open
+    }
+    
     
     //---- Object methods ---------------------------------------------------------------
     
@@ -79,10 +83,11 @@ class MySQLConnection {
     /**
      * Close the connection to the MySQL server.
      * This function is a wrapper for mysql_close() and returns its return value.
-     * @return bool True on success or false on failure.
+     * @return bool If a connection is open, tries to close that connection and returns
+     * true on success or false on failure. If no connection is open, returns false.
      */
     public function disconnect() {
-        return mysql_close($this->lid);
+        return (is_null($this->lid)) ? false : mysql_close($this->lid);
     }
     
     /**
