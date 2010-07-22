@@ -1,6 +1,6 @@
 <?php 
 /**
- * @version     2010-02-25
+ * @version     2010-07-22
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module
@@ -21,20 +21,7 @@
 
 define("__MAIN", 1);
 
-include_once("config/config.php");
-include_once("includes/dir_awareness.php");
-include_once("includes/database.php");
-
-include_once($FULL_BASEPATH . "/includes/logging/Logger.php");
-$logError = new Logger("error");
-$logDebug = new Logger("debug");
-
-//i18n
-$lang = $db->getOption("frontend_lang", $db->getOption("default_lang", "en"));
-include($FULL_BASEPATH . "/lang/lang.php");
-
-include_once($FULL_BASEPATH . "/components/com_ComMgr/ComMan.php");
-ComMan::readDB("components");
+include_once("includes/loaders/loader_front.php");
 
 
 
@@ -48,8 +35,5 @@ if ( !empty( $_GET["view"] ) ) {
 
 include("views/$view/main.php");
 
-
-if (isset($dbconnected))
-	mysql_close();
 
 ?>
