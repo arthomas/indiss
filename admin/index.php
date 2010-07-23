@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-07-13
+ * @version     2010-07-23
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Backend main page
@@ -84,32 +84,24 @@ require_once("../includes/loaders/loader_web.php");
     }
     
     
-    include("components/_comlist.php");
+    //include("components/_comlist.php");
     if ($activeUsr) {
-        if (isset($_GET["comID"])) {
-            if (($activeCom = ComMan::getCom((int)$_GET["comID"])) !== false) {
-                $useComId = true;
-                $component = $activeCom->getFullPath() . "/admin.php";
-            } else {
-                $component = $_comlist["overview"];
-                $handler->addMsg("Components", "Invalid component ID", LiveErrorHandler::EK_ERROR);
-                $logDebug->debuglog("Main", "Error", "User requested invalid component ID '" . $_GET["comID"] . "'");
+        $activePlugin = false;
+        if (isset($_GET["pluginID"])) {
+            if (($activePlugin = PluginMan::getPlugin((int)$_GET["pluginID"], true)) === false)  {
+                $log->log("Global", LEL_ERROR, "A plugin with the ID " . $_GET["pluginID"] . " does not exist.");
             }
-        } else {
-        	    if (!isset($_GET["component"]))
-        		    $component = $_comlist["overview"];
-        		else {
-        		    $component = $_comlist[$_GET["component"]];
-        			if (!isset($_comlist[$_GET["component"]]) || !file_exists($component)) {
-        			    $message .= lang("errComNotFound") . "<br />\n";
-                        $logDebug->debuglog("Main", "Error", "User requested component '" . $_GET["component"] . "', file '$component'");
-        			    $component = $_comlist["overview"];
-        			}
-        		}
-            
-    }
+        }
+        if (!$activePlugin && isset($_GET["plugin"])) {
+        if (($activePlugin = PluginMan::getPluginByIname($_GET["plugin"], true)) === false)  {
+                $log->log("Global", LEL_ERROR, "A plugin called '" . $_GET["plugin"] . "' does not exist.");
+            }
+        } 
+        if (!$activePlugin) {
+            $activePlugin = PluginMan::getPluginByIname("Overview");
+        }
     } else {
-        $component = $_comlist["login"];
+        //display login
     }
     
 
@@ -123,11 +115,7 @@ require_once("../includes/loaders/loader_web.php");
     <meta name="author" content="Patrick Lehner" />
 
     <link rel="stylesheet" type="text/css" href="css/admin_main.css" />
-<?php 
-    if ($useComId)
-        if (file_exists($activeCom->getFullPath() . "/admin.css.php"))
-            echo "    <link rel=\"stylesheet\" type=\"text/css\" href=\"" . $activeCom->getWebPath() . "/admin.css.php\" />\n";
-?>
+    <!--%CSSJSLINKS%-->
     
     <title><?php echo $sitename; ?> Administration</title>
 </head>
@@ -159,15 +147,17 @@ require_once("../includes/loaders/loader_web.php");
             </div>
             <div id="topBarSitename" class="topBarLeft"><?php echo $sitename; ?> Administration</div>
             <?php if ($activeUsr) { ?><div id="topBarUser" class="topBarLeft">Logged in as: <?php echo $activeUsr->getUname();?></div>
-            <div id="topBarMenu" class="topBarLeft"><a href="?component=overview">Overview</a></div><?php } ?> 
+            <div id="topBarMenu" class="topBarLeft"><a href="index.php">Overview</a></div><?php } ?> 
             <div class="topBarContent">&nbsp;</div>
         </div>
     </div>
     <div id="main">
-        <div id="component">
+        <div id="output">
+            <?php //output plugin nav here ?>
             <!--%HANDLEROUTPUT_COMMON%-->
-<?php if (isset($message)) { echo "            <div id=\"messageBar\">$message</div>\n"; unset($message); } ?>
-            <?php include($component); ?> 
+            <div id="<?php $activePlugin->getIname(); ?>" class="<?php get_class($activePlugin); ?>">
+                <?php $activePlugin->outputAdmin($_GET["task"]); ?> 
+            </div>
         </div>
     </div>
     <div id="footer">
