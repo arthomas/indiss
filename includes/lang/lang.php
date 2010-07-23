@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-06-19
+ * @version     2010-07-23
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
@@ -60,6 +60,7 @@ class Lang {
             trigger_error(__CLASS__ . "::" . __METHOD__ . "(): Cannot create language list: This is not a directory ($dirname)", E_USER_ERROR);
             return;
         }
+        $d = $dirname;
         $l = preg_grep("/\./i", scandir("$d"), PREG_GREP_INVERT); //scan for sub-folders (all that do not include a dot -- thus excluding "this dir" and "parent dir"
         if (empty($l)) {
             trigger_error(__CLASS__ . "::" . __METHOD__ . "(): Cannot create language list: No languages were found ($dirname)", E_USER_ERROR);
