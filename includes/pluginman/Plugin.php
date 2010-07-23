@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-07-15
+ * @version     2010-07-32
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      class that holds info about installed plugins
@@ -52,7 +52,6 @@ abstract class Plugin {
     protected $pName = "";
     protected $installedAt = 0;
     protected $installedBy = 0;
-    protected $path = "";
     
     
     //---- Constructors & destructors ---------------------------------------------------
@@ -63,19 +62,16 @@ abstract class Plugin {
      */
     public function __construct($pluginInstanceInfo, $pluginInfo) {
         //would have liked to keep the constructor 'private' but since PluginMan now is a different class, that's not possible :(
-        //thinking about making the constructor final. will see about that.....
-        $this->id = $id;
-        $this->dname = $dname;
-        $this->iname = $iname;
-        $this->pName = $pName;
-        $this->installedAt = strtotime($installedAt);
-        $this->installedBy = (int)$installedBy;
-        $this->path = $path;
-        $this->enabled = $enabled;
-        $this->oneOfAKind = $oneOfAKind;
-        $this->alwaysOn = $alwaysOn;
-        $this->core = $core;
-        $this->installed = true;
+        $this->id = $pluginInstanceInfo["id"];
+        $this->dname = $pluginInstanceInfo["dname"];
+        $this->iname = $pluginInstanceInfo["iname"];
+        $this->pName = $pluginInstanceInfo["pName"];
+        $this->installedAt = strtotime($pluginInstanceInfo["installedAt"]);
+        $this->installedBy = (int)$pluginInstanceInfo["installedBy"];
+        $this->enabled = $pluginInstanceInfo["enabled"];
+        $this->oneOfAKind = $pluginInfo["oneOfAKind"];
+        $this->alwaysOn = $pluginInfo["alwaysOn"];
+        $this->core = $pluginInfo["core"];
     }
     
     
