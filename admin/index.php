@@ -27,7 +27,7 @@ session_name("INDISSAdmin");
 session_start();
 
 //initialize it all
-require_once("../includes/loaders/loader_web.php");
+require_once("../includes/loaders/loader_admin.php");
     
     if (isset($_POST['submit'])) {
         switch ($_POST["task"]) {
