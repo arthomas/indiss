@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Insert DTD info here! -->
+<install type="plugin">
+    <pName>Content</pName>
+    <type>content</type>
+    <created>2010-07-23</created>
+    <author>Patrick Lehner</author>
+    <authorEmail>lehner.patrick@gmx.de</authorEmail>
+    <authorUrl>http://indiss.net</authorUrl>
+    <copyright>Copyright (C) 2010 Patrick Lehner</copyright>
+    <license>GNU GPLv3</license>
+    <minVersion>0.3.0</minVersion>
+    <maxVersion>0.3.x</maxVersion>
+    <pluginVersion>0.3</pluginVersion>
+    <description>Display an overview of all installed plugins.</description>
+    <files>
+        <filename>index.html</filename>
+        <filename>pluginInfo.xml</filename>
+        <filename>PluginOverview.class.php</filename>
+        <filename>tasks/index.html</filename>
+        <filename>tasks/list.php</filename>
+    </files>
+</install>
