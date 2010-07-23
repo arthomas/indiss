@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-07-13
+ * @version     2010-07-23
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that manages installed plugins
@@ -75,6 +75,11 @@ class PluginMan {
         self::$commonPath = $path;
         $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Changed common path to $path");
         return true;
+    }
+    
+    public static function getInfoArrays(&$pluginInfo, &$pluginInstanceInfo) {
+        $pluginInfo = self::$pluginInfo;
+        $pluginInstanceInfo = self::$pluginInstanceInfo;
     }
     
     private static function loadPlugin($id) {
