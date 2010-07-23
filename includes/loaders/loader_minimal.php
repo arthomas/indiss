@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-07-13
+ * @version     2010-07-23
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      Includes the absolutely necessary files.
@@ -20,8 +20,8 @@
  */
  
 //Note: this has to be changed if this file is moved somewhere else
-$FBP = dirname(dirname(__FILE__)) . "/";
-$FBP2 = $FULL_BASEPATH = dirname(dirname(__FILE__)); //FULL_BASEPATH is legacy
+$FBP2 = $FULL_BASEPATH = dirname(dirname(dirname(__FILE__))); //FULL_BASEPATH is legacy
+$FBP = $FBP2 . "/";
 
 require("$FBP2/config/config.php");
 require("$FBP2/config/version.php");
