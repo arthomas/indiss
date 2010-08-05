@@ -334,12 +334,20 @@ class MySQLConnection {
     
     /**
      * A wrapper for the mysql_insert_id() function.
-     * @return The ID generated for an AUTO_INCREMENT column by the previous query on success,
+     * @return mixed Returns the ID generated for an AUTO_INCREMENT column by the previous query on success,
      * 0 if the previous query does not generate an AUTO_INCREMENT value, or FALSE if no MySQL
      * connection was established. 
      */
     public function getInsertId() {
     	return mysql_insert_id($this->lid);
+    }
+    
+    /**
+     * A wrapper for the mysql_affected_rows() function.
+     * @return int Returns the number of affected rows on success, and -1 if the last query failed. 
+     */
+    public function getAffectedRows() {
+        return mysql_affected_rows($this->lid);
     }
     
 } //end of class MySQLConnection
