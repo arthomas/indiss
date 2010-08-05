@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-07-22
+ * @version     2010-08-05
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
@@ -330,6 +330,16 @@ class MySQLConnection {
             return false;
         } else
             return true;
+    }
+    
+    /**
+     * A wrapper for the mysql_insert_id() function.
+     * @return The ID generated for an AUTO_INCREMENT column by the previous query on success,
+     * 0 if the previous query does not generate an AUTO_INCREMENT value, or FALSE if no MySQL
+     * connection was established. 
+     */
+    public function getInsertId() {
+    	return mysql_insert_id($this->lid);
     }
     
 } //end of class MySQLConnection
