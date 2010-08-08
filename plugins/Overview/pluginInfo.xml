@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Insert DTD info here! -->
 <install type="plugin">
-    <pName>Content</pName>
-    <type>content</type>
+    <pName>Overview</pName>
+    <type>core</type>
     <created>2010-07-23</created>
     <author>Patrick Lehner</author>
     <authorEmail>lehner.patrick@gmx.de</authorEmail>
