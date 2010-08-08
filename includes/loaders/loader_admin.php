@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-07-22
+ * @version     2010-08-08
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      Includes necessary files for the admin backend entry point
@@ -25,10 +25,10 @@ require(dirname(__FILE__) . "/loader_minimal.php");
 
 require("$FBP2/includes/markup/CSSJSHandler.php");
 
-require("$FBP2/includes/usrman/UsrMan.php");
-UsrMan::readDB();
+require("$FBP2/includes/usrman/User.php");
+User::readDB();
 
 require("$FBP2/includes/pluginman/PluginMan.php");
-ComMan::readDB();
+PluginMan::readDB();
 
 ?>
