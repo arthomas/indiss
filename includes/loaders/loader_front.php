@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-07-22
+ * @version     2010-08-08
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      Includes necessary files for the front page entry point

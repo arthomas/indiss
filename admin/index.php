@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-07-23
+ * @version     2010-08-08
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Backend main page
@@ -79,8 +79,8 @@ require_once("../includes/loaders/loader_admin.php");
         }
     }
     
-    if (!empty($_SESSION['username'])) {
-    	$activeUsr = UsrMan::getUsr($_SESSION["uid"]);
+    if (!empty($_SESSION["uid"])) {
+    	$activeUsr = User::getUser((int)$_SESSION["uid"]);
     }
     
     
@@ -101,7 +101,7 @@ require_once("../includes/loaders/loader_admin.php");
             $activePlugin = PluginMan::getPluginByIname("Overview");
         }
     } else {
-        //display login
+        $activePlugin = PluginMan::getPluginByIname("LoginLogout");
     }
     
 
