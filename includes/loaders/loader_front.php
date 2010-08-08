@@ -28,6 +28,6 @@ $lang = $db->getOption("front_lang", $lang);
 require("$FBP2/includes/markup/CSSJSHandler.php");
 
 require("$FBP2/includes/pluginman/PluginMan.php");
-ComMan::readDB();
+PluginName::readDB();
 
 ?>
