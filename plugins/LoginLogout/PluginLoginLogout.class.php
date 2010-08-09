@@ -44,7 +44,7 @@ class PluginLoginLogout extends Plugin {
     //---- Constructors & destructors ---------------------------------------------------
     
     public function __construct($pluginInstanceInfo, $pluginInfo) {
-        parent::__contstruct($pluginInstanceInfo, $pluginInfo);
+        parent::__construct($pluginInstanceInfo, $pluginInfo);
     }
     
     

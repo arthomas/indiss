@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-07-15
+ * @version     2010-08-09
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -73,7 +73,7 @@ class PluginContent extends Plugin {
     //---- Constructors & destructors ---------------------------------------------------
     
     public function __construct($pluginInstanceInfo, $pluginInfo) {
-        parent::__contstruct($pluginInstanceInfo, $pluginInfo);
+        parent::__construct($pluginInstanceInfo, $pluginInfo);
         $this->itemTable = $this->iname . "_items";
         $this->optionTable = $this->iname . "_options";
     }
