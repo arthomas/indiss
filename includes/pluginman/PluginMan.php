@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-07-23
+ * @version     2010-08-09
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that manages installed plugins
@@ -83,9 +83,10 @@ class PluginMan {
     }
     
     private static function loadPlugin($id) {
+        global $log;
         if (!isset(self::$pluginObjects[$id])) {
             global $FBP;
-            $pluginClass = "Plugin" . self::$pluginInstanceInfo["id"]["pName"];
+            $pluginClass = "Plugin" . self::$pluginInstanceInfo[$id]["pName"];
             if (!class_exists($pluginClass)) {
                 include_once($s = $FBP . self::$commonPath . self::$pluginInstanceInfo[$id]["pName"] . "/$pluginClass.class.php");
                 if (file_exists($l = (dirname($s) . "/lang"))) {
@@ -116,7 +117,7 @@ class PluginMan {
      */
     public static function getPlugin($id, $silent = false) {
         global $log;
-        if (isset(self::$pluginInfo[$id])) {
+        if (isset(self::$pluginInstanceInfo[$id])) {
             //debug-log events are located in loadPlugin()
             return self::loadPlugin($id);
         } else {
@@ -139,15 +140,15 @@ class PluginMan {
      */
     public static function getPluginByIname($iname, $silent = false) {
         global $log;
-        foreach (self::$pluginInfo as $pI)
+        foreach (self::$pluginInstanceInfo as $pI)
             if ($pI["iname"] == $iname) {
                 //debug-log events are located in loadPlugin()
                 return self::loadPlugin($pI["id"]);
             }
         $emsg = __METHOD__ . "(): no plugin named '$iname' was found";
         if (!$silent) {
-            trigger_error($emsg, E_USER_WARNING);
             $log->log("Plugin manager", LEL_WARNING, $emsg);
+            trigger_error($emsg, E_USER_WARNING);
         } else {
             $log->dlog("Plugin manager", LEL_NOTICE, $emsg . " (silent mode)");
         }
@@ -185,7 +186,8 @@ class PluginMan {
             trigger_error($emsg, E_USER_WARNING);
             return false;
         }
-        $log->dlog("Plugin manager", LEL_NOTICE, "Successfully read information about %d plugins and %d plugin instances from the database");
+        $log->dlog("Plugin manager", LEL_NOTICE, sprintf("Successfully read information about %d plugins and %d plugin instances from the database", count(self::$pluginInfo), count(self::$pluginInstanceInfo)));
+        //echo "<!--"; print_r(self::$pluginInstanceInfo); echo "-->";
         return true;
     }
     
