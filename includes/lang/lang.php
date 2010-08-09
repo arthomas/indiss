@@ -57,13 +57,13 @@ class Lang {
      */
     public static function createLangList($dirname, $defineAsGlobal = false) {
         if (!file_exists($dirname) || !is_dir($dirname)) {
-            trigger_error(__CLASS__ . "::" . __METHOD__ . "(): Cannot create language list: This is not a directory ($dirname)", E_USER_ERROR);
+            trigger_error(__METHOD__ . "(): Cannot create language list: This is not a directory ($dirname)", E_USER_ERROR);
             return;
         }
         $d = $dirname;
         $l = preg_grep("/\./i", scandir("$d"), PREG_GREP_INVERT); //scan for sub-folders (all that do not include a dot -- thus excluding "this dir" and "parent dir"
         if (empty($l)) {
-            trigger_error(__CLASS__ . "::" . __METHOD__ . "(): Cannot create language list: No languages were found ($dirname)", E_USER_ERROR);
+            trigger_error(__METHOD__ . "(): Cannot create language list: No languages were found ($dirname)", E_USER_ERROR);
             return;
         }
         self::$langList = array();
@@ -98,7 +98,7 @@ class Lang {
      */
     public static function readLangFile($filename, $toDefaultLang = false) {
         if (!file_exists($filename) || !is_file($filename)) {
-            trigger_error(__CLASS__ . "::" . __METHOD__ . "(): Cannot load language file: This is not a file ($filename)", E_USER_ERROR);
+            trigger_error(__METHOD__ . "(): Cannot load language file: This is not a file ($filename)", E_USER_ERROR);
             return;
         }
         $valid = true;
@@ -123,7 +123,7 @@ class Lang {
                 $valid = false;
         }
         if (!$valid) {
-            trigger_error(__CLASS__ . "::" . __METHOD__ . "(): This is not a valid language file ($filename)", E_USER_NOTICE);
+            trigger_error(__METHOD__ . "(): This is not a valid language file ($filename)", E_USER_NOTICE);
         }
         if ($toDefaultLang) {
             self::$defaultLangMessages = array_merge(self::$defaultLangMessages, $_LANG);
@@ -145,12 +145,12 @@ class Lang {
      */
     public static function readLangFilesFromDir($dirname, $toDefaultLang = false) {
         if (!file_exists($dirname) || !is_dir($dirname)) {
-            trigger_error(__CLASS__ . "::" . __METHOD__ . "(): Cannot load language files: This is not a directory ($dirname)", E_USER_ERROR);
+            trigger_error(__METHOD__ . "(): Cannot load language files: This is not a directory ($dirname)", E_USER_ERROR);
             return;
         }
         $langFiles = preg_grep("/lang_.+\.(?:xml|php)$/i", scandir("$dirname"));
         if (empty($langFiles)) {
-            trigger_error(__CLASS__ . "::" . __METHOD__ . "(): No language files were found ($dirname)", E_USER_ERROR);
+            trigger_error(__METHOD__ . "(): No language files were found ($dirname)", E_USER_ERROR);
             return;
         }
         foreach ($langFiles as $fn) {

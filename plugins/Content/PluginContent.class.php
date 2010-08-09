@@ -111,13 +111,13 @@ class PluginContent extends Plugin {
             
             return false;
         }
-        $log->dlog("Plugin: $this->pName", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully created item table '$this->itemTable'");
+        $log->dlog("Plugin: $this->pName", LEL_NOTICE, __METHOD__ . "(): Successfully created item table '$this->itemTable'");
         
         if (!$db->createNVTable($optionTable)) {
             
             return false;
         }
-        $log->dlog("Plugin: $this->pName", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully created option table '$this->optionTable'");
+        $log->dlog("Plugin: $this->pName", LEL_NOTICE, __METHOD__ . "(): Successfully created option table '$this->optionTable'");
         
         //insert necessary option values
         foreach (self::$optionValues as $qry) {
@@ -127,7 +127,7 @@ class PluginContent extends Plugin {
                 return false;
             }
         }
-        $log->dlog("Plugin: $this->pName", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully saved all values to table '$this->optionTable'");
+        $log->dlog("Plugin: $this->pName", LEL_NOTICE, __METHOD__ . "(): Successfully saved all values to table '$this->optionTable'");
     }
     
     public function uninstall() {
@@ -136,12 +136,12 @@ class PluginContent extends Plugin {
         if (!$db->dropTable($this->itemTable)) {
             
         } else {
-            $log->dlog("Plugin: $this->pName", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully dropped item table '$this->itemTable'");
+            $log->dlog("Plugin: $this->pName", LEL_NOTICE, __METHOD__ . "(): Successfully dropped item table '$this->itemTable'");
         }
         if (!$db->dropTable($this->optionTable)) {
             
         } else {
-            $log->dlog("Plugin: $this->pName", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully dropped option table '$this->optionTable'");
+            $log->dlog("Plugin: $this->pName", LEL_NOTICE, __METHOD__ . "(): Successfully dropped option table '$this->optionTable'");
         }
     }
     

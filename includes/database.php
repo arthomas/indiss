@@ -145,7 +145,7 @@ class MySQLConnection {
         $result = $this->q($query);
         if (!$result) {
             if (!$silent)
-                trigger_error(__CLASS__ . "::" . __METHOD__ . "(): database error: " . $this->e() . "; query: $query", E_USER_ERROR);
+                trigger_error(__METHOD__ . "(): database error: " . $this->e() . "; query: $query", E_USER_ERROR);
             return false;
         } else {
             $list = array();
@@ -212,7 +212,7 @@ class MySQLConnection {
         ) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
         if (!$this->q($query)) {
             if (!$silent)
-                trigger_error(__CLASS__ . "::" . __METHOD__ . "(): database error: " . $this->e() . "; query: $query", E_USER_WARNING);
+                trigger_error(__METHOD__ . "(): database error: " . $this->e() . "; query: $query", E_USER_WARNING);
             return false;
         } else
             return true;
@@ -326,7 +326,7 @@ class MySQLConnection {
         $query = "DROP TABLE `$name`;";
         if (!$this->q($query)) {
             if (!$silent)
-                trigger_error(__CLASS__ . "::" . __METHOD__ . "(): database error: " . $this->e() . "; query: $query", E_USER_WARNING);
+                trigger_error(__METHOD__ . "(): database error: " . $this->e() . "; query: $query", E_USER_WARNING);
             return false;
         } else
             return true;

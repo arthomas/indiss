@@ -73,7 +73,7 @@ class PluginMan {
         global $log;
         $path = trim($path, "/\\") . "/";
         self::$commonPath = $path;
-        $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Changed common path to $path");
+        $log->dlog("Plugin manager", LEL_NOTICE, __METHOD__ . "(): Changed common path to $path");
         return true;
     }
     
@@ -95,16 +95,16 @@ class PluginMan {
                     if ($lang != $defaultlang && file_exists("$l/$lang"))
                         Lang::readLangFilesFromDir("$l/$lang");
                 }
-                $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Loaded Plugin class file $s");
+                $log->dlog("Plugin manager", LEL_NOTICE, __METHOD__ . "(): Loaded Plugin class file $s");
             }
             self::$pluginObjects[$id] = new $pluginClass(self::$pluginInstanceInfo[$id], self::$pluginInfo[self::$pluginInstanceInfo[$id]["pName"]]);
-            $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Created new plugin object of class $pluginClass");
+            $log->dlog("Plugin manager", LEL_NOTICE, __METHOD__ . "(): Created new plugin object of class $pluginClass");
         }
         if (!self::$pluginObjects[$id]->isInitialized()) {
             self::$pluginObjects[$id]->initialize();
-            $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Initialized Plugin '" . self::$pluginInstanceInfo[$id]["iname"] . "'");
+            $log->dlog("Plugin manager", LEL_NOTICE, __METHOD__ . "(): Initialized Plugin '" . self::$pluginInstanceInfo[$id]["iname"] . "'");
         }
-        $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully loaded Plugin '" . self::$pluginInstanceInfo[$id]["iname"] . "'");
+        $log->dlog("Plugin manager", LEL_NOTICE, __METHOD__ . "(): Successfully loaded Plugin '" . self::$pluginInstanceInfo[$id]["iname"] . "'");
         return self::$pluginObjects[$id];
     }
     
@@ -120,7 +120,7 @@ class PluginMan {
             //debug-log events are located in loadPlugin()
             return self::loadPlugin($id);
         } else {
-            $emsg = __CLASS__ . "::" . __METHOD__ . "(): Plugin with id '$id' was not found";
+            $emsg = __METHOD__ . "(): Plugin with id '$id' was not found";
             if (!$silent) {
                 trigger_error($emsg, E_USER_WARNING);
                 $log->log("Plugin manager", LEL_ERROR, $emsg);
@@ -144,7 +144,7 @@ class PluginMan {
                 //debug-log events are located in loadPlugin()
                 return self::loadPlugin($pI["id"]);
             }
-        $emsg = __CLASS__ . "::" . __METHOD__ . "(): no plugin named '$iname' was found";
+        $emsg = __METHOD__ . "(): no plugin named '$iname' was found";
         if (!$silent) {
             trigger_error($emsg, E_USER_WARNING);
             $log->log("Plugin manager", LEL_WARNING, $emsg);
@@ -165,7 +165,7 @@ class PluginMan {
         $pInfoTable = self::$pluginInfoTable;
         
         if (($t = $db->readTable(self::$pluginInfoTable)) === false) {
-            $log->log("Plugin manager", LEL_ERROR, $emsg = __CLASS__ . "::" . __METHOD__ . "(): database error: " . $db->e());
+            $log->log("Plugin manager", LEL_ERROR, $emsg = __METHOD__ . "(): database error: " . $db->e());
             trigger_error($emsg, E_USER_ERROR);
             return false;
         }
@@ -173,7 +173,7 @@ class PluginMan {
         foreach ($t as $item)
             self::$pluginInfo[$item["pName"]] = $item;
         if (($t = $db->readTable(self::$pluginTable)) === false){
-            $log->log("Plugin manager", LEL_ERROR, $emsg = __CLASS__ . "::" . __METHOD__ . "(): database error: " . $db->e());
+            $log->log("Plugin manager", LEL_ERROR, $emsg = __METHOD__ . "(): database error: " . $db->e());
             trigger_error($emsg, E_USER_ERROR);
             return false;
         }
@@ -181,7 +181,7 @@ class PluginMan {
         foreach ($t as $item)
             self::$pluginInstanceInfo[(int)$item["id"]] = $item;
         if (empty(self::$pluginInfo) || empty(self::$pluginInstanceInfo)) {
-            $log->log("Plugin manager", LEL_WARNING, $emsg = __CLASS__ . "::" . __METHOD__ . "(): The database contained no entries for plugins");
+            $log->log("Plugin manager", LEL_WARNING, $emsg = __METHOD__ . "(): The database contained no entries for plugins");
             trigger_error($emsg, E_USER_WARNING);
             return false;
         }
@@ -199,7 +199,7 @@ class PluginMan {
         while (self::getPluginByIname($iname = sprintf("%s_%03d", $pName, $i), true))
             $i++;
         $iname;
-        $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Generated new iname '$iname' from pName '$pName'");
+        $log->dlog("Plugin manager", LEL_NOTICE, __METHOD__ . "(): Generated new iname '$iname' from pName '$pName'");
         return $iname;
     }
     
@@ -218,21 +218,21 @@ class PluginMan {
         $xmlFilename = "$sourceDir/pluginInfo.xml";
         
         if (!file_exists($xmlFilename)) {
-            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): XML file not found ($xmlFilename)");
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): XML file not found ($xmlFilename)");
             return false;
         }
         
         $xml = simplexml_load_file($xmlFilename);
         if ( !$xml ) {
-            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): XML file is not valid ($xmlFilename)");
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): XML file is not valid ($xmlFilename)");
             return false;
         }
         if ((string)$xml["type"] != "plugin") {
-            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): XML file does not describe a plugin ($xmlFilename)");
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): XML file does not describe a plugin ($xmlFilename)");
             return false;
         }
         if ( !(bool)$xml->pName || !(bool)$xml->minVersion || !(bool)$xml->maxVersion || !(bool)$xml->description || !(bool)$xml->files || count($xml->files->filename) < 1 ) {
-            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): The plugin info contained in the XML file is not valid ($xmlFilename)");
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): The plugin info contained in the XML file is not valid ($xmlFilename)");
             return false;
         }
         $pName = (string)$xml->pName;
@@ -249,17 +249,17 @@ class PluginMan {
         if (empty($dname))
             $dname = ucfirst($iname);
             
-        $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Attempting to install a plugin with these parameters: sourceDir=$sourceDir; dname=$dname; iname=$iname; pName=$pName; version=$version");
+        $log->dlog("Plugin manager", LEL_NOTICE, __METHOD__ . "(): Attempting to install a plugin with these parameters: sourceDir=$sourceDir; dname=$dname; iname=$iname; pName=$pName; version=$version");
         
         if (self::getPluginByIname($iname, true) !== false) {
-            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): A plugin with the internal name '$iname' already exists. Please choose a different internal name.");
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): A plugin with the internal name '$iname' already exists. Please choose a different internal name.");
             return false;
         }
         
         global $FBP;
         $p = $FBP . self::$commonPath . $dest;
         if (file_exists($p)) {
-            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): The destination folder for this plugin already exists (folder: $p)");
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): The destination folder for this plugin already exists (folder: $p)");
             return false;
         }
         if ($ret = mkdir($p)) {
@@ -268,20 +268,20 @@ class PluginMan {
                     if (!file_exists(dirname("$p/$filename"))) {                //check if this sub-directory exists
                         $r = mkdir(dirname("$p/$filename"), 0777, true);        //and create it if necessary
                         $ret = $ret && $r;
-                        $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Recursively creating directory '" . dirname("$p/$filename") . "'... " . (($r) ? "Success" : "Fail"));
+                        $log->dlog("Plugin manager", LEL_NOTICE, __METHOD__ . "(): Recursively creating directory '" . dirname("$p/$filename") . "'... " . (($r) ? "Success" : "Fail"));
                     }
                 }
                 $r = copy("$sourceDir/$filename", "$p/$filename");
                 $ret = $ret && $r;
-                $log->dlog("Component manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Copying file '$sourceDir/$filename' to '$p/$filename'... " . (($r) ? "Success" : "Fail"));
+                $log->dlog("Component manager", LEL_NOTICE, __METHOD__ . "(): Copying file '$sourceDir/$filename' to '$p/$filename'... " . (($r) ? "Success" : "Fail"));
             }
         } else {
-            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): Creating the destination folder for this plugin failed (folder: $p)");
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Creating the destination folder for this plugin failed (folder: $p)");
             return false;
         }
         
         if (!$ret) {
-            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): Copying file to destination folder failed (folder: $p)");
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Copying file to destination folder failed (folder: $p)");
             return false;
         }
         
@@ -298,18 +298,18 @@ class PluginMan {
         $query = "INSERT INTO `" . self::$pluginTable . "` (`dname`, `iname`, `comName`, `installedAt`, `installedBy`, `path`, `enabled`) 
             VALUES ('$dname', '$iname', '$pName', '$installedAt', $installedBy, '$dest', TRUE)";
         if (!$db->q($query)) {
-            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): Database error while installing plugin '$dname'; database error: " . $db->e() . "; query: " . $query);
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Database error while installing plugin '$dname'; database error: " . $db->e() . "; query: " . $query);
             return false;
         }
         if (!($id = mysql_insert_id())) {
-            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): Error while retrieving database ID for plugin '$dname'");
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Error while retrieving database ID for plugin '$dname'");
             return false;
         }
         
         $plugin = new Plugin($id, $dname, $iname, $pName, $installedAt, $installedBy, $dest, true);
         self::$plugins[(int)$id] = $plugin;
         
-        $log->dlog("Plugin manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully installed plugin '$dname'; id=$id");
+        $log->dlog("Plugin manager", LEL_NOTICE, __METHOD__ . "(): Successfully installed plugin '$dname'; id=$id");
         return $plugin;
     }
     
@@ -322,20 +322,20 @@ class PluginMan {
         global $log, $db;
         $plugin = self::$pluginObjects[$id];
         if ($plugin->isCore()) {
-            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): Cannot remove plugin '" . $plugin->getDname() . "' because it is a core plugin");
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Cannot remove plugin '" . $plugin->getDname() . "' because it is a core plugin");
             return false;
         }
         $plugin->uninstall();
         $query = sprintf("DELETE FROM `%s` WHERE `id`=%d", self::$pluginTable, $plugin->getId());
         if (!$db->q($query)) {
             $me = $db->e();
-            $log->log("Plugin manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): Error while removing component '" . $plugin->getDname() . "'; Database said: $me; Query: $query");
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Error while removing component '" . $plugin->getDname() . "'; Database said: $me; Query: $query");
             return false;
         }
         global $FBP2;
         include_once ("$FBP2/includes/filesystem/recursiveDelete.php");
         if (recursiveDelete( $plugin->getFullPath() ) === false) {
-            $log->log("Plugin manager", "Error", __CLASS__ . "::" . __METHOD__ . "(): Error while deleting the files of component '" . $plugin->getDname() . "'");
+            $log->log("Plugin manager", "Error", __METHOD__ . "(): Error while deleting the files of component '" . $plugin->getDname() . "'");
         }
         unset (self::$plugins[$plugin->id]);        //remove the component from the internal array
         return true;

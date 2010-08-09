@@ -97,10 +97,10 @@ class User {
     public static function getUser($id, $silent = false) {
         global $log;
         if (isset(self::$users[$id])) {
-            $log->dlog("User manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully retrieved user by id '$id'");
+            $log->dlog("User manager", LEL_NOTICE, __METHOD__ . "(): Successfully retrieved user by id '$id'");
             return self::$users[$id];
         } else {
-            $emsg = __CLASS__ . "::" . __METHOD__ . "(): user with id '$id' was not found";
+            $emsg = __METHOD__ . "(): user with id '$id' was not found";
             if (!$silent) {
                 trigger_error($emsg, E_USER_WARNING);
                 $log->log("User manager", LEL_ERROR, $emsg);
@@ -121,11 +121,11 @@ class User {
         global $log;
         foreach (self::$users as $user) {
             if ($user->uname == $uname) {
-                $log->dlog("User manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully retrieved user by uname '$uname'");
+                $log->dlog("User manager", LEL_NOTICE, __METHOD__ . "(): Successfully retrieved user by uname '$uname'");
                 return $user;
             }
         }
-        $emsg = __CLASS__ . "::" . __METHOD__ . "(): no user named '$uname' was found";
+        $emsg = __METHOD__ . "(): no user named '$uname' was found";
         if (!$silent) {
             trigger_error($emsg, E_USER_WARNING);
             $log->log("User manager", LEL_ERROR, $emsg);
@@ -146,7 +146,7 @@ class User {
         self::$users = array();                    //reset $users, so this function can also be to refresh the user data
         
         if (($rows = $db->readTable($table)) === false) {
-            $log->log("User manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): Database error while read user table: " . $db->e());
+            $log->log("User manager", LEL_ERROR, __METHOD__ . "(): Database error while read user table: " . $db->e());
             return false;
         }
         
@@ -157,7 +157,7 @@ class User {
             }
         }
         
-        $log->dlog("User manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully read " . count(self::$users) . " users from database table $table");
+        $log->dlog("User manager", LEL_NOTICE, __METHOD__ . "(): Successfully read " . count(self::$users) . " users from database table $table");
         return true;
     }
     
@@ -165,7 +165,7 @@ class User {
         global $log, $db;
         
         if (self::getUsrByUname($uname, true) !== false) {
-            $log->log("User manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): A user named '$uname' already exists");
+            $log->log("User manager", LEL_ERROR, __METHOD__ . "(): A user named '$uname' already exists");
             return false;
         }
         
@@ -186,24 +186,24 @@ class User {
         $query = "INSERT INTO `" . self::$dbTable . "` (`uname`, `pass`, `salt`, `email`, `fullname`, `createdAt`, `createdBy`, `level`, `active`) 
             VALUES ('$uname', '$pass', '$salt', '$email', '$fullname', '$createdAt', $createdBy, $level, TRUE)";
         if (!$db->q($query)) {
-            $log->log("User manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): database error: {$db->e()}; query: $query");
+            $log->log("User manager", LEL_ERROR, __METHOD__ . "(): database error: {$db->e()}; query: $query");
             return false;
         }
         if (($id = $db->getInsertId()) === false) {
-            $log->log("User manager", "Error", __CLASS__ . "::" . __METHOD__ . "(): failed to retrieve database entry id");
-            $log->dlog("User manager", "Error", __CLASS__ . "::" . __METHOD__ . "(): failed to retrieve database entry id -- INTERNAL ARRAY NOW OUT OF SYNC");
+            $log->log("User manager", "Error", __METHOD__ . "(): failed to retrieve database entry id");
+            $log->dlog("User manager", "Error", __METHOD__ . "(): failed to retrieve database entry id -- INTERNAL ARRAY NOW OUT OF SYNC");
             return false;
         }
         
         if (!($rows = $db->getArrayA($db->q("SELECT * FROM `" . self::$dbTable . "` WHERE `id`=$id")))) {
-            $log->log("User manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): database error: {$db->e()}; query: $query");
+            $log->log("User manager", LEL_ERROR, __METHOD__ . "(): database error: {$db->e()}; query: $query");
             return false;
         }
         
         $usr = new User($rows[0]);
         self::$users[(int)$id] = $usr;
         
-        $log->dlog("User manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully created user '$uname'");
+        $log->dlog("User manager", LEL_NOTICE, __METHOD__ . "(): Successfully created user '$uname'");
         return true;
     }
     
@@ -215,7 +215,7 @@ class User {
             //try to delete user from database
             $query = "DELETE FROM `" . self::$dbTable . "` WHERE `id`=$id";
             if (!$db->q($query)) {
-                $emsg = __CLASS__ . "::" . __METHOD__ . "(): database error: {$db->e()}; query: $query";
+                $emsg = __METHOD__ . "(): database error: {$db->e()}; query: $query";
                 if (!$silent) {
                     trigger_error($emsg, E_USER_WARNING);
                     $log->log("User manager", LEL_ERROR, $emsg);
@@ -226,7 +226,7 @@ class User {
             
             //check how many rows were affected
             if(($affected = $db->getAffectedRows()) != 1) {
-                $emsg = __CLASS__ . "::" . __METHOD__ . "(): Database returned no error, but said that $affected rows were affected during deletion of user id '$id'";
+                $emsg = __METHOD__ . "(): Database returned no error, but said that $affected rows were affected during deletion of user id '$id'";
                 if (!$silent) {
                     trigger_error($emsg, E_USER_WARNING);
                     $log->log("User manager", LEL_ERROR, $emsg);
@@ -239,11 +239,11 @@ class User {
             unset(self::$users[$id]);
             
             //debuglog success and return
-            $log->dlog("User manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully deleted user with the id '$id'");
+            $log->dlog("User manager", LEL_NOTICE, __METHOD__ . "(): Successfully deleted user with the id '$id'");
             return true;
             
         } else {
-            $emsg = __CLASS__ . "::" . __METHOD__ . "(): user with id '$id' was not found in internal array";
+            $emsg = __METHOD__ . "(): user with id '$id' was not found in internal array";
             if (!$silent) {
                 trigger_error($emsg, E_USER_WARNING);
                 $log->log("User manager", LEL_ERROR, $emsg);
@@ -262,7 +262,7 @@ class User {
         
         if ($r === false) {  //an actual error when communicating with the db server occurred
             //trigger_error($emsg = "UsrMan::login(): database error: " . mysql_error() . "; -- query not included for security reasons", E_USER_WARNING);
-            $log->log("User manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): database error: {$db->e()}; query: $qry");
+            $log->log("User manager", LEL_ERROR, __METHOD__ . "(): database error: {$db->e()}; query: $qry");
             return false;
         }
         
@@ -270,7 +270,7 @@ class User {
             if (!$silent) {
                 $log->log("User manager", LEL_ERROR, "Login failed: Wrong username or password.");
             }
-            $log->dlog("User manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): Someone tried to login as unknown user '$uname' from IP {$_SERVER['REMOTE_ADDR']}");
+            $log->dlog("User manager", LEL_ERROR, __METHOD__ . "(): Someone tried to login as unknown user '$uname' from IP {$_SERVER['REMOTE_ADDR']}");
             return false;
         }
         
@@ -282,7 +282,7 @@ class User {
             if (!$silent) {
                 $log->log("User manager", LEL_ERROR, "Login failed: Wrong username or password.");
             }
-            $log->dlog("User manager", LEL_ERROR, __CLASS__ . "::" . __METHOD__ . "(): Someone tried to login as user '$uname' with a wrong password from IP {$_SERVER['REMOTE_ADDR']}");
+            $log->dlog("User manager", LEL_ERROR, __METHOD__ . "(): Someone tried to login as user '$uname' with a wrong password from IP {$_SERVER['REMOTE_ADDR']}");
             return false;
         }
         
@@ -292,7 +292,7 @@ class User {
         $_SESSION["sid"] = session_id();
         $_SESSION["ip"] = $ip;
         $log->log("User manager", LEL_NOTICE, "Login successful.");
-        $log->dlog("User manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): User '$uname' successfully logged in");
+        $log->dlog("User manager", LEL_NOTICE, __METHOD__ . "(): User '$uname' successfully logged in");
         
         global $activeUsr;
         $activeUsr = self::$users[(int)$r["id"]];
@@ -313,7 +313,7 @@ class User {
             session_destroy();          //destroy session completely
             
             $log->llog("Name_PluginManager", LEL_NOTICE, "Core_PluginMan_LogoutSuccess");
-            $log->dlog("User manager", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): User '$uname' successfully logged out");
+            $log->dlog("User manager", LEL_NOTICE, __METHOD__ . "(): User '$uname' successfully logged out");
         } else {
             $log->llog("Name_PluginManager", LEL_ERROR, "Core_PluginMan_CantLogout");
         }
@@ -352,7 +352,7 @@ class User {
         global $log, $db;
         
         if (!$db->q($qry = sprintf("UPDATE `%s` SET `fullname`='%s' WHERE `id`=%d LIMIT 1", self::$dbTable, $fullname, $this->id))) {
-            $emsg = __CLASS__ . "::" . __METHOD__ . "(): database error: {$db->q()}; query: $qry";
+            $emsg = __METHOD__ . "(): database error: {$db->q()}; query: $qry";
             if (!$silent) {
                 //trigger_error($emsg, E_USER_WARNING);
                 $log->log("User manager", LEL_ERROR, $emsg);
@@ -373,7 +373,7 @@ class User {
         global $log, $db;
         
         if (!$db->q($qry = sprintf("UPDATE `%s` SET `email`='%s' WHERE `id`=%d LIMIT 1", self::$dbTable, $email, $this->id))) {
-            $emsg = __CLASS__ . "::" . __METHOD__ . "(): database error: {$db->q()}; query: $qry";
+            $emsg = __METHOD__ . "(): database error: {$db->q()}; query: $qry";
             if (!$silent) 
                 $log->log("User manager", LEL_ERROR, $emsg);
             else
@@ -396,7 +396,7 @@ class User {
         global $log, $db;
         
         if (strlen($pass) < self::MIN_PW_LENGTH) {
-            $emsg = __CLASS__ . "::" . __METHOD__ . "(): password is too short. Minimum password length: " . self::MIN_PW_LENGTH;
+            $emsg = __METHOD__ . "(): password is too short. Minimum password length: " . self::MIN_PW_LENGTH;
             if (!$silent)
                 $log->log("User manager", LEL_ERROR, $emsg);
             else
@@ -408,7 +408,7 @@ class User {
         $pass = hash(self::HASH_ALG, $salt . $pass);
         
         if (!$db->q(sprintf("UPDATE `%s` SET `salt`='%s',`pass`='%s' WHERE `id`=%d LIMIT 1", self::$dbTable, $salt, $pass, $this->id))) {
-            $emsg = __CLASS__ . "::" . __METHOD__ . "(): database error: {$db->q()}; query left out for security reasons";
+            $emsg = __METHOD__ . "(): database error: {$db->q()}; query left out for security reasons";
             if (!$silent) 
                 $log->log("User manager", LEL_ERROR, $emsg);
             else
@@ -428,7 +428,7 @@ class User {
         
         
         if (!$db->q($qry = sprintf("UPDATE `%s` SET `active`=%s WHERE `id`=%d LIMIT 1", self::$dbTable, ($active) ? "TRUE" : "FALSE", $this->id))) {
-            $emsg = __CLASS__ . "::" . __METHOD__ . "(): database error: {$db->q()}; query: $qry";
+            $emsg = __METHOD__ . "(): database error: {$db->q()}; query: $qry";
             if (!$silent) 
                 $log->log("User manager", LEL_ERROR, $emsg);
             else

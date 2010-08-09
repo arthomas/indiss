@@ -79,7 +79,7 @@ class PluginUserManager extends Plugin {
         /*if (!$db->dropTable($this->itemTable)) {
             
         } else {
-            $log->dlog("Plugin: $this->pName", LEL_NOTICE, __CLASS__ . "::" . __METHOD__ . "(): Successfully dropped item table '$this->itemTable'");
+            $log->dlog("Plugin: $this->pName", LEL_NOTICE, __METHOD__ . "(): Successfully dropped item table '$this->itemTable'");
         }*/
     }
     

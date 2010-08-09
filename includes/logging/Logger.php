@@ -347,7 +347,7 @@ class Logger {
             if ($l["name"] == $name)
                 return false;
         if ( !$logLive && !$logToFile && !$logToDb ) {
-            trigger_error(__CLASS__ . "::" . __METHOD__ . "(): this logger will do nothing", E_USER_NOTICE);
+            trigger_error(__METHOD__ . "(): this logger will do nothing", E_USER_NOTICE);
         }
         if ($logToFile) {
             //if necessary, move the old log file and create a new one
@@ -465,7 +465,7 @@ class Logger {
             if ($l["logToDb"]) {
                 $tablename = self::tablePrefix . $l["name"];
                 if (!mysql_query(sprint($query_template, $tablename))){
-                    trigger_error(__CLASS__ . "::" . __METHOD__ . "(): Cannot insert log event into db table '$tablename'. MySQL error: " . mysql_error(), E_USER_WARNING);
+                    trigger_error(__METHOD__ . "(): Cannot insert log event into db table '$tablename'. MySQL error: " . mysql_error(), E_USER_WARNING);
                     $r = false;
                 }
             }
