@@ -83,8 +83,8 @@ require_once("../includes/loaders/loader_admin.php");
     	$activeUsr = User::getUser((int)$_SESSION["uid"]);
     }
     
+    $task = $_GET["task"];
     
-    //include("components/_comlist.php");
     if ($activeUsr) {
         $activePlugin = false;
         if (isset($_GET["pluginID"])) {
@@ -102,6 +102,11 @@ require_once("../includes/loaders/loader_admin.php");
         }
     } else {
         $activePlugin = PluginMan::getPluginByIname("LoginLogout");
+        $task = "login";
+    }
+    
+    if (!empty($_POST)) {
+        $activePlugin->processInput($_POST["postview"]);
     }
     
 
@@ -156,7 +161,7 @@ require_once("../includes/loaders/loader_admin.php");
             <?php //output plugin nav here ?>
             <!--%HANDLEROUTPUT_COMMON%-->
             <div id="<?php $activePlugin->getIname(); ?>" class="<?php get_class($activePlugin); ?>">
-                <?php $activePlugin->outputAdmin($_GET["task"]); ?> 
+                <?php $activePlugin->outputAdmin($task); ?> 
             </div>
         </div>
     </div>
