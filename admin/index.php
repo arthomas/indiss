@@ -167,7 +167,7 @@ require_once("../includes/loaders/loader_admin.php");
     </div>
     <div id="footer">
         <?php lang_echo("admLayoutAndRealization");?> &copy; 2009-2010 Patrick Lehner &nbsp; | &nbsp; <?php lang_echo("admIndissIsFreeSoftware");?><br />
-        <?php echo sprintf(lang("admPageCreatedIn"), sprintf("%6.4f",(microtime(true) - $__startTime))); ?>
+        <?php echo Lang::translate(array("admPageCreatedIn", "<!--%TIMEROUTPUT%-->")); ?>
     </div>
 </body>
 </html>
@@ -175,16 +175,18 @@ require_once("../includes/loaders/loader_admin.php");
 
 $buf = ob_get_clean();  //retrieve all created (buffered) output
 
-//Inject the LiveErrorHandler message output
+$count = 0;
+//Inject the live log message output
 /* 
  * Note: This part gives components the chance to place the message output differently (i.e. in a more fitting place); if
  * a component does not place the message output by inluding the string "<!--%HANDLEROUTPUT-->" in the appropriate place,
  * the message output will be placed in the default location above the component output. 
  * */
-$count = 0;
-$buf = str_replace("<!--%HANDLEROUTPUT%-->", ($handler->getMsgCount() > 0) ? $handler->getFormatted() : "", $buf, $count);
-if ($count == 0)
-    $buf = str_replace("<!--%HANDLEROUTPUT_COMMON%-->", ($handler->getMsgCount() > 0) ? $handler->getFormatted() : "", $buf);
+$buf = str_replace("<!--%HANDLEROUTPUT%-->", ($log->getMsgCount("live") > 0) ? $log->getFormatted("live") : "", $buf, $count);
+$buf = str_replace("<!--%HANDLEROUTPUT_COMMON%-->", ($count == 0 && $log->getMsgCount("live") > 0) ? $log->getFormatted("live") : "", $buf);
+
+$buf = str_replace("<!--%TIMEROUTPUT%-->", sprintf("%6.4f",(microtime(true) - $__startTime)), $buf);
+
 unset ($count);
 
 echo $buf;
