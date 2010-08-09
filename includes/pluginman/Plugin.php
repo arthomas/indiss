@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-07-32
+ * @version     2010-08-09
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      class that holds info about installed plugins
@@ -284,7 +284,7 @@ abstract class Plugin {
     
     abstract public function processInput($postview);
     abstract public function outputFront();
-    abstract public function outputAdmin($task);
+    abstract public function outputAdmin($task = null);
     
     abstract public function hasFrontend();
     abstract public function getPluginNav();
