@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-06-19
+ * @version     2010-08-09
  * @author      Myriam Leggieri <myriam.leggieri@gmail.com>
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Myriam Leggieri, Patrick Lehner
@@ -438,6 +438,7 @@ class Logger {
         if (defined("__USRMAN"))
             if (isset($activeUsr) && $userId == 0)
                 $userId = $activeUsr->getId();
+        $msg = $message;
         if ($translate)
             $msg = Lang::translate($message, true, true);
         $msg = preg_replace(array("/<[^>]*>/i"), "", $msg);
