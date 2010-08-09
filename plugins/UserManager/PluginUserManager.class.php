@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-08
+ * @version     2010-08-09
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -28,7 +28,7 @@ class_exists("Plugin") or die("Class 'Plugin' is unknown [" . __FILE__ . "]");
  * @author Patrick Lehner
  * 
  */
-class PluginContent extends Plugin {
+class PluginUserManager extends Plugin {
 
     //---- Static properties ------------------------------------------------------------
     
