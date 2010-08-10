@@ -60,13 +60,13 @@ class PluginOverview extends Plugin {
     // n/a because Plugin has no frontend
     public function outputFront() {}
     
-    public function outputAdmin($task) {
+    public function outputAdmin($task = null) {
         PluginMan::getInfoArrays($pluginInfo, $pluginInstanceInfo);
         
         echo "<ul>\n";
         
-        foreach ($pluginInfo as $plugin) {
-            echo "<li><a href=\"?plugin=" . $plugin->getIname() . "\">" . $plugin->getDname() . "</a></li>\n";
+        foreach ($pluginInstanceInfo as $plugin) {
+            echo "<li><a href=\"?plugin={$plugin["iname"]}\">{$plugin["dname"]}</a></li>\n";
         }
         
         echo "</ul>\n";
