@@ -29,19 +29,43 @@ CSSJSHandler::addStyleUrl($this->getFullPath() . "/js/LoginFieldsChecker.js");
 
 <script type="text/javascript">
 function checkLoginFields() {
-	
+	u = document.getElementById("username");
+	p = document.getElementById("pw");
+	var r = true;
+
+	if (u.value.length == 0) {
+	    r = false;
+	    u.style.backgroundColor = "#FBB";
+	} else {
+	    u.style.backgroundColor = "transparent";
+	}
+
+	if (p.value.length == 0) {
+        r = false;
+        p.style.backgroundColor = "#FBB";
+    } else {
+        p.style.backgroundColor = "transparent";
+    }
+
+    if (!r) {
+        document.getElementById("errorrow").style.display = "table-row";
+    } else {
+        document.getElementById("errorrow").style.display = "none";
+    }
+
+    return r;
 }
 </script>
 
 <form id="loginForm" action="" method="post">
     <fieldset><legend><?php /*echo Lang::translate("Plugin_LoginLogout_LoginHeader");*/ ?>Login</legend>
         <table summary="" border="0" cellspacing="0" cellpadding="0">
-            <?php if ($usernamemissing || $passwordmissing) { ?><tr><td colspan="2" style="color: red; text-align: center;">Please fill out all fields!</td></tr><?php } ?> 
-            <tr><td><div>Username:</div></td><td><input class="text" type="text" name="username" maxlength="255" value="<?php echo $_POST['username']; ?>" <?php if ($usernamemissing) {echo 'style="background: #FBB;"';} ?> /></td></tr>
-            <tr><td><div>Password:</div></td><td><input class="text" type="password" name="pw" maxlength="255" value="<?php echo $_POST['pw']; ?>" <?php if ($passwordmissing) {echo 'style="background: #FBB;"';} ?> /></td></tr>
+            <tr id="errorrow" style="display:none;"><td colspan="2" style="color: red; text-align: center;">Please fill out all fields!</td></tr>
+            <tr><td><div>Username:</div></td><td><input class="text" type="text" id="username" name="username" maxlength="255" /></td></tr>
+            <tr><td><div>Password:</div></td><td><input class="text" type="password" id="pw" name="pw" maxlength="255" /></td></tr>
         </table>
         <input type="hidden" name="task" value="login" />
-        <input type="submit" name="submit" value="Login" class="submit" />
+        <input type="button" name="loginButton" value="Login" class="submit" onclick="if (checkLoginFields()) this.form.submit();" />
         <div class="floatCleaner">&nbsp;</div>
     </fieldset>
 </form>
