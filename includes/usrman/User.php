@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-07
+ * @version     2010-08-10
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      User manager core component
@@ -256,7 +256,7 @@ class User {
     public static function login($uname, $pass, $silent = false) {
         global $log, $db;
         
-        $pass = hash(self::HASH_ALG, $salt . $pass);
+        //$pass = hash(self::HASH_ALG, $salt . $pass);
         
         $r = $db->getArrayA($db->q($qry = "SELECT `id`,`pass`,`salt` FROM `" . self::$dbTable . "` WHERE `uname`='$uname' LIMIT 1"));
         
