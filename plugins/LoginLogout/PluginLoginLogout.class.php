@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-09
+ * @version     2010-08-10
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -33,6 +33,7 @@ class PluginLoginLogout extends Plugin {
     //---- Static properties ------------------------------------------------------------
     
     private static $defaultTask = "login";
+    private static $defaultPostView = "login";
     
     
     //---- Object properties ------------------------------------------------------------
@@ -59,7 +60,8 @@ class PluginLoginLogout extends Plugin {
     }
     
     public function initialize() {
-        global $log, $db;
+        global $log;
+        $log->dlog(__CLASS__, LEL_NOTICE, __METHOD__ . "(): This Plugin requires no initialization.");
     }
     
     // n/a because Plugin is a Core Plugin
@@ -68,8 +70,24 @@ class PluginLoginLogout extends Plugin {
     // n/a because Plugin is a Core Plugin
     public function uninstall() {}
     
-    public function processInput($postview) {
+    public function processInput($postview = null) {
+        global $log;
+        $log->dlog(__CLASS__, LEL_NOTICE, __METHOD__ . "(): Called with argument: $postview");
         
+        if (is_null($postview))
+            $postview = self::$defaultPostView;
+        
+        switch ($postview) {
+            case "login":
+                if (User::login($_POST["username"], $_POST["pw"])) {
+                    global $activePlugin, $task;
+                    $activePlugin = PluginMan::getPluginByIname("Overview");
+                    $task = "list";
+                }
+                break;
+            case "logout":
+                break;
+        }
     }
     
     // n/a because Plugin has no frontend
