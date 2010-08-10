@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-09
+ * @version     2010-08-10
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -83,7 +83,7 @@ class PluginUserManager extends Plugin {
         }*/
     }
     
-    public function processInput($postview) {
+    public function processInput($postview = null) {
         
     }
     

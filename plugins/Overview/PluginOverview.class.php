@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-07-23
+ * @version     2010-08-10
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -53,7 +53,7 @@ class PluginOverview extends Plugin {
     // n/a because Plugin is a Core Plugin
     public function uninstall() {}
     
-    public function processInput($postview) {
+    public function processInput($postview = null) {
         ;
     }
     
