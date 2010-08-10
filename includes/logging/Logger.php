@@ -442,9 +442,10 @@ class Logger {
         if ($translate)
             $msg = Lang::translate($message, true, true);
         $msg = preg_replace(array("/<[^>]*>/i"), "", $msg);
-        $CSVdata = array($when, $userId, $origin, $this->levels[$level], $msg);
+        $CSVdata = array($when, $userId, $origin, self::$levels[$level], $msg);
+        echo "<!-- level: "; print_r($level); echo "; levels[level]: "; print_r(self::$levels[$level]); echo " -->\n";
         $DBorigin = mysql_real_escape_string($origin);
-        $DBlevel = mysql_real_escape_string($this->levels[$level]);
+        $DBlevel = mysql_real_escape_string(self::$levels[$level]);
         $DBmessage = mysql_real_escape_string($msg);
         $query_template = "INSERT INTO `%s` (`$this->col_datetime`, `$this->col_user`, `$this->col_origin`, `$this->col_type`, `$this->col_info`)
                           VALUES ('$when', $userId, '$DBorigin', '$DBlevel', '$DBmessage')";
