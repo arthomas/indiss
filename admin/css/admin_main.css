@@ -1,5 +1,5 @@
 /**
- * @version     2010-04-12
+ * @version     2010-08-09
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  *
@@ -202,6 +202,8 @@ form#loginForm table td:first-child *:last-child {
 form#loginForm input.text {
     width: 100%;
     margin: 5px 0;
+    border: 1px solid gray;
+    padding: 2px;
 }
 form#loginForm input.submit {
 	float: right;
