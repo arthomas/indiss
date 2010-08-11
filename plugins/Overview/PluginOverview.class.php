@@ -49,7 +49,8 @@ class PluginOverview extends Plugin {
     }
     
     public function initialize() {
-        ;
+        global $log;
+        $log->dlog($this->pName, LEL_NOTICE, __METHOD__ . "(): This Plugin requires no initialization.");
     }
     
     // n/a because Plugin is a Core Plugin
@@ -59,7 +60,8 @@ class PluginOverview extends Plugin {
     public function uninstall() {}
     
     public function processInput($postview = null) {
-        ;
+        global $log;
+        $log->dlog($this->pName, LEL_NOTICE, __METHOD__ . "(): This Plugin requires no initialization.");
     }
     
     // n/a because Plugin has no frontend
