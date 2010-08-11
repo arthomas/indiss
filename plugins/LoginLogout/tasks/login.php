@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-09
+ * @version     2010-08-11
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -57,7 +57,7 @@ function checkLoginFields() {
 }
 </script>
 
-<form id="loginForm" action="" method="post">
+<form id="loginForm" action="?" method="post">
     <fieldset><legend><?php /*echo Lang::translate("Plugin_LoginLogout_LoginHeader");*/ ?>Login</legend>
         <table summary="" border="0" cellspacing="0" cellpadding="0">
             <tr id="errorrow" style="display:none;"><td colspan="2" style="color: red; text-align: center;">Please fill out all fields!</td></tr>
