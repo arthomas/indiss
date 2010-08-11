@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-09
+ * @version     2010-08-11
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that manages installed plugins
@@ -80,6 +80,10 @@ class PluginMan {
     public static function getInfoArrays(&$pluginInfo, &$pluginInstanceInfo) {
         $pluginInfo = self::$pluginInfo;
         $pluginInstanceInfo = self::$pluginInstanceInfo;
+    }
+    
+    public static function getObjectArray() {
+        return self::$pluginObjects;
     }
     
     private static function loadPlugin($id) {
