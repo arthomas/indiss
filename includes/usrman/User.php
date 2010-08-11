@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-10
+ * @version     2010-08-11
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      User manager core component
@@ -311,6 +311,9 @@ class User {
             }
 
             session_destroy();          //destroy session completely
+            
+            global $activeUsr;
+            unset($activeUsr);          //unset reference to active user
             
             $log->llog("Name_PluginManager", LEL_NOTICE, "Core_PluginMan_LogoutSuccess");
             $log->dlog("User manager", LEL_NOTICE, __METHOD__ . "(): User '$uname' successfully logged out");
