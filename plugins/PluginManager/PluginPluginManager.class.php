@@ -77,11 +77,14 @@ class PluginPluginManager extends Plugin {
         
     }
     
+    // n/a because Plugin has no frontend
     public function outputFront() {}
     
     public function outputAdmin($task = null) {
         if (is_null($task))
             $task = self::$defaultTask;
+            
+        PluginMan::getInfoArrays($pluginInfo, $pluginInstanceInfo);
         
         include($this->getFullPath() . "/tasks/$task.php");
     }
