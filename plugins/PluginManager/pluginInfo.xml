@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Insert DTD info here! -->
+<install type="plugin">
+    <pName>PluginManager</pName>
+    <type>core</type>
+    <created>2010-08-11</created>
+    <author>Patrick Lehner</author>
+    <authorEmail>lehner.patrick@gmx.de</authorEmail>
+    <authorUrl>http://indiss.net</authorUrl>
+    <copyright>Copyright (C) 2010 Patrick Lehner</copyright>
+    <license>GNU GPLv3</license>
+    <minVersion>0.3.0</minVersion>
+    <maxVersion>0.3.x</maxVersion>
+    <pluginVersion>0.3</pluginVersion>
+    <description>This Plugin lets you manage INDISS plugins.</description>
+    <files>
+        <filename>index.html</filename>
+        <filename>pluginInfo.xml</filename>
+        <filename>PluginPluginManager.class.php</filename>
+        <filename>tasks/index.html</filename>
+        <filename>tasks/list.php</filename>
+    </files>
+</install>
