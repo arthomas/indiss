@@ -59,6 +59,10 @@ require_once("../includes/loaders/loader_admin.php");
         $activePlugin->processInput($_POST["postview"]);
     }
     
+    if (isset($instantRedirect)) {
+        header("Location: $instantRedirect");
+        exit();
+    }
 
     ob_start();
     
