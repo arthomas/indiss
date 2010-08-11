@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-10
+ * @version     2010-08-11
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -22,6 +22,11 @@
 class PluginOverview extends Plugin {
 
     //---- Static properties ------------------------------------------------------------
+    
+    private static $unlistedPlugins = array(
+        "Overview",
+        "LoginLogout"
+        );
     
     
     //---- Object properties ------------------------------------------------------------
@@ -66,7 +71,8 @@ class PluginOverview extends Plugin {
         echo "<ul>\n";
         
         foreach ($pluginInstanceInfo as $plugin) {
-            echo "<li><a href=\"?plugin={$plugin["iname"]}\">{$plugin["dname"]}</a></li>\n";
+            if ($task == "listall" || !in_array($plugin["iname"], self::$unlistedPlugins))
+                echo "<li><a href=\"?plugin={$plugin["iname"]}\">{$plugin["dname"]}</a></li>\n";
         }
         
         echo "</ul>\n";
