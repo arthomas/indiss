@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-08
+ * @version     2010-08-11
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Backend main page
@@ -28,56 +28,6 @@ session_start();
 
 //initialize it all
 require_once("../includes/loaders/loader_admin.php");
-    
-    if (isset($_POST['submit'])) {
-        switch ($_POST["task"]) {
-            case "login":
-                if (empty($_POST['username']) || empty($_POST['pw'])) {
-                    if (empty($_POST['username'])) {
-                        $usernamemissing = true;
-                    }
-                    if (empty($_POST['pw'])) {
-                        $passwordmissing = true;
-                    }
-                } else {
-                    UsrMan::login($_POST["username"], $_POST["pw"]);  // no need to remember the return value because "logged in" state is determined via $_SESSION
-                }
-                break;
-            case "logout":          //log out: destroy session and all session data
-                UsrMan::logout();
-                break;
-            case "register":
-                /*$username = $_POST['username'];  //this whole sections needs to be changed and upgraded
-                $pw = $_POST['pw'];
-                $pw2 = $_POST['pw2'];
-                $email = $_POST['email'];
-                
-                if ($pw != $pw2) {
-                    mysql_close();
-                    die("Password do not match.");
-                }
-                
-                $pw = sha1($pw);
-                
-                $query = "INSERT INTO `users` (username, password, email) 
-                            VALUES ('$username', '$pw', '$email')";
-                
-                $result = mysql_query($query);
-                
-                if (!$result) {
-                    mysql_close();
-                    die("The database query failed.");
-                } else {
-                    echo "Registration for user $username successful.";
-                    mysql_close();
-                    exit;
-                }*/
-                break;
-            default:
-                die(lang("errGeneralParamError"));
-                break;
-        }
-    }
     
     if (!empty($_SESSION["uid"])) {
     	$activeUsr = User::getUser((int)$_SESSION["uid"]);
@@ -129,8 +79,8 @@ require_once("../includes/loaders/loader_admin.php");
         <div id="topBarInner">
 <?php if ($activeUsr) { ?>
             <div id="topBarLogout" class="topBarRight">
-                <form name="logoutform" id="logoutform" method="post" action="index.php">
-                    <input type="hidden" name="task" value="logout" />
+                <form name="logoutform" id="logoutform" method="post" action="index.php?plugin=LoginLogout">
+                    <input type="hidden" name="postview" value="logout" />
                     <input class="likeLink" type="submit" name="submit" value="<?php lang_echo("genLogout"); ?>" />
                 </form>
             </div>
