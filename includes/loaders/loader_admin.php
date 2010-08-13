@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-08
+ * @version     2010-08-13
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      Includes necessary files for the admin backend entry point
@@ -23,12 +23,12 @@ defined("__MAIN") or die("Restricted access.");
  
 require(dirname(__FILE__) . "/loader_minimal.php");
 
-require("$FBP2/includes/markup/CSSJSHandler.php");
-
 require("$FBP2/includes/usrman/User.php");
 User::readDB();
 
 require("$FBP2/includes/pluginman/PluginMan.php");
 PluginMan::readDB();
+
+CSSJSHandler::addStyleUrl($basepath . "/includes/css/admin_general.css.php");
 
 ?>

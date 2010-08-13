@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-07-23
+ * @version     2010-08-13
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      Includes the absolutely necessary files.
@@ -48,5 +48,7 @@ $log = new Logger;
 $log->addLog("live", LEL_NOTICE, true, false, false, false);
 $log->addLog("error", LEL_ERROR, false, true, false, false);
 $log->addLog("debug", LEL_DEBUG, false, true, false, true);
+
+require("$FBP2/includes/markup/CSSJSHandler.php");
 
 ?>
