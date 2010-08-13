@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-11
+ * @version     2010-08-13
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -64,7 +64,7 @@ function checkLoginFields() {
             <tr><td><div>Username:</div></td><td><input class="text" type="text" id="username" name="username" maxlength="255" /></td></tr>
             <tr><td><div>Password:</div></td><td><input class="text" type="password" id="pw" name="pw" maxlength="255" /></td></tr>
         </table>
-        <input type="hidden" name="task" value="login" />
+        <input type="hidden" name="postview" value="login" />
         <input type="button" name="loginButton" value="Login" class="submit" onclick="if (checkLoginFields()) this.form.submit();" />
         <div class="floatCleaner">&nbsp;</div>
     </fieldset>

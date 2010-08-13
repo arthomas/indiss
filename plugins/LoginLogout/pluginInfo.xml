@@ -18,5 +18,8 @@
         <filename>pluginInfo.xml</filename>
         <filename>PluginUserManager.class.php</filename>
         <filename>tasks/index.html</filename>
+        <filename>tasks/login.php</filename>
+        <filename>css/index.html</filename>
+        <filename>css/admin.css.php</filename>
     </files>
 </install>
