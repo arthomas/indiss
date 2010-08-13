@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-11
+ * @version     2010-08-13
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Backend main page
@@ -74,7 +74,8 @@ require_once("../includes/loaders/loader_admin.php");
     <meta name="author" content="Patrick Lehner" />
 
     <link rel="stylesheet" type="text/css" href="css/admin_main.css" />
-    <!--%CSSJSLINKS%-->
+    
+<!--%CSSJSLINKS%-->
     
     <title><?php echo $sitename; ?> Administration</title>
 </head>
@@ -138,6 +139,8 @@ $count = 0;
  * */
 $buf = str_replace("<!--%HANDLEROUTPUT%-->", ($log->getMsgCount("live") > 0) ? $log->getFormatted("live") : "", $buf, $count);
 $buf = str_replace("<!--%HANDLEROUTPUT_COMMON%-->", ($count == 0 && $log->getMsgCount("live") > 0) ? $log->getFormatted("live") : "", $buf);
+
+$buf = str_replace("<!--%CSSJSLINKS%-->", CSSJSHandler::outputAll(4), $buf);
 
 $buf = str_replace("<!--%TIMEROUTPUT%-->", sprintf("%6.4f",(microtime(true) - $__startTime)), $buf);
 
