@@ -114,7 +114,7 @@ require_once("../includes/loaders/loader_admin.php");
         <div id="output">
             <?php //output plugin nav here ?>
             <!--%HANDLEROUTPUT_COMMON%-->
-            <div id="<?php $activePlugin->getIname(); ?>" class="<?php get_class($activePlugin); ?>">
+            <div id="<?php echo $activePlugin->getIname(); ?>" class="<?php echo get_class($activePlugin); ?>">
                 <?php $activePlugin->outputAdmin($task); ?> 
             </div>
         </div>
