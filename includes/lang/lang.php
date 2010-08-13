@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-07-23
+ * @version     2010-08-13
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
@@ -101,8 +101,10 @@ class Lang {
             trigger_error(__METHOD__ . "(): Cannot load language file: This is not a file ($filename)", E_USER_ERROR);
             return;
         }
+        
         $valid = true;
         $ext = strtolower(substr($filename, -3));
+        
         switch ($ext) {
             case "xml":
                 $x = simplexml_load_file($filename);
@@ -116,19 +118,25 @@ class Lang {
                 }
                 break;
             case "php":
-                if (@include($filename) === false)
+                $r = include($filename);
+                if ($r === false)
                     $valid = false;
                 break;
             default:
                 $valid = false;
         }
+        
         if (!$valid) {
             trigger_error(__METHOD__ . "(): This is not a valid language file ($filename)", E_USER_NOTICE);
+            return;
         }
-        if ($toDefaultLang) {
-            self::$defaultLangMessages = array_merge(self::$defaultLangMessages, $_LANG);
-        } else {
-            self::$langMessages = array_merge(self::$langMessages, $_LANG);
+        
+        if (isset($_LANG) && is_array($_LANG)) {
+            if ($toDefaultLang) {
+                self::$defaultLangMessages = array_merge(self::$defaultLangMessages, $_LANG);
+            } else {
+                self::$langMessages = array_merge(self::$langMessages, $_LANG);
+            }
         }
     }
     
@@ -148,7 +156,7 @@ class Lang {
             trigger_error(__METHOD__ . "(): Cannot load language files: This is not a directory ($dirname)", E_USER_ERROR);
             return;
         }
-        $langFiles = preg_grep("/lang_.+\.(?:xml|php)$/i", scandir("$dirname"));
+        $langFiles = preg_grep("/^lang_.+\.(?:xml|php)$/i", scandir("$dirname"));
         if (empty($langFiles)) {
             trigger_error(__METHOD__ . "(): No language files were found ($dirname)", E_USER_ERROR);
             return;
