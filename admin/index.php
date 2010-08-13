@@ -111,7 +111,18 @@ require_once("../includes/loaders/loader_admin.php");
     </div>
     <div id="main">
         <div id="output">
-            <?php //output plugin nav here ?>
+<?php
+$n = $activePlugin->getPluginNav();
+if (!empty($n) && is_array($n)) { ?>
+            <div id="navigation">
+<?php foreach ($n as $item) {?>
+                <a href="?plugin=<?php echo $activePlugin->getIname();?>&task=<?php echo $item["task"]; ?>"><?php echo $item["label"]; ?></a>
+<?php } ?>
+            </div>
+            <div class="floatCleaner"></div>
+<?php }
+unset($n, $item);
+?>
             <!--%HANDLEROUTPUT_COMMON%-->
             <div id="<?php echo $activePlugin->getIname(); ?>" class="<?php echo get_class($activePlugin); ?>">
                 <?php $activePlugin->outputAdmin($task); ?> 

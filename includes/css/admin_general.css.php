@@ -141,6 +141,45 @@ div#footer {
 }
 
 
+/*Plugin navigation*/
+
+div#output div#navigation {
+    float: right;
+    margin: 20px 0px;
+    font-size: 0;
+}
+
+div#output div#navigation a {
+    padding: 4px 5px;
+    margin: 0;
+    border: 1px solid black;
+    border-right: none;
+    font-size: 11pt;
+}
+
+div#output div#navigation a:hover {
+    background: #EEE;
+}
+
+div#output div#navigation a:first-child {
+    -moz-border-radius-topleft: 6px;        /*Firefox*/
+    -moz-border-radius-bottomleft: 6px;     /*Firefox*/
+    border-top-left-radius: 6px;            /*Opera/CSS3*/
+    border-bottom-left-radius: 6px;         /*Opera/CSS3*/
+    padding-left: 8px;
+}
+
+div#output div#navigation a:last-child {
+    border-right: 1px solid black;
+    -moz-border-radius-topright: 6px;       /*Firefox*/
+    -moz-border-radius-bottomright: 6px;    /*Firefox*/
+    border-top-right-radius: 6px;           /*Opera/CSS3*/
+    border-bottom-right-radius: 6px;        /*Opera/CSS3*/
+    padding-right: 8px;
+}
+
+
+
 /*Live message log output*/
 
 div.messagebox {
