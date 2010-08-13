@@ -72,8 +72,6 @@ require_once("../includes/loaders/loader_admin.php");
 <head>
     <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
     <meta name="author" content="Patrick Lehner" />
-
-    <link rel="stylesheet" type="text/css" href="css/admin_main.css" />
     
 <!--%CSSJSLINKS%-->
     
