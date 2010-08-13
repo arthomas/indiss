@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-11
+ * @version     2010-08-13
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -85,6 +85,8 @@ class PluginPluginManager extends Plugin {
             $task = self::$defaultTask;
             
         PluginMan::getInfoArrays($pluginInfo, $pluginInstanceInfo);
+        
+        CSSJSHandler::addStyleUrl($this->getWebPath() . "/css/admin.css.php");
         
         include($this->getFullPath() . "/tasks/$task.php");
     }

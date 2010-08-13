@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-11
+ * @version     2010-08-13
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -44,7 +44,7 @@ $buttonbarContent =
     <input type="hidden" id="postview" name="postview" value="unset" />
     <input type="hidden" id="affectedIDs" name="affectedIDs" value="unset" />
     <div class="buttonbar" id="buttonbarTop"><?php echo $buttonbarContent; ?></div>
-    <table summary="" border="0" cellpadding="0" cellspacing="0" id="PluginList" class="rright">
+    <table summary="" border="0" cellpadding="0" cellspacing="0" id="PluginList" class="rright fwTable">
         <tbody>
             <tr class="headingRow">
                 <td class="check"><input type="checkbox" title="Select all" onclick="a=document.getElementsByTagName('input');for(i=0;i< a.length;i++){if(a[i].type=='checkbox')a[i].checked=this.checked;}" /></td>
