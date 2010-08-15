@@ -30,10 +30,10 @@ $buttonbarContent =
         <tr>
             <td>With selected:</td>
             <td><input class="likeLink" type="button" value="Invert selection" onclick="a=document.getElementsByTagName(\'input\');for(i=0;i<a.length;i++){if(a[i].type==\'checkbox\'&&a[i].name!=\'\')a[i].checked=!a[i].checked;}" /></td>
-            <td><input class="likeLink" type="button" value="Toggle enabled/disabled" onclick="doSubmit(\'toggleActive\', \'\');" /></td>
-            <td><input class="likeLink" type="button" value="Edit" onclick="doSubmit(\'\', \'edit\');" /></td>
+            <!--<td><input class="likeLink" type="button" value="Toggle enabled/disabled" onclick="doSubmit(\'toggleActive\', \'\');" /></td>-->
+            <td><input class="likeLink" type="button" value="Edit" onclick="doSubmit(\'\', \'kedit\');" /></td>
             <!--<td><input class="likeLink" type="button" value="Duplicate" onclick="doSubmit(\'\', \'duplicate\');" /></td>-->
-            <td><input class="likeLink" type="button" value="Delete" onclick="doSubmit(\'\', \'delete\');" /></td>
+            <td><input class="likeLink" type="button" value="Delete" onclick="doSubmit(\'\', \'kdelete\');" /></td>
         </tr>
     </tbody>
 </table>';
@@ -44,31 +44,35 @@ $buttonbarContent =
     <input type="hidden" id="postview" name="postview" value="unset" />
     <input type="hidden" id="affectedIDs" name="affectedIDs" value="unset" />
     <div class="buttonbar" id="buttonbarTop"><?php echo $buttonbarContent; ?></div>
-    <table summary="" border="0" cellpadding="0" cellspacing="0" id="PluginList" class="rright fwTable">
+    <table summary="" border="0" cellpadding="0" cellspacing="0" id="PluginKindList" class="rright fwTable">
         <tbody>
             <tr class="headingRow">
                 <td class="check"><input type="checkbox" title="Select all" onclick="a=document.getElementsByTagName('input');for(i=0;i< a.length;i++){if(a[i].type=='checkbox')a[i].checked=this.checked;}" /></td>
-                <td class="dname">Plugin name</td>
-                <td class="iname">Plugin name</td>
                 <td class="pname">Plugin kind</td>
-                <td class="installedAt">Installation date</td>
+                <td class="pluginVersion">Version</td>
+                <td class="compatVersions">Compatibility</td>
+                <td class="type">Type</td>
+                <td class="oneOfAKind">One of a kind</td>
+                <td class="alwaysOn">Always on</td>
+                <td class="numInstances">Instances installed / active</td>
                 <td class="id">ID</td>
-                <td class="enabled" title="Enabled">E</td>
                 <td class="delete" title="Delete">D</td>
             </tr>
-<?php foreach ($pluginInstanceInfo as $plugin) {
+<?php foreach ($pluginInfo as $plugin) {
     $id = $plugin["id"];
-    $dname = $plugin["dname"];
+    $pname = $plugin["pName"];
 ?>
             <tr id="row_<?php echo $id; ?>">
-                <td class="check"><input type="checkbox" name="check_<?php echo $id; ?>" value="Yes" title="Select plugin '<?php echo $dname; ?>'" /></td>
-                <td class="dname"><a href="#" onclick="ai.value='<?php echo $id; ?>'; form.submit();" title="Edit plugin '<?php echo $dname; ?>'"><?php echo $dname; ?></a></td>
-                <td class="iname"><?php echo $plugin["iname"]; ?></td>
-                <td class="pname"><?php echo $plugin["pName"]; ?></td>
-                <td class="installedAt"><?php echo $plugin["installedAt"]; ?></td>
+                <td class="check"><input type="checkbox" name="check_<?php echo $id; ?>" value="Yes" title="Select plugin kind '<?php echo $pname; ?>'" /></td>
+                <td class="pname"><a href="#" onclick="ai.value='<?php echo $id; ?>'; form.submit();" title="Edit plugin kind '<?php echo $pname; ?>'"><?php echo $pname; ?></a></td>
+                <td class="pluginVersion"><?php echo $plugin["pluginVersion"]; ?></td>
+                <td class="compatVersions"><?php echo $plugin["minVersion"] . " - " . $plugin["maxVersion"]; ?></td>
+                <td class="type"><?php echo $plugin["type"]; ?></td>
+                <td class="oneOfAKind"><?php echo Lang::translate( ($plugin["oneOfAKind"]==1) ? "General_Yes" : "General_No" ) ?></td>
+                <td class="alwaysOn"><?php echo Lang::translate( ($plugin["alwaysOn"]==1) ? "General_Yes" : "General_No" ) ?></td>
+                <td class="numInstances"><?php $c = $ca = 0; foreach ($pluginInstanceInfo as $p) { if ($p["pName"] == $pname) {$c++; if ($p["enabled"]) $ca++;} } echo "$c / $ca" ?></td>
                 <td class="id"><?php echo $id; ?></td>
-                <td class="enabled"><?php if (!($pluginInfo[$plugin["pName"]]["alwaysOn"] == 1)) { ?><a href="#" onclick="pv.value='toggleActive'; ai.value='<?php echo $id; ?>'; form.submit();" title="<?php echo (($plugin["enabled"]==1) ? "Disable" : "Enable"); ?> plugin '<?php echo $dname; ?>'"><?php echo Lang::translate( ($plugin["enabled"]==1) ? "General_Yes" : "General_No" ) ?></a><?php } else { ?><span title="This plugin cannot be disabled.">Yes</span><?php } ?></td>
-                <td class="delete"><?php if (!($pluginInfo[$plugin["pName"]]["core"] == 1)) { ?><a href="#" onclick="ai.value='<?php echo $id; ?>'; form.action=form.action+'&task=delete'; form.submit();" title="Delete plugin '<?php echo $dname; ?>'">D</a><?php } else { ?><span title="This plugin cannot be deleted.">--</span><?php } ?></td>
+                <td class="delete"><?php if (!($plugin["core"] == 1)) { ?><a href="#" onclick="ai.value='<?php echo $id; ?>'; form.action=form.action+'&task=kdelete'; form.submit();" title="Delete plugin kind '<?php echo $pname; ?>'">D</a><?php } else { ?><span title="This plugin kind cannot be deleted.">--</span><?php } ?></td>
             </tr>
 <?php } ?>
         </tbody>
