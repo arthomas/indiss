@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-11
+ * @version     2010-08-15
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that manages installed plugins
@@ -214,7 +214,6 @@ class PluginMan {
      * @param string $source
      * @param string[optional] $dname
      * @param string[optional] $iname
-     * @param string[optional] $dest
      * @return mixed Returns the new Plugin object on success or boolean false on failure. 
      */
     public static function install($sourceDir, $dname = "", $iname = "") {
