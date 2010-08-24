@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-13
+ * @version     2010-08-24
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -266,6 +266,10 @@ div#output table.rleft tr:last-child td:first-child {
     border-bottom-left-radius: 8px;            /*Opera/CSS3*/
 }
 
+div#output table td.highlightCell:hover {
+    background: #FFD;
+}
+
 div#output div.buttonbar {
     float: left;
 }
@@ -317,5 +321,34 @@ div#output div.buttonbar#buttonbarBottom table td:last-child {
     -moz-border-radius-bottomright: 8px;    /*Firefox*/
     border-bottom-right-radius: 8px;        /*Opera/CSS3*/
     padding-right: 4px;
+}
+
+
+/*Common rounded element border definitions*/
+div.rright,
+fieldset.rright {
+    -moz-border-radius-topright: 8px;           /*Firefox*/
+    border-top-right-radius: 8px;               /*Opera/CSS3*/
+    -moz-border-radius-bottomright: 8px;        /*Firefox*/
+    border-bottom-right-radius: 8px;            /*Opera/CSS3*/
+}
+
+div.rleft,
+fieldset.rleft {
+    -moz-border-radius-topleft: 8px;           /*Firefox*/
+    border-top-left-radius: 8px;               /*Opera/CSS3*/
+    -moz-border-radius-bottomleft: 8px;        /*Firefox*/
+    border-bottom-left-radius: 8px;            /*Opera/CSS3*/
+}
+
+
+/*Help button definitions*/
+a.fieldsetHelpButton {
+    border: 1px solid darkBlue;
+    background: lightBlue;
+    padding: 0px 2px;
+    font-size: 7pt;
+    float: right;
+    margin-top: -22px;
 }
 
