@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-13
+ * @version     2010-08-25
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      Backend main page
@@ -124,7 +124,7 @@ if (!empty($n) && is_array($n)) { ?>
 unset($n, $item);
 ?>
             <!--%HANDLEROUTPUT_COMMON%-->
-            <div id="<?php echo $activePlugin->getIname(); ?>" class="<?php echo get_class($activePlugin); ?>">
+            <div id="<?php echo $activePlugin->getIname(); ?>" class="Plugin <?php echo get_class($activePlugin); ?>">
                 <?php $activePlugin->outputAdmin($task); ?> 
             </div>
         </div>
