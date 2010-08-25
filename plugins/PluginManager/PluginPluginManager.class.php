@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-13
+ * @version     2010-08-25
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -88,7 +88,9 @@ class PluginPluginManager extends Plugin {
         
         CSSJSHandler::addStyleUrl($this->getWebPath() . "/css/admin.css.php");
         
+        echo "<div class=\"pluginTask\" id=\"task" . ucfirst($task) . "\">\n";
         include($this->getFullPath() . "/tasks/$task.php");
+        echo "</div>\n";
     }
     
 
