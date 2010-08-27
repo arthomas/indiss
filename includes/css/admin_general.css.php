@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-24
+ * @version     2010-08-27
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -64,6 +64,10 @@ input[type="button"].likeLink:focus,
 input[type="submit"].likeLink:hover,
 input[type="submit"].likeLink:focus {
     color: #35E;
+}
+
+fieldset {
+    padding: 5px 10px 10px;
 }
 
 div.floatCleaner {

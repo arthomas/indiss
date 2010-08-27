@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-25
+ * @version     2010-08-27
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -38,13 +38,32 @@ $buttonbarContent =
 <fieldset id="installNewKindBox" class="rright rleft">
     <legend style="font-weight: bold;">Install a new plugin kind</legend>
     <a href="help" style="" class="fieldsetHelpButton">Help</a>
-    <form>
-        <input type="text" />
-    </form>
+    You can use one of the following methods to install a new plugin kind:
+    <fieldset class="rright rleft">
+        <legend>Upload an archive from your computer</legend>
+        <form class="installNewKindForm">
+            <div class="buttonDiv"><input type="submit" value="Install" /></div>
+            <!-- note to firefox developers: your file input element sucks D: -->
+            <div class="textDiv"><div><input type="file" /></div></div>
+        </form>
+    </fieldset>
+    <fieldset class="rright rleft">
+        <legend>Download from the internet</legend>
+        <form class="installNewKindForm">
+            <div class="buttonDiv"><input type="submit" value="Install" /></div>
+            <div class="textDiv"><div><input type="text" /></div></div>
+        </form>
+    </fieldset>
 </fieldset>
 
 <fieldset id="installedKindBox" class="rright rleft">
     <legend style="font-weight: bold;">Install a new instance of a known plugin kind</legend>
+    <a href="help" class="fieldsetHelpButton" style="margin-right: 10px;">Help</a>
+    <div id="installedKindId" style="margin: 0 10px 10px;">
+        Click on the name of a plugin kind in the list below to install a new instance.
+        You can also use the checkboxes on the left to install instances of several different plugin kinds in a single process.
+        The plugin kinds that are grayed out can not be installed again because they support one instance at a time.
+    </div>
     <form method="post" action="?plugin=<?php echo $this->iname; ?>" id="listForm">
         <input type="hidden" id="postview" name="postview" value="unset" />
         <input type="hidden" id="affectedIDs" name="affectedIDs" value="unset" />

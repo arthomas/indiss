@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-25
+ * @version     2010-08-27
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -33,19 +33,44 @@ div.PluginPluginManager {
 }
 
 
-div.PluginPluginManager div#taskAdd fieldset {
+div.PluginPluginManager div#taskAdd > fieldset {
     margin-bottom: 20px;
     border: 2px solid black;
+}
+
+div.PluginPluginManager div#taskAdd fieldset#installNewKindBox > fieldset {
+    border: 1px solid black;
+}
+
+div.PluginPluginManager div#taskAdd fieldset#installNewKindBox form.installNewKindForm div.buttonDiv {
+    float: right;
+}
+
+div.PluginPluginManager div#taskAdd fieldset#installNewKindBox form.installNewKindForm div.textDiv {
+    margin-right: 70px;
+}
+
+div.PluginPluginManager div#taskAdd fieldset#installNewKindBox form.installNewKindForm div.textDiv > div {
+    border: 1px solid gray;
+    background: white;
+    padding: 0 3px;
+}
+
+div.PluginPluginManager div#taskAdd fieldset#installNewKindBox form.installNewKindForm div.textDiv > div > input {
+    border: 0 none;
+    padding: 2px 0;
+    -moz-appearance: none;
+    width: 100%;
+}
+
+div.PluginPluginManager div#taskAdd fieldset#installedKindBox > legend {
+    margin-left: 10px;
 }
 
 div.PluginPluginManager div#taskAdd fieldset#installedKindBox {
     padding-left: 0;
     padding-right: 0;
     padding-bottom: 0;
-}
-
-div.PluginPluginManager div#taskAdd fieldset#installedKindBox > legend {
-    margin-left: 9px;
 }
 
 div.PluginPluginManager div#taskAdd fieldset#installedKindBox table td:first-child {
