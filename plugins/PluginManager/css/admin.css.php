@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-27
+ * @version     2010-08-29
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -42,12 +42,20 @@ div.PluginPluginManager div#taskAdd fieldset#installNewKindBox > fieldset {
     border: 1px solid black;
 }
 
+div.PluginPluginManager div#taskAdd fieldset#installNewKindBox div.desc {
+    margin: 0 110px 10px 0;
+}
+
 div.PluginPluginManager div#taskAdd fieldset#installNewKindBox form.installNewKindForm div.buttonDiv {
     float: right;
 }
 
+div.PluginPluginManager div#taskAdd fieldset#installNewKindBox form.installNewKindForm div.buttonDiv input {
+    width: 100px;
+}
+
 div.PluginPluginManager div#taskAdd fieldset#installNewKindBox form.installNewKindForm div.textDiv {
-    margin-right: 70px;
+    margin-right: 110px;
 }
 
 div.PluginPluginManager div#taskAdd fieldset#installNewKindBox form.installNewKindForm div.textDiv > div {

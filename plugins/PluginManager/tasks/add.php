@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-27
+ * @version     2010-08-29
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -42,6 +42,10 @@ $buttonbarContent =
     <fieldset class="rright rleft">
         <legend>Upload an archive from your computer</legend>
         <form class="installNewKindForm">
+            <div class="desc">
+                Use this form to pick an archive file which you have previously downloaded from the plugin's website to your computer.
+                The file will be uploaded to this server, extracted and installed.
+            </div>
             <div class="buttonDiv"><input type="submit" value="Install" /></div>
             <!-- note to firefox developers: your file input element sucks D: -->
             <div class="textDiv"><div><input type="file" /></div></div>
@@ -50,6 +54,10 @@ $buttonbarContent =
     <fieldset class="rright rleft">
         <legend>Download from the internet</legend>
         <form class="installNewKindForm">
+            <div class="desc">
+                Use this form to directly download an archive file from the plugin's website. You can generally use the same link
+                which you would use to download the file to your computer, or follow the instructions on the plugin's website.
+            </div>
             <div class="buttonDiv"><input type="submit" value="Install" /></div>
             <div class="textDiv"><div><input type="text" /></div></div>
         </form>

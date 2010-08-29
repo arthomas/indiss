@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-27
+ * @version     2010-08-29
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -64,6 +64,7 @@ input[type="button"].likeLink:focus,
 input[type="submit"].likeLink:hover,
 input[type="submit"].likeLink:focus {
     color: #35E;
+    background: #FFD;
 }
 
 fieldset {
@@ -131,10 +132,6 @@ div#topBarInner div#topBarLogout {
 div#topBarInner div#topBarLogout input[type="submit"] {
     padding: 4px 10px 3px;
     font-size: 9pt;
-}
-
-div#topBarInner div#topBarLogout input[type="submit"]:hover {
-    background: #EEE;
 }
 
 div#footer {
@@ -288,7 +285,7 @@ div#output div.buttonbar table td:last-child:hover input[type="button"],
 div#output div.buttonbar table td input[type="button"]:hover,
 div#output div.buttonbar table td input[type="button"]:focus {
     color: #35E;
-    background: #EEE;
+    background: #FFD;
 }
 
 div#output div.buttonbar#buttonbarTop table td {
