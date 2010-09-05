@@ -41,7 +41,7 @@ $buttonbarContent =
     You can use one of the following methods to install a new plugin kind:
     <fieldset class="rright rleft">
         <legend>Upload an archive from your computer</legend>
-        <form class="installNewKindForm" id="newKindUploadForm" action="?plugin=<?php echo $this->iname; ?>&task=editnew">
+        <form class="installNewKindForm" id="newKindUploadForm" action="?plugin=<?php echo $this->iname; ?>&task=editnew" enctype="multipart/form-data" method="post">
             <input type="hidden" id="nku_postview" name="postview" value="addNew" />
             <input type="hidden" id="nku_sourcetype" name="sourcetype" value="upload" />
             <div class="desc">
@@ -50,12 +50,12 @@ $buttonbarContent =
             </div>
             <div class="buttonDiv"><input type="submit" value="Install" /></div>
             <!-- note to firefox developers: your file input element sucks D: -->
-            <div class="textDiv"><div><input type="file" /></div></div>
+            <div class="textDiv"><div><input type="file" name="pluginFile" /></div></div>
         </form>
     </fieldset>
     <fieldset class="rright rleft">
         <legend>Download from the internet</legend>
-        <form class="installNewKindForm" id="newKindDownloadForm" action="?plugin=<?php echo $this->iname; ?>&task=editnew">
+        <form class="installNewKindForm" id="newKindDownloadForm" action="?plugin=<?php echo $this->iname; ?>&task=editnew" method="post">
             <input type="hidden" id="nkd_postview" name="postview" value="addNew" />
             <input type="hidden" id="nkd_sourcetype" name="sourcetype" value="download" />
             <div class="desc">
