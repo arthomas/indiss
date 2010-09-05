@@ -74,7 +74,9 @@ class PluginPluginManager extends Plugin {
     public function uninstall() {}
     
     public function processInput($postview = null) {
-        
+        if (!is_null($postview)) {
+            include($this->getFullPath() . "/postviews/$postview.php");
+        }
     }
     
     // n/a because Plugin has no frontend
