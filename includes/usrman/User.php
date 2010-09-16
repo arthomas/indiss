@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-11
+ * @version     2010-09-16
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      User manager core component
@@ -23,7 +23,7 @@ defined("__CONFIGFILE") or die("Config file not included [" . __FILE__ . "]");
 defined("__DATABASE") or die("Database connection not included [" . __FILE__ . "]");
 defined("__LANG") or die("Language file not included [" . __FILE__ . "]");
 
-define("__USRMAN", 1);
+define("__USER", 1);
 
 //user level INDEX constants
 define("UL_UNKNOWN", 0);

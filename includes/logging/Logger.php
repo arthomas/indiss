@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-10
+ * @version     2010-09-16
  * @author      Myriam Leggieri <myriam.leggieri@gmail.com>
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Myriam Leggieri, Patrick Lehner
@@ -435,7 +435,7 @@ class Logger {
             $translate = true;
         $when = $this->datetimeFormatter();
         global $activeUsr;
-        if (defined("__USRMAN"))
+        if (defined("__USER"))
             if (isset($activeUsr) && $userId == 0)
                 $userId = $activeUsr->getId();
         $msg = $message;
