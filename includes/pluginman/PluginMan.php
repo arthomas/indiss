@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-15
+ * @version     2010-09-16
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that manages installed plugins
@@ -216,53 +216,53 @@ class PluginMan {
      * @param string[optional] $iname
      * @return mixed Returns the new Plugin object on success or boolean false on failure. 
      */
-    public static function install($sourceDir, $dname = "", $iname = "") {
+    public static function installKind($sourceDir) {
         global $log, $db;
         
-        $sourceDir = rtrim($sourceDir, "/\\");
+        $sourceDir = rtrim($sourceDir, "/\\");  //remove trailing (back)slashes
         $xmlFilename = "$sourceDir/pluginInfo.xml";
         
-        if (!file_exists($xmlFilename)) {
+        //check if file exists and is not a directory
+        if (!file_exists($xmlFilename) || is_dir($xmlFilename)) {
             $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): XML file not found ($xmlFilename)");
             return false;
         }
         
         $xml = simplexml_load_file($xmlFilename);
-        if ( !$xml ) {
+        if ( !$xml ) {  //if parsing of the XML file failed
             $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): XML file is not valid ($xmlFilename)");
             return false;
         }
-        if ((string)$xml["type"] != "plugin") {
+        if ((string)$xml["type"] != "plugin") {  //if the XML file is not made for a plugin, even though it is named as such
             $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): XML file does not describe a plugin ($xmlFilename)");
             return false;
         }
-        if ( !(bool)$xml->pName || !(bool)$xml->minVersion || !(bool)$xml->maxVersion || !(bool)$xml->description || !(bool)$xml->files || count($xml->files->filename) < 1 ) {
+        //make sure all mandatory data is included in the XML file
+        if ( !(bool)$xml->pName || !(bool)$xml->minVersion || !(bool)$xml->maxVersion || !(bool)$xml->description 
+            || !(bool)$xml->version || !(bool)$xml->type || !(bool)$xml->files || count($xml->files->filename) < 1 ) {
             $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): The plugin info contained in the XML file is not valid ($xmlFilename)");
             return false;
         }
+        //load plugin info into variables
         $pName = (string)$xml->pName;
+        $pluginVersion = (string)$xml->version;
         $minVersion = (string)$xml->minVersion;
         $maxVersion = (string)$xml->maxVersion;
-        $desc = (string)$xml->description;
+        //TODO: Check for version correctness
+        //$desc = (string)$xml->description; //description is currently not used
+        $type = (string)$xml->type;
+        $oneOfAKind = (bool)$xml->oneOfAKind;
         $files = $xml->files->filename;
-        if (empty($iname))
-            $iname = self::generateIname($pName, empty($dest));
-        $dest = rtrim($dest, "/\\");
-        if (empty($dest))
-            $dest = "$iname";
-        $dest .= "/";
-        if (empty($dname))
-            $dname = ucfirst($iname);
             
-        $log->dlog("Plugin manager", LEL_NOTICE, __METHOD__ . "(): Attempting to install a plugin with these parameters: sourceDir=$sourceDir; dname=$dname; iname=$iname; pName=$pName; version=$version");
+        $log->dlog("Plugin manager", LEL_NOTICE, __METHOD__ . "(): Attempting to install a plugin kind with these parameters: sourceDir=$sourceDir; pName=$pName; version=$pluginVersion");
         
-        if (self::getPluginByIname($iname, true) !== false) {
-            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): A plugin with the internal name '$iname' already exists. Please choose a different internal name.");
+        if (array_key_exists($pName, self::$pluginInfo)) {
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): The plugin kind $pName is already installed!");
             return false;
         }
         
         global $FBP;
-        $p = $FBP . self::$commonPath . $dest;
+        $p = $FBP . self::$commonPath . $pName;
         if (file_exists($p)) {
             $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): The destination folder for this plugin already exists (folder: $p)");
             return false;
@@ -290,32 +290,27 @@ class PluginMan {
             return false;
         }
         
-        global $datefmt;
-        if (empty($datefmt))
-            $datefmt = "YmdHis";    //default this in case it's not set (e.g. when using PluginMan from the installer)
-        $installedAt = date($datefmt);
-        $installedBy = 0;
-        global $activeUsr;
-        if (defined("__USRMAN"))
-            if (isset($activeUsr))
-                $installedBy = $activeUsr->getId();
-        
-        $query = "INSERT INTO `" . self::$pluginTable . "` (`dname`, `iname`, `comName`, `installedAt`, `installedBy`, `path`, `enabled`) 
-            VALUES ('$dname', '$iname', '$pName', '$installedAt', $installedBy, '$dest', TRUE)";
+        $query = "INSERT INTO `" . self::$pluginInfoTable . "` (`pName`, `pluginVersion`, `minVersion`, `maxVersion`, `type`, `oneOfAKind`, `alwaysOn`, `core`) 
+            VALUES ('$pName', '$pluginVersion', '$minVersion', '$maxVersion', $type, '$oneOfAKind', FALSE, FALSE)";
         if (!$db->q($query)) {
-            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Database error while installing plugin '$dname'; database error: " . $db->e() . "; query: " . $query);
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Database error while installing plugin kind '$pName'; database error: " . $db->e() . "; query: " . $query);
             return false;
         }
-        if (!($id = mysql_insert_id())) {
+        if (!($id = $db->getInsertId())) {
             $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Error while retrieving database ID for plugin '$dname'");
             return false;
         }
         
-        $plugin = new Plugin($id, $dname, $iname, $pName, $installedAt, $installedBy, $dest, true);
-        self::$plugins[(int)$id] = $plugin;
+        $query = "SELECT * FROM `" . self::$pluginInfoTable . "` WHERE `id`=$id";
+        if (!$t = $db->getArrayA($db->q($query)) || count($t) < 1) {
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Database error while installing plugin kind '$pName'; database error: " . $db->e() . "; query: " . $query);
+            return false;
+        }
         
-        $log->dlog("Plugin manager", LEL_NOTICE, __METHOD__ . "(): Successfully installed plugin '$dname'; id=$id");
-        return $plugin;
+        self::$pluginInfo[$pName] = $t[0];
+        
+        $log->dlog("Plugin manager", LEL_NOTICE, __METHOD__ . "(): Successfully installed plugin kind '$pName'; id=$id");
+        return true;
     }
     
     /**
@@ -323,7 +318,7 @@ class PluginMan {
      * @param int $id The ID of the Plugin to be removed.
      * @return bool Returns true on success or false on failure.
      */
-    public static function uninstall($id) {
+    public static function uninstallKind($id) {
         global $log, $db;
         $plugin = self::$pluginObjects[$id];
         if ($plugin->isCore()) {
@@ -344,6 +339,40 @@ class PluginMan {
         }
         unset (self::$plugins[$plugin->id]);        //remove the component from the internal array
         return true;
+    }
+    
+    public static function installInstance($pname, $dname = "", $iname = "") {
+        if (empty($iname))
+            $iname = self::generateIname($pName, empty($dest));
+        $dest = rtrim($dest, "/\\");
+        if (empty($dest))
+            $dest = "$iname";
+        $dest .= "/";
+        if (empty($dname))
+            $dname = ucfirst($iname);
+            
+    
+        
+        if (self::getPluginByIname($iname, true) !== false) {
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): A plugin with the internal name '$iname' already exists. Please choose a different internal name.");
+            return false;
+        }
+        
+        
+        
+        global $datefmt;
+        if (empty($datefmt))
+            $datefmt = "YmdHis";    //default this in case it's not set (e.g. when using PluginMan from the installer)
+        $installedAt = date($datefmt);
+        $installedBy = 0;
+        global $activeUsr;
+        if (defined("__USER"))
+            if (isset($activeUsr))
+                $installedBy = $activeUsr->getId();
+    }
+    
+    public static function uninstallInstance($id) {
+        
     }
     
     
