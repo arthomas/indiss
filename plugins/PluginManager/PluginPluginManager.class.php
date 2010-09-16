@@ -74,7 +74,7 @@ class PluginPluginManager extends Plugin {
     public function uninstall() {}
     
     public function processInput($postview = null) {
-        if (!is_null($postview)) {
+        if (!is_null($postview) && !empty($postview)) {
             include($this->getFullPath() . "/postviews/$postview.php");
         }
     }
