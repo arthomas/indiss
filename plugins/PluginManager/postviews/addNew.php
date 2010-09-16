@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-09-05
+ * @version     2010-09-16
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -90,11 +90,12 @@ $z->close();
 
 if (!$error) {
     //the rest of the installation is now done by PluginMan:
-    PluginMan::install($destfolder . "/" . $foldername);
+    if (PluginMan::installKind($destfolder . "/" . $foldername))
+        $log->log("Plugin manager", LEL_NOTICE, "Successfully installed plugin");
 }
 
 include_once($FBP . "includes/filesystem/recursiveDelete.php");
 echo "recursive delete folder";
-//recursiveDelete($path . "/" . $foldername);
+recursiveDelete($path . "/" . $foldername);
 
 ?>
