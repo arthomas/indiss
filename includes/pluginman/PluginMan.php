@@ -318,26 +318,37 @@ class PluginMan {
      * @param int $id The ID of the Plugin to be removed.
      * @return bool Returns true on success or false on failure.
      */
-    public static function uninstallKind($id) {
+    public static function uninstallKind($pName) {
         global $log, $db;
-        $plugin = self::$pluginObjects[$id];
+        
+        $pk = self::$pluginInfo[$pName];
         if ($plugin->isCore()) {
-            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Cannot remove plugin '" . $plugin->getDname() . "' because it is a core plugin");
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Cannot remove plugin kind '" . $pName . "' because it is a core plugin");
             return false;
         }
-        $plugin->uninstall();
-        $query = sprintf("DELETE FROM `%s` WHERE `id`=%d", self::$pluginTable, $plugin->getId());
+        
+        $c = 0;
+        foreach (self::$pluginInstanceInfo as $p) {
+            if ($p["pName"] == $pName)
+                $c++;
+        }
+        if ($c > 0) {
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Cannot remove plugin kind '" . $pName . "' because there are still instances of it installed");
+            return false;
+        }
+        
+        $query = sprintf("DELETE FROM `%s` WHERE `id`=%s", self::$pluginInfoTable, $pk["id"]);
         if (!$db->q($query)) {
-            $me = $db->e();
-            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Error while removing component '" . $plugin->getDname() . "'; Database said: $me; Query: $query");
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Database error while deleting plugin kind '$pName'; database error: " . $db->e() . "; query: " . $query);
             return false;
         }
+        
         global $FBP2;
         include_once ("$FBP2/includes/filesystem/recursiveDelete.php");
-        if (recursiveDelete( $plugin->getFullPath() ) === false) {
-            $log->log("Plugin manager", "Error", __METHOD__ . "(): Error while deleting the files of component '" . $plugin->getDname() . "'");
+        if (recursiveDelete( self::$commonPath . $pName ) === false) {
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Error while deleting the files of plugin kind '$pName'");
         }
-        unset (self::$plugins[$plugin->id]);        //remove the component from the internal array
+        unset (self::$pluginInfo[$pName]);        //remove the plugin kind from the internal array
         return true;
     }
     
@@ -372,7 +383,26 @@ class PluginMan {
     }
     
     public static function uninstallInstance($id) {
-        
+        global $log, $db;
+        $plugin = self::$pluginObjects[$id];
+        if ($plugin->isCore()) {
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Cannot remove plugin '" . $plugin->getDname() . "' because it is a core plugin");
+            return false;
+        }
+        $plugin->uninstall();
+        $query = sprintf("DELETE FROM `%s` WHERE `id`=%d", self::$pluginTable, $plugin->getId());
+        if (!$db->q($query)) {
+            $me = $db->e();
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Error while removing component '" . $plugin->getDname() . "'; Database said: $me; Query: $query");
+            return false;
+        }
+        global $FBP2;
+        include_once ("$FBP2/includes/filesystem/recursiveDelete.php");
+        if (recursiveDelete( $plugin->getFullPath() ) === false) {
+            $log->log("Plugin manager", "Error", __METHOD__ . "(): Error while deleting the files of component '" . $plugin->getDname() . "'");
+        }
+        unset (self::$plugins[$plugin->id]);        //remove the component from the internal array
+        return true;
     }
     
     
