@@ -239,13 +239,13 @@ class PluginMan {
         }
         //make sure all mandatory data is included in the XML file
         if ( !(bool)$xml->pName || !(bool)$xml->minVersion || !(bool)$xml->maxVersion || !(bool)$xml->description 
-            || !(bool)$xml->version || !(bool)$xml->type || !(bool)$xml->files || count($xml->files->filename) < 1 ) {
+            || !(bool)$xml->pluginVersion || !(bool)$xml->type || !(bool)$xml->files || count($xml->files->filename) < 1 ) {
             $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): The plugin info contained in the XML file is not valid ($xmlFilename)");
             return false;
         }
         //load plugin info into variables
         $pName = (string)$xml->pName;
-        $pluginVersion = (string)$xml->version;
+        $pluginVersion = (string)$xml->pluginVersion;
         $minVersion = (string)$xml->minVersion;
         $maxVersion = (string)$xml->maxVersion;
         //TODO: Check for version correctness
@@ -291,7 +291,7 @@ class PluginMan {
         }
         
         $query = "INSERT INTO `" . self::$pluginInfoTable . "` (`pName`, `pluginVersion`, `minVersion`, `maxVersion`, `type`, `oneOfAKind`, `alwaysOn`, `core`) 
-            VALUES ('$pName', '$pluginVersion', '$minVersion', '$maxVersion', $type, '$oneOfAKind', FALSE, FALSE)";
+            VALUES ('$pName', '$pluginVersion', '$minVersion', '$maxVersion', '$type', " . (($oneOfAKind) ? "TRUE" : "FALSE") . ", FALSE, FALSE)";
         if (!$db->q($query)) {
             $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Database error while installing plugin kind '$pName'; database error: " . $db->e() . "; query: " . $query);
             return false;
