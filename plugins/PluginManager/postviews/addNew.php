@@ -91,12 +91,12 @@ $z->close();
 if (!$error) {
     //the rest of the installation is now done by PluginMan:
     if (PluginMan::installKind($destfolder . "/" . $foldername))
-        $log->log("Plugin manager", LEL_NOTICE, "Successfully installed plugin kind");
+        $log->log("Plugin manager", LEL_NOTICE, "Successfully installed plugin kind '$foldername'");
 }
 
 include_once($FBP . "includes/filesystem/recursiveDelete.php");
-if (!recursiveDelete($path . "/" . $foldername)) {
-    $log->log("Plugin manager", LEL_NOTICE, "Could not remove temporary folder '$path/$foldername'");
+if (!recursiveDelete($destfolder)) {
+    $log->log("Plugin manager", LEL_NOTICE, "Could not remove temporary folder '$destfolder'");
 }
 
 ?>
