@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-15
+ * @version     2010-08-17
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -41,8 +41,8 @@ $buttonbarContent =
 ?>
 
 <form method="post" action="?plugin=<?php echo $this->iname; ?>" id="listForm">
-    <input type="hidden" id="postview" name="postview" value="unset" />
-    <input type="hidden" id="affectedIDs" name="affectedIDs" value="unset" />
+    <input type="hidden" id="postview" name="postview" value="" />
+    <input type="hidden" id="affectedIDs" name="affectedIDs" value="" />
     <div class="buttonbar" id="buttonbarTop"><?php echo $buttonbarContent; ?></div>
     <table summary="" border="0" cellpadding="0" cellspacing="0" id="PluginKindList" class="rright fwTable">
         <tbody>
