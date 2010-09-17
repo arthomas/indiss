@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-25
+ * @version     2010-09-17
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -74,7 +74,9 @@ class PluginPluginManager extends Plugin {
     public function uninstall() {}
     
     public function processInput($postview = null) {
+        global $log, $db;
         if (!is_null($postview) && !empty($postview)) {
+            PluginMan::getInfoArrays($pluginInfo, $pluginInstanceInfo);
             include($this->getFullPath() . "/postviews/$postview.php");
         }
     }
@@ -83,6 +85,7 @@ class PluginPluginManager extends Plugin {
     public function outputFront() {}
     
     public function outputAdmin($task = null) {
+        global $log, $db;
         if (is_null($task))
             $task = self::$defaultTask;
             
