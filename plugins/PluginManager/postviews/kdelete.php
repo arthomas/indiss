@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-09-16
+ * @version     2010-09-17
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -24,14 +24,25 @@
 defined("__MAIN") or die("Restricted access.");
 class_exists("PluginPluginManager") or die("Class 'PluginPluginManager' is unknown [" . __FILE__ . "]");
 
-if (!$error) {
-    //the rest of the installation is now done by PluginMan:
-    if (PluginMan::installKind($destfolder . "/" . $foldername))
-        $log->log("Plugin manager", LEL_NOTICE, "Successfully installed plugin");
+$l = explode(",", $_POST["affectedIDs"]);
+$m = array();
+foreach ($l as $id) {
+    $x = null;
+    foreach ($pluginInfo as $p) {
+        if ($p["id"] == $id)
+            $x = $p["pName"];
+    }
+    if (!is_null($x))
+        $m[] = $x;
 }
 
-include_once($FBP . "includes/filesystem/recursiveDelete.php");
-echo "recursive delete folder";
-recursiveDelete($path . "/" . $foldername);
+if (count($m) == 0) {
+    $log->log("Plugin manager", LEL_NOTICE, "No plugin kinds were selected for deletion.");
+} else {
+    //the rest of the uninstallation is now done by PluginMan:
+    foreach ($m as $p)
+        if (PluginMan::uninstallKind($p))
+            $log->log("Plugin manager", LEL_NOTICE, "Successfully uninstalled plugin '$p'");
+}
 
 ?>
