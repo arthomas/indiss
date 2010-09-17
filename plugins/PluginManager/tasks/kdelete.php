@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-09-16
+ * @version     2010-09-17
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -52,8 +52,9 @@ switch (count($l)) {
 <fieldset id="deleteKindBox" class="rright rleft">
     <legend style="font-weight: bold;">Delete a plugin kind</legend>
     <a href="help" style="" class="fieldsetHelpButton">Help</a>
-    <form method="POST" action="?plugin=<?php echo $this->iname; ?>">
+    <form method="POST" action="?plugin=<?php echo $this->iname; ?>&task=klist">
         <input type="hidden" name="postview" id="postview" value="" />
+        <input type="hidden" name="affectedIDs" id="affectedIDs" value="<?php echo $_POST["affectedIDs"]; ?>" />
         <div style="float: right;">
             <input type="button" name="yesdelete" value="Yes" onclick="document.getElementById('postview').value='kdelete';this.form.submit();" /><br />
             <input type="submit" name="nodelete" value="No" />
