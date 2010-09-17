@@ -322,7 +322,7 @@ class PluginMan {
         global $log, $db;
         
         $pk = self::$pluginInfo[$pName];
-        if ($plugin->isCore()) {
+        if ($pk["core"] == 1) {
             $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Cannot remove plugin kind '" . $pName . "' because it is a core plugin");
             return false;
         }
@@ -343,9 +343,9 @@ class PluginMan {
             return false;
         }
         
-        global $FBP2;
+        global $FBP2, $FBP;
         include_once ("$FBP2/includes/filesystem/recursiveDelete.php");
-        if (recursiveDelete( self::$commonPath . $pName ) === false) {
+        if (recursiveDelete( $FBP . self::$commonPath . $pName ) === false) {
             $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Error while deleting the files of plugin kind '$pName'");
         }
         unset (self::$pluginInfo[$pName]);        //remove the plugin kind from the internal array
