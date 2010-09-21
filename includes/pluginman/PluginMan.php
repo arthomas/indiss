@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-09-16
+ * @version     2010-09-21
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that manages installed plugins
@@ -86,12 +86,13 @@ class PluginMan {
         return self::$pluginObjects;
     }
     
-    private static function loadPlugin($id) {
+    private static function loadPlugin($id, $init = true) {
         global $log;
         if (!isset(self::$pluginObjects[$id])) {
             global $FBP;
             $pluginClass = "Plugin" . self::$pluginInstanceInfo[$id]["pName"];
             if (!class_exists($pluginClass)) {
+                //TODO: check if inclusion is successful
                 include_once($s = $FBP . self::$commonPath . self::$pluginInstanceInfo[$id]["pName"] . "/$pluginClass.class.php");
                 if (file_exists($l = (dirname($s) . "/lang"))) {
                     global $defaultlang, $lang;
@@ -105,9 +106,11 @@ class PluginMan {
             self::$pluginObjects[$id] = new $pluginClass(self::$pluginInstanceInfo[$id], self::$pluginInfo[self::$pluginInstanceInfo[$id]["pName"]]);
             $log->dlog("Plugin manager", LEL_NOTICE, __METHOD__ . "(): Created new plugin object of class $pluginClass");
         }
-        if (!self::$pluginObjects[$id]->isInitialized()) {
-            self::$pluginObjects[$id]->initialize();
-            $log->dlog("Plugin manager", LEL_NOTICE, __METHOD__ . "(): Initialized Plugin '" . self::$pluginInstanceInfo[$id]["iname"] . "'");
+        if ($init) {
+            if (!self::$pluginObjects[$id]->isInitialized()) {
+                self::$pluginObjects[$id]->initialize();
+                $log->dlog("Plugin manager", LEL_NOTICE, __METHOD__ . "(): Initialized Plugin '" . self::$pluginInstanceInfo[$id]["iname"] . "'");
+            }
         }
         $log->dlog("Plugin manager", LEL_NOTICE, __METHOD__ . "(): Successfully loaded Plugin '" . self::$pluginInstanceInfo[$id]["iname"] . "'");
         return self::$pluginObjects[$id];
@@ -204,7 +207,7 @@ class PluginMan {
         $i = 1;
         while (self::getPluginByIname($iname = sprintf("%s_%03d", $pName, $i), true))
             $i++;
-        $iname;
+        //$iname; //lolwut? iunno what this was supposed to do....
         $log->dlog("Plugin manager", LEL_NOTICE, __METHOD__ . "(): Generated new iname '$iname' from pName '$pName'");
         return $iname;
     }
@@ -297,7 +300,7 @@ class PluginMan {
             return false;
         }
         if (!($id = $db->getInsertId())) {
-            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Error while retrieving database ID for plugin '$dname'");
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Error while retrieving database ID for plugin kind '$pName'");
             return false;
         }
         
@@ -352,24 +355,16 @@ class PluginMan {
         return true;
     }
     
-    public static function installInstance($pname, $dname = "", $iname = "") {
+    public static function installInstance($pName, $dname = "", $iname = "") {
         if (empty($iname))
-            $iname = self::generateIname($pName, empty($dest));
-        $dest = rtrim($dest, "/\\");
-        if (empty($dest))
-            $dest = "$iname";
-        $dest .= "/";
+            $iname = self::generateIname($pName);
         if (empty($dname))
             $dname = ucfirst($iname);
-            
-    
         
         if (self::getPluginByIname($iname, true) !== false) {
             $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): A plugin with the internal name '$iname' already exists. Please choose a different internal name.");
             return false;
         }
-        
-        
         
         global $datefmt;
         if (empty($datefmt))
@@ -380,6 +375,41 @@ class PluginMan {
         if (defined("__USER"))
             if (isset($activeUsr))
                 $installedBy = $activeUsr->getId();
+                
+        $query = "INSERT INTO `" . self::$pluginTable . "` (`dname`, `iname`, `pName`, `installedAt`, `installedBy`, `enabled`)
+            VALUES ('$dname', '$iname', '$pName', '$installedAt', $installedBy, TRUE)";
+        if (!$db->q($query)) {
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Database error while installing plugin '$dname'; database error: " . $db->e() . "; query: " . $query);
+            return false;
+        }
+        if (!($id = $db->getInsertId())) {
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Error while retrieving database ID for plugin '$dname'");
+            return false;
+        }
+        
+        $query = "SELECT * FROM `" . self::$pluginTable . "` WHERE `id`=$id";
+        if (!$t = $db->getArrayA($db->q($query)) || count($t) < 1) {
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Database error while installing plugin '$dname'; database error: " . $db->e() . "; query: " . $query);
+            return false;
+        }
+        
+        self::$pluginInstanceInfo[$id] = $t[0];
+        
+        $log->dlog("Plugin manager", LEL_NOTICE, __METHOD__ . "(): Successfully added plugin ['$dname'; id=$id] to the database");
+        
+        if (($p = self::loadPlugin($id, false)) === false) {
+            
+            return false;
+        }
+        
+        //let the plugin add its data files and db tables
+        if (!$p->install()) {
+            
+            return false;
+        }
+        
+        return true;
+        
     }
     
     public static function uninstallInstance($id) {
