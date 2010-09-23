@@ -32,74 +32,44 @@ $buttonbarContent =
         </tr>
     </tbody>
 </table>';
- /*
 ?>
 
-<fieldset id="installNewKindBox" class="rright rleft">
-    <legend style="font-weight: bold;">Install a new plugin kind</legend>
-    <a href="help" style="" class="fieldsetHelpButton">Help</a>
-    You can use one of the following methods to install a new plugin kind:
-    <fieldset class="rright rleft">
-        <legend>Upload an archive from your computer</legend>
-        <form class="installNewKindForm" id="newKindUploadForm" action="?plugin=<?php echo $this->iname; ?>&task=editnew" enctype="multipart/form-data" method="post">
-            <input type="hidden" id="nku_postview" name="postview" value="addNew" />
-            <input type="hidden" id="nku_sourcetype" name="sourcetype" value="upload" />
-            <div class="desc">
-                Use this form to pick an archive file which you have previously downloaded from the plugin's website to your computer.
-                The file will be uploaded to this server, extracted and installed.
-            </div>
-            <div class="buttonDiv"><input type="submit" value="Install" /></div>
-            <!-- note to firefox developers: your file input element sucks D: -->
-            <div class="textDiv"><div><input type="file" name="pluginFile" /></div></div>
-        </form>
-    </fieldset>
-    <fieldset class="rright rleft">
-        <legend>Download from the internet</legend>
-        <form class="installNewKindForm" id="newKindDownloadForm" action="?plugin=<?php echo $this->iname; ?>&task=editnew" method="post">
-            <input type="hidden" id="nkd_postview" name="postview" value="addNew" />
-            <input type="hidden" id="nkd_sourcetype" name="sourcetype" value="download" />
-            <div class="desc">
-                Use this form to directly download an archive file from the plugin's website. You can generally use the same link
-                which you would use to download the file to your computer, or follow the instructions on the plugin's website.
-            </div>
-            <div class="buttonDiv"><input type="submit" value="Install" /></div>
-            <div class="textDiv"><div><input type="text" /></div></div>
-        </form>
-    </fieldset>
-</fieldset>
-
-<fieldset id="installedKindBox" class="rright rleft">
-    <legend style="font-weight: bold;">Install a new instance of a known plugin kind</legend>
+<fieldset class="addInstanceBox" class="rright rleft">
+    <legend style="font-weight: bold;">Add a new instance</legend>
     <a href="help" class="fieldsetHelpButton" style="margin-right: 10px;">Help</a>
     <div id="installedKindId" style="margin: 0 10px 10px;">
-        Click on the name of a plugin kind in the list below to install a new instance.
-        You can also use the checkboxes on the left to install instances of several different plugin kinds in a single process.
-        The plugin kinds that are grayed out can not be installed again because they support one instance at a time.
+        <p>Please enter a descriptive name and/or an internal name for the new plugin instance below. If you leave a field empty, it will be automatically filled.</p>
+        <p><span>Descriptive name:</span> May contain all kinds of characters and need not be unique. Will be auto-filled if empty.</p>
+        <p><span>Internal name:</span> May contain only alphanumerical characters (a-z, A-Z, 0-9), dashes (-) and underscores (_); may not contain spaces or special characters. Must be unique.</p>
     </div>
     <form method="post" action="?plugin=<?php echo $this->iname; ?>" id="listForm">
-        <input type="hidden" id="postview" name="postview" value="unset" />
-        <input type="hidden" id="affectedIDs" name="affectedIDs" value="unset" />
-        <div class="buttonbar" id="buttonbarTop"><?php echo $buttonbarContent; ?></div>
-        <table summary="" border="0" cellpadding="0" cellspacing="0" id="PluginKindList" class="fwTable">
+        <input type="hidden" id="postview" name="postview" value="addInstance" />
+        <input type="hidden" id="affectedIDs" name="affectedIDs" value="" />
+        <table summary="" border="0" cellpadding="0" cellspacing="0">
             <tbody>
-                <tr class="headingRow">
-                    <td class="check"><input type="checkbox" title="Select all" onclick="a=document.getElementsByTagName('input');for(i=0;i< a.length;i++){if(a[i].type=='checkbox')a[i].checked=this.checked;}" /></td>
-                    <td class="pname">Plugin kind</td>
-                    <td class="id">ID</td>
+                <tr>
+                    <td width="200">Plugin kind:</td>
+                    <td><?php 
+foreach ($pluginInfo as $p) {
+    if ($p["id"] == $_POST["affectedIDs"]) {
+        echo $p["pName"];
+        break;
+    }
+}?></td>
                 </tr>
-<?php foreach ($pluginInfo as $plugin) {
-    $id = $plugin["id"];
-    $pname = $plugin["pName"];
-?>
-                <tr id="row_<?php echo $id; ?>">
-                    <td class="check"><input type="checkbox" name="check_<?php echo $id; ?>" value="Yes" title="Select plugin kind '<?php echo $pname; ?>'" /></td>
-                    <td class="pname highlightCell"><a href="#" onclick="ai.value='<?php echo $id; ?>'; form.submit();" title="Add a new plugin of kind '<?php echo $pname; ?>'"><?php echo $pname; ?></a></td>
-                    <td class="id"><?php echo $id; ?></td>
+                <tr>
+                    <td>Descriptive name:</td>
+                    <td><input type="text" name="dname" /></td>
                 </tr>
-<?php } ?>
+                <tr>
+                    <td>Internal name:</td>
+                    <td><input type="text" name="iname" /></td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="text-align: right;"><input type="submit" name="add" value="Add" /></td>
+                </tr>
             </tbody>
         </table>
-        <div class="buttonbar" id="buttonbarBottom"><?php echo $buttonbarContent; ?></div>
     </form>
 </fieldset>
 
@@ -126,5 +96,3 @@ function doSubmit(postview, task) {
     }
 }
 </script>
-
-*/ ?>
