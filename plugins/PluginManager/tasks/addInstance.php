@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-09-05
+ * @version     2010-09-23
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
