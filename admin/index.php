@@ -89,10 +89,10 @@ require_once("../includes/loaders/loader_admin.php");
             </div>
 <?php } ?> 
         	<div id="topBarVer" class="topBarRight">Version: <?php echo __version(); ?></div>
-            <div id="topBarTime" class="topBarRight">Seite erzeugt: <?php echo date("d.m.Y H:i:s", $_SERVER["REQUEST_TIME"]); ?></div>
+            <div id="topBarTime" class="topBarRight">Page requested at: <?php echo date("d.m.Y H:i:s", $_SERVER["REQUEST_TIME"]); ?></div>
             <div id="topBarLang" class="topBarRight">
                 <form action="<?php echo $_SERVER["REQUEST_URI"]; ?>" method="post">
-                    <?php lang_echo("genLanguage");?>:
+                    <?php echo Lang::translate("genLanguage");?>:
                     <select name="newlang" onchange="this.form.submit();">
 <?php
     foreach ($langList as $key => $value) {
@@ -130,8 +130,10 @@ unset($n, $item);
         </div>
     </div>
     <div id="footer">
-        <?php lang_echo("admLayoutAndRealization");?> &copy; 2009-2010 Patrick Lehner &nbsp; | &nbsp; <?php lang_echo("admIndissIsFreeSoftware");?><br />
+        <div id="footerspan">
+        <?php echo Lang::translate("admLayoutAndRealization");?> &copy; 2009-2010 Patrick Lehner &nbsp; | &nbsp; <?php echo Lang::translate("admIndissIsFreeSoftware");?><br />
         <?php echo Lang::translate(array("admPageCreatedIn", "<!--%TIMEROUTPUT%-->")); ?>
+        </div>
     </div>
 </body>
 </html>

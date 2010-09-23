@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-29
+ * @version     2010-09-22
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -111,7 +111,7 @@ div#topBarInner div#topBarSitename {
 
 div.topBarRight {
     float: right;
-    margin-left: 20px;
+    margin-right: 20px;
 }
 
 div#topBarInner div#topBarLang {
@@ -125,7 +125,7 @@ div#topBarInner div#topBarLang select {
 
 div#topBarInner div#topBarLogout {
     padding: 0;
-    margin-left: 10px;
+    margin-right: 0px;
     border-left: 1px solid black;
 }
 
@@ -139,6 +139,12 @@ div#footer {
     font-size: 80%;
     text-align: center;
     margin-top: 30px;
+}
+
+div#footerspan {
+    display: inline-block;
+    padding: 10px;
+    border-top: 1px solid gray;
 }
 
 
