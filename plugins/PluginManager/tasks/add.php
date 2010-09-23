@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-09-04
+ * @version     2010-09-23
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -41,7 +41,7 @@ $buttonbarContent =
     You can use one of the following methods to install a new plugin kind:
     <fieldset class="rright rleft">
         <legend>Upload an archive from your computer</legend>
-        <form class="installNewKindForm" id="newKindUploadForm" action="?plugin=<?php echo $this->iname; ?>&task=editnew" enctype="multipart/form-data" method="post">
+        <form class="installNewKindForm" id="newKindUploadForm" action="?plugin=<?php echo $this->iname; ?>&task=addInstance" enctype="multipart/form-data" method="post">
             <input type="hidden" id="nku_postview" name="postview" value="addNew" />
             <input type="hidden" id="nku_sourcetype" name="sourcetype" value="upload" />
             <div class="desc">
@@ -55,7 +55,7 @@ $buttonbarContent =
     </fieldset>
     <fieldset class="rright rleft">
         <legend>Download from the internet</legend>
-        <form class="installNewKindForm" id="newKindDownloadForm" action="?plugin=<?php echo $this->iname; ?>&task=editnew" method="post">
+        <form class="installNewKindForm" id="newKindDownloadForm" action="?plugin=<?php echo $this->iname; ?>&task=addInstance" method="post">
             <input type="hidden" id="nkd_postview" name="postview" value="addNew" />
             <input type="hidden" id="nkd_sourcetype" name="sourcetype" value="download" />
             <div class="desc">
@@ -77,8 +77,8 @@ $buttonbarContent =
         The plugin kinds that are grayed out can not be installed again because they support one instance at a time.
     </div>
     <form method="post" action="?plugin=<?php echo $this->iname; ?>" id="listForm">
-        <input type="hidden" id="postview" name="postview" value="unset" />
-        <input type="hidden" id="affectedIDs" name="affectedIDs" value="unset" />
+        <input type="hidden" id="postview" name="postview" value="" />
+        <input type="hidden" id="affectedIDs" name="affectedIDs" value="" />
         <div class="buttonbar" id="buttonbarTop"><?php echo $buttonbarContent; ?></div>
         <table summary="" border="0" cellpadding="0" cellspacing="0" id="PluginKindList" class="fwTable">
             <tbody>
@@ -93,7 +93,7 @@ $buttonbarContent =
 ?>
                 <tr id="row_<?php echo $id; ?>">
                     <td class="check"><input type="checkbox" name="check_<?php echo $id; ?>" value="Yes" title="Select plugin kind '<?php echo $pname; ?>'" /></td>
-                    <td class="pname highlightCell"><a href="#" onclick="ai.value='<?php echo $id; ?>'; form.submit();" title="Add a new plugin of kind '<?php echo $pname; ?>'"><?php echo $pname; ?></a></td>
+                    <td class="pname highlightCell"><a href="#" onclick="ai.value='<?php echo $id; ?>'; form.action = form.action + '&task=addInstance'; form.submit();" title="Add a new plugin of kind '<?php echo $pname; ?>'"><?php echo $pname; ?></a></td>
                     <td class="id"><?php echo $id; ?></td>
                 </tr>
 <?php } ?>
