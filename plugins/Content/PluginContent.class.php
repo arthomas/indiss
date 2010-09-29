@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-10
+ * @version     2010-09-29
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -113,7 +113,7 @@ class PluginContent extends Plugin {
         }
         $log->dlog("Plugin: $this->pName", LEL_NOTICE, __METHOD__ . "(): Successfully created item table '$this->itemTable'");
         
-        if (!$db->createNVTable($optionTable)) {
+        if (!$db->createNVTable($this->optionTable)) {
             
             return false;
         }
