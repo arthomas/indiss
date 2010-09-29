@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-09-21
+ * @version     2010-09-29
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * @module      class that manages installed plugins
@@ -88,6 +88,12 @@ class PluginMan {
     
     private static function loadPlugin($id, $init = true) {
         global $log;
+        
+        if (empty($id) || empty(self::$pluginInstanceInfo[$id]["pName"])) {
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "() was called with an empty or invalid ID parameter!");
+            return false;
+        }
+        
         if (!isset(self::$pluginObjects[$id])) {
             global $FBP;
             $pluginClass = "Plugin" . self::$pluginInstanceInfo[$id]["pName"];
@@ -148,7 +154,7 @@ class PluginMan {
     public static function getPluginByIname($iname, $silent = false) {
         global $log;
         foreach (self::$pluginInstanceInfo as $pI)
-            if ($pI["iname"] == $iname) {
+            if (strcasecmp($pI["iname"], $iname) == 0) {
                 //debug-log events are located in loadPlugin()
                 return self::loadPlugin($pI["id"]);
             }
@@ -305,7 +311,7 @@ class PluginMan {
         }
         
         $query = "SELECT * FROM `" . self::$pluginInfoTable . "` WHERE `id`=$id";
-        if (!$t = $db->getArrayA($db->q($query)) || count($t) < 1) {
+        if (!($t = $db->getArrayA($db->q($query))) || count($t) < 1) {
             $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Database error while installing plugin kind '$pName'; database error: " . $db->e() . "; query: " . $query);
             return false;
         }
@@ -356,6 +362,7 @@ class PluginMan {
     }
     
     public static function installInstance($pName, $dname = "", $iname = "") {
+        global $log, $db;
         if (empty($iname))
             $iname = self::generateIname($pName);
         if (empty($dname))
@@ -388,7 +395,7 @@ class PluginMan {
         }
         
         $query = "SELECT * FROM `" . self::$pluginTable . "` WHERE `id`=$id";
-        if (!$t = $db->getArrayA($db->q($query)) || count($t) < 1) {
+        if (!($t = $db->getArrayA($db->q($query))) || count($t) < 1) {
             $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Database error while installing plugin '$dname'; database error: " . $db->e() . "; query: " . $query);
             return false;
         }
