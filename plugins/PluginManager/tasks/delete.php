@@ -26,7 +26,7 @@ class_exists("PluginPluginManager") or die("Class 'PluginPluginManager' is unkno
 
 $l = explode(",", $_POST["affectedIDs"]);
 foreach ($l as $id)
-    $m[] = "'" . $pluginInstanceInfo[$id] . "'";
+    $m[] = "'" . $pluginInstanceInfo[$id]["dname"] . "'";
 $list = implode(", ", $m);
 
 ?>
@@ -34,7 +34,7 @@ $list = implode(", ", $m);
 <fieldset id="deleteKindBox" class="rright rleft">
     <legend style="font-weight: bold;">Delete a plugin kind</legend>
     <a href="help" style="" class="fieldsetHelpButton">Help</a>
-    <form method="POST" action="?plugin=<?php echo $this->iname; ?>&task=klist">
+    <form method="POST" action="?plugin=<?php echo $this->iname; ?>&task=list">
         <input type="hidden" name="postview" id="postview" value="" />
         <input type="hidden" name="affectedIDs" id="affectedIDs" value="<?php echo $_POST["affectedIDs"]; ?>" />
         <div style="float: right;">
