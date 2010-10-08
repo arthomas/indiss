@@ -404,13 +404,13 @@ class PluginMan {
         
         $log->dlog("Plugin manager", LEL_NOTICE, __METHOD__ . "(): Successfully added plugin ['$dname'; id=$id] to the database");
         
-        if (($p = self::loadPlugin($id, false)) === false) {
+        if (($plugin = self::loadPlugin($id, false)) === false) {
             
             return false;
         }
         
         //let the plugin add its data files and db tables
-        if (!$p->install()) {
+        if (!$plugin->install()) {
             
             return false;
         }
@@ -421,24 +421,32 @@ class PluginMan {
     
     public static function uninstallInstance($id) {
         global $log, $db;
-        $plugin = self::$pluginObjects[$id];
+        
+        if (empty($id)) {
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Argument 'id' was empty");
+            return false;
+        }
+        
+        $plugin = self::loadPlugin($id);
         if ($plugin->isCore()) {
             $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Cannot remove plugin '" . $plugin->getDname() . "' because it is a core plugin");
             return false;
         }
+        
+        //let the plugin remove its files and db tables
         $plugin->uninstall();
+        
+        //remove from the database the entry about this plugin
         $query = sprintf("DELETE FROM `%s` WHERE `id`=%d", self::$pluginTable, $plugin->getId());
         if (!$db->q($query)) {
-            $me = $db->e();
-            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Error while removing component '" . $plugin->getDname() . "'; Database said: $me; Query: $query");
+            $log->log("Plugin manager", LEL_ERROR, __METHOD__ . "(): Error while removing plugin '" . $plugin->getDname() . "'; Database said: {$db->e()}; Query: $query");
             return false;
         }
-        global $FBP2;
-        include_once ("$FBP2/includes/filesystem/recursiveDelete.php");
-        if (recursiveDelete( $plugin->getFullPath() ) === false) {
-            $log->log("Plugin manager", "Error", __METHOD__ . "(): Error while deleting the files of component '" . $plugin->getDname() . "'");
-        }
-        unset (self::$plugins[$plugin->id]);        //remove the component from the internal array
+        
+        //remove the plugin object and the plugin info from the internal arrays
+        unset (self::$pluginObjects[$id]);
+        unset (self::$pluginInstanceInfo[$id]);
+        
         return true;
     }
     
