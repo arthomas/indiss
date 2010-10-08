@@ -25,6 +25,8 @@ defined("__MAIN") or die("Restricted access.");
 class_exists("PluginPluginManager") or die("Class 'PluginPluginManager' is unknown [" . __FILE__ . "]");
 
 $l = explode(",", $_POST["affectedIDs"]);
+foreach ($l as $id)
+    $m[$id] = $pluginInstanceInfo[$id]["dname"];
 
 if (count($l) == 0) {
     $log->log("Plugin manager", LEL_NOTICE, "No plugin kinds were selected for deletion.");
@@ -32,7 +34,7 @@ if (count($l) == 0) {
     //the rest of the uninstallation is now done by PluginMan:
     foreach ($l as $id)
         if (PluginMan::uninstallInstance($id))
-            $log->log("Plugin manager", LEL_NOTICE, "Successfully uninstalled plugin '$p'");
+            $log->log("Plugin manager", LEL_NOTICE, "Successfully uninstalled plugin '{$m[$id]}'");
 }
 
 ?>
