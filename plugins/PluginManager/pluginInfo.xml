@@ -17,7 +17,19 @@
         <filename>index.html</filename>
         <filename>pluginInfo.xml</filename>
         <filename>PluginPluginManager.class.php</filename>
+        <filename>css/index.html</filename>
+        <filename>css/admin.css.php</filename>
+        <filename>postviews/index.html</filename>
+        <filename>postviews/addInstance.php</filename>
+        <filename>postviews/addNew.php</filename>
+        <filename>postviews/delete.php</filename>
+        <filename>postviews/kdelete.php</filename>
         <filename>tasks/index.html</filename>
+        <filename>tasks/add.php</filename>
+        <filename>tasks/addInstance.php</filename>
+        <filename>tasks/delete.php</filename>
+        <filename>tasks/kdelete.php</filename>
+        <filename>tasks/klist.php</filename>
         <filename>tasks/list.php</filename>
     </files>
 </install>
