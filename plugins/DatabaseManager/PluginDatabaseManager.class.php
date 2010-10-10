@@ -1,0 +1,103 @@
+<?php
+/**
+ * @version     2010-10-10
+ * @author      Patrick Lehner <lehner.patrick@gmx.de>
+ * @copyright   Copyright (C) 2010 Patrick Lehner
+ * @module      
+ * 
+ * @license     This program is free software: you can redistribute it and/or modify
+ *              it under the terms of the GNU General Public License as published by
+ *              the Free Software Foundation, either version 3 of the License, or
+ *              (at your option) any later version.
+ *
+ *              This program is distributed in the hope that it will be useful,
+ *              but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *              GNU General Public License for more details.
+ *
+ *              You should have received a copy of the GNU General Public License
+ *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+defined("__MAIN") or die("Restricted access.");
+defined("__CONFIGFILE") or die("Config file not included [" . __FILE__ . "]");
+class_exists("Plugin") or die("Class 'Plugin' is unknown [" . __FILE__ . "]");
+
+/**
+ * 
+ * @author Patrick Lehner
+ * 
+ */
+class PluginDatabaseManager extends Plugin {
+
+    //---- Static properties ------------------------------------------------------------
+    
+    private static $defaultTask = "list";
+    
+    
+    //---- Object properties ------------------------------------------------------------
+        
+    
+    //---- Static methods ---------------------------------------------------------------
+    
+    
+    //---- Constructors & destructors ---------------------------------------------------
+    
+    public function __construct($pluginInstanceInfo, $pluginInfo) {
+        parent::__construct($pluginInstanceInfo, $pluginInfo);
+    }
+    
+    
+    //---- Object methods ---------------------------------------------------------------
+    
+    public function hasFrontend() {
+        return false;
+    }
+    
+    public function getPluginNav() {
+        $r = array(
+        );
+        return $r;
+    }
+    
+    public function initialize() {
+        //global $log, $db;
+    }
+    
+    public function install() {
+        
+    }
+    
+    public function uninstall() {
+        
+    }
+    
+    public function processInput($postview = null) {
+        global $log, $db;
+        if (!is_null($postview) && !empty($postview)) {
+            PluginMan::getInfoArrays($pluginInfo, $pluginInstanceInfo);
+            include($this->getFullPath() . "/postviews/$postview.php");
+        }
+    }
+    
+    // n/a because Plugin has no frontend
+    public function outputFront() {}
+    
+    public function outputAdmin($task = null) {
+        global $log, $db;
+        if (is_null($task))
+            $task = self::$defaultTask;
+            
+        PluginMan::getInfoArrays($pluginInfo, $pluginInstanceInfo);
+        
+        CSSJSHandler::addStyleUrl($this->getWebPath() . "/css/admin.css.php");
+        
+        echo "<div class=\"pluginTask\" id=\"task_" . ucfirst($task) . "\">\n";
+        include($this->getFullPath() . "/tasks/$task.php");
+        echo "</div>\n";
+    }
+    
+
+}
+
+?>

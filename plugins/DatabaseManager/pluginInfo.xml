@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Insert DTD info here! -->
+<install type="plugin">
+    <pName>DatabaseManager</pName>
+    <type>admin</type>
+    <created>2010-10-10</created>
+    <author>Patrick Lehner</author>
+    <authorEmail>lehner.patrick@gmx.de</authorEmail>
+    <authorUrl>http://indiss.net</authorUrl>
+    <copyright>Copyright (C) 2010 Patrick Lehner</copyright>
+    <license>GNU GPLv3</license>
+    <minVersion>0.3.0</minVersion>
+    <maxVersion>0.3.x</maxVersion>
+    <pluginVersion>0.3</pluginVersion>
+    <description>This Plugin lets you manage database tables and entries.</description>
+    <files>
+        <filename>index.html</filename>
+        <filename>pluginInfo.xml</filename>
+        <filename>PluginDatabaseManager.class.php</filename>
+        <filename>css/index.html</filename>
+        <filename>css/list.php</filename>
+        <filename>postviews/index.html</filename>
+        <filename>postviews/list.php</filename>
+        <filename>tasks/index.html</filename>
+        <filename>tasks/list.php</filename>
+    </files>
+</install>
