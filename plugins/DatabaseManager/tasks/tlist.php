@@ -26,7 +26,7 @@
 /* @var $log Logger */
  
 defined("__MAIN") or die("Restricted access.");
-class_exists("PluginPluginManager") or die("Class 'PluginPluginManager' is unknown [" . __FILE__ . "]");
+class_exists("PluginDatabaseManager") or die("Class 'PluginPluginManager' is unknown [" . __FILE__ . "]");
 
 $tables = $db->getArrayA($db->q("SHOW TABLE STATUS"));
 
@@ -36,8 +36,8 @@ $buttonbarContent =
         <tr>
             <td>With selected:</td>
             <td><input class="likeLink" type="button" value="Invert selection" onclick="a=document.getElementsByTagName(\'input\');for(i=0;i<a.length;i++){if(a[i].type==\'checkbox\'&&a[i].name!=\'\')a[i].checked=!a[i].checked;}" /></td>
-            <td><input class="likeLink" type="button" value="Drop" onclick="doSubmit(\'\', \'tdrop\');" /></td>
-            <td><input class="likeLink" type="button" value="Empty" onclick="doSubmit(\'\', \'tempty\');" /></td>
+            <td><input class="likeLink" type="button" value="Drop" onclick="doSubmitMultiple(\'\', \'tdrop\');" /></td>
+            <td><input class="likeLink" type="button" value="Empty" onclick="doSubmitMultiple(\'\', \'tempty\');" /></td>
         </tr>
     </tbody>
 </table>';
@@ -66,11 +66,11 @@ $buttonbarContent =
                 <td class="check"><input type="checkbox" name="check_<?php echo $table["Name"]; ?>" value="Yes" title="Select table '<?php echo $table["Name"]; ?>'" /></td>
                 <td class="tname"><a href="#" onclick="" title="Open table '<?php echo $table["Name"]; ?>'"><?php echo $table["Name"]; ?></a></td>
                 <td class="engine"><?php echo $table["Engine"]; ?></td>
-                <td class="createdAt"><?php echo $plugin["pName"]; ?></td>
-                <td class="updatedAt"><?php echo $plugin["installedAt"]; ?></td>
-                <td class="numEntries"><?php echo $id; ?></td>
-                <td class="empty"><a href="#" onclick="pv.value='tempty';ai.value='';">E</a></td>
-                <td class="drop"><a href="#" onclick="pv.value='tdrop';ai.value='';">D</a></td>
+                <td class="createdAt"><?php echo $table["Create_time"]; ?></td>
+                <td class="updatedAt"><?php echo $table["Update_time"]; ?></td>
+                <td class="numEntries"><?php echo $table["Rows"]; ?></td>
+                <td class="empty"><a href="#" onclick="doSubmitSingle('<?php echo $table["Name"]; ?>','tempty','');">E</a></td>
+                <td class="drop"><a href="#" onclick="doSubmitSingle('<?php echo $table["Name"]; ?>','tdrop','');">D</a></td>
             </tr>
 <?php } ?>
         </tbody>
@@ -84,12 +84,12 @@ pv = document.getElementById("postview");
 ai = document.getElementById("affectedIDs");
 form = document.getElementById("listForm");
 
-function doSubmit(postview, task) {
+function doSubmitMultiple(postview, task) {
     l = new Array();
     a = document.getElementsByTagName('input');
     for (i=0;i<a.length;i++) {
         if (a[i].type=='checkbox' && a[i].checked && a[i].name!='') {
-            l = l.concat(a[i].name.match(/\d+$/));
+            l = l.concat(a[i].name.substr(6));
         }
     }
     if (l.length > 0) {
@@ -100,5 +100,14 @@ function doSubmit(postview, task) {
         }
         form.submit();
     }
+}
+
+function doSubmitSingle(affected, postview, task) {
+    ai.value = affected;
+    pv.value = postview;
+    if (task != '') {
+        form.action = form.action + '&task=' + task;
+    }
+    form.submit();
 }
 </script>
