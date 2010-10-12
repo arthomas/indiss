@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-10-10
+ * @version     2010-10-12
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -32,7 +32,7 @@ class PluginDatabaseManager extends Plugin {
 
     //---- Static properties ------------------------------------------------------------
     
-    private static $defaultTask = "list";
+    private static $defaultTask = "tlist";
     
     
     //---- Object properties ------------------------------------------------------------
@@ -56,6 +56,8 @@ class PluginDatabaseManager extends Plugin {
     
     public function getPluginNav() {
         $r = array(
+            array("task" => "tlist",   	"label" => "Table list"),
+            array("task" => "tadd",     "label" => "Add a table"),
         );
         return $r;
     }
