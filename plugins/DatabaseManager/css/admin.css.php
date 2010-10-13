@@ -32,7 +32,7 @@ div.PluginDatabaseManager {
     margin: 0 auto;
 }
 
-div.PluginDatabaseManager div#task_tlist table#TableList tr:hover {
+div.PluginDatabaseManager div#task_tlist table#TableList tr:not(.headingRow):hover {
 	background-color: #FFD;
 }
 
