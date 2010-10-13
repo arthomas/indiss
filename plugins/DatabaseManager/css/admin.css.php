@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-10-12
+ * @version     2010-10-13
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -30,4 +30,29 @@ header("CONTENT-TYPE: text/css");
 div.PluginDatabaseManager {
     width: 80%;
     margin: 0 auto;
+}
+
+div.PluginDatabaseManager div#task_tlist table#TableList tr:hover {
+	background-color: #FFD;
+}
+
+div.PluginDatabaseManager div#task_tlist table#TableList td.check,
+div.PluginDatabaseManager div#task_tlist table#TableList td.insert,
+div.PluginDatabaseManager div#task_tlist table#TableList td.structure,
+div.PluginDatabaseManager div#task_tlist table#TableList td.empty,
+div.PluginDatabaseManager div#task_tlist table#TableList td.drop {
+	width: 20px;
+	text-align: center;
+}
+
+div.PluginDatabaseManager div#task_tlist table#TableList td.numEntries {
+	text-align: right;
+	width: 50px;
+}
+
+div.PluginDatabaseManager div#task_tlist table#TableList td.createdAt,
+div.PluginDatabaseManager div#task_tlist table#TableList td.updatedAt,
+div.PluginDatabaseManager div#task_tlist table#TableList td.engine {
+	text-align: center;
+	width: 150px;
 }
