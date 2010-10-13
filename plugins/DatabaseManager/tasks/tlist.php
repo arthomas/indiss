@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-10-12
+ * @version     2010-10-13
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -48,7 +48,7 @@ $buttonbarContent =
     <input type="hidden" id="postview" name="postview" value="" />
     <input type="hidden" id="affectedIDs" name="affectedIDs" value="" />
     <div class="buttonbar" id="buttonbarTop"><?php echo $buttonbarContent; ?></div>
-    <table summary="" border="0" cellpadding="0" cellspacing="0" id="PluginList" class="rright fwTable">
+    <table summary="" border="0" cellpadding="0" cellspacing="0" id="TableList" class="rright fwTable">
         <tbody>
             <tr class="headingRow">
                 <td class="check"><input type="checkbox" title="Select all" onclick="a=document.getElementsByTagName('input');for(i=0;i< a.length;i++){if(a[i].type=='checkbox')a[i].checked=this.checked;}" /></td>
@@ -57,20 +57,24 @@ $buttonbarContent =
                 <td class="createdAt">Created at</td>
                 <td class="updatedAt">Updated at</td>
                 <td class="numEntries">Entries</td>
-                <td class="empty" title="Empty">E</td>
-                <td class="drop" title="Drop">D</td>
+                <td class="insert" title="Insert values into table">In</td>
+                <td class="structure" title="Edit table structure">S</td>
+                <td class="empty" title="Empty table">E</td>
+                <td class="drop" title="Drop table">D</td>
             </tr>
 <?php foreach ($tables as $table) {
 ?>
             <tr>
                 <td class="check"><input type="checkbox" name="check_<?php echo $table["Name"]; ?>" value="Yes" title="Select table '<?php echo $table["Name"]; ?>'" /></td>
-                <td class="tname"><a href="#" onclick="" title="Open table '<?php echo $table["Name"]; ?>'"><?php echo $table["Name"]; ?></a></td>
+                <td class="tname"><a href="?plugin=<?php echo $this->iname; ?>&task=elist&table=<?php echo $table["Name"]; ?>" title="Open table '<?php echo $table["Name"]; ?>'"><?php echo $table["Name"]; ?></a></td>
                 <td class="engine"><?php echo $table["Engine"]; ?></td>
                 <td class="createdAt"><?php echo $table["Create_time"]; ?></td>
                 <td class="updatedAt"><?php echo $table["Update_time"]; ?></td>
                 <td class="numEntries"><?php echo $table["Rows"]; ?></td>
-                <td class="empty"><a href="#" onclick="doSubmitSingle('<?php echo $table["Name"]; ?>','tempty','');">E</a></td>
-                <td class="drop"><a href="#" onclick="doSubmitSingle('<?php echo $table["Name"]; ?>','tdrop','');">D</a></td>
+                <td class="insert"><a href="?plugin=<?php echo $this->iname; ?>&task=insert&table=<?php echo $table["Name"]; ?>" title="Insert values into table '<?php echo $table["Name"]; ?>'" >In</a></td>
+                <td class="structure"><a href="?plugin=<?php echo $this->iname; ?>&task=tstructure&table=<?php echo $table["Name"]; ?>" title="Edit the structure of table '<?php echo $table["Name"]; ?>'">S</a></td>
+                <td class="empty"><a href="#" title="Empty table '<?php echo $table["Name"]; ?>'" onclick="doSubmitSingle('<?php echo $table["Name"]; ?>','tempty','');">E</a></td>
+                <td class="drop"><a href="#" title="Drop table '<?php echo $table["Name"]; ?>'" onclick="doSubmitSingle('<?php echo $table["Name"]; ?>','tdrop','');">D</a></td>
             </tr>
 <?php } ?>
         </tbody>
