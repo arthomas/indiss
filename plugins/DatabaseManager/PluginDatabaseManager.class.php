@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-10-13
+ * @version     2010-10-14
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -93,6 +93,7 @@ class PluginDatabaseManager extends Plugin {
         PluginMan::getInfoArrays($pluginInfo, $pluginInstanceInfo);
         
         CSSJSHandler::addStyleUrl($this->getWebPath() . "/css/admin.css.php");
+        CSSJSHandler::addScriptUrl($this->getWebPath() . "/js/FormSubmitFuncs.js");
         
         echo "<div class=\"pluginTask\" id=\"task_$task\">\n";
         include($this->getFullPath() . "/tasks/$task.php");
