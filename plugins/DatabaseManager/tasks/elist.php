@@ -53,7 +53,65 @@ $buttonbarContent =
     </tbody>
 </table>';
 
+CSSJSHandler::addStyle(
+"div.PluginDatabaseManager div#task_elist form#tableTaskButtons input {
+	padding: 4px 5px;
+}
+
+div.PluginDatabaseManager div#task_elist form#tableTaskButtons td {
+	border: 0 none;
+	padding: 0;
+	border-left: 1px solid gray;
+	-moz-border-radius: 0;
+	border-radius: 0;
+}
+
+div.PluginDatabaseManager div#task_elist form#tableTaskButtons td:last-child input {
+    -moz-border-radius-topright: 8px;           /*Firefox*/
+    border-top-right-radius: 8px;               /*Opera/CSS3*/
+    -moz-border-radius-bottomright: 8px;        /*Firefox*/
+    border-bottom-right-radius: 8px;            /*Opera/CSS3*/
+}
+"
+);
+
 ?>
+
+<table style="margin-bottom: 20px;" summary="" border="0" cellpadding="0" cellspacing="0" class="rright rleft fwTable" id="tableTasks">
+	<tbody>
+		<tr>
+			<td>
+				Jump to table:
+				<form method="post" action="?plugin=<?php echo $this->iname; ?>&task=elist" style="display: inline;">
+					<select onchange="this.form.action = this.form.action + '&table=' + this.value; this.form.submit();">
+<?php
+    $tables = $db->getArrayN($db->q("SHOW TABLES"));
+    foreach ($tables as $t) {
+        $selected = (strcasecmp($table, $t[0]) == 0) ? ' selected="selected"' : "";
+?>
+						<option value="<?php echo $t[0];?>"<?php echo $selected;?>><?php echo $t[0];?></option>
+<?php 
+    }
+    unset($t, $tables, $selected); 
+?>
+					</select>
+				</form>
+			</td>
+			<td style="padding: 0px; width: 200px; border-left: 0 none;">
+				<form method="post" action="?plugin=<?php echo $this->iname; ?>&table=<?php echo $table; ?>" id="tableTaskButtons">
+    				<table summary="" border="0" cellpadding="0" cellspacing="0">
+    					<tbody>
+    						<tr>
+    							<td><input type="button" value="Edit structure" title="Edit table structure" class="likeLink" /></td>
+    							<td><input type="button" value="Insert values" title="Insert values into this table" class="likeLink" /></td>
+    						</tr>
+    					</tbody>
+    				</table>
+				</form>
+			</td>
+		</tr>
+	</tbody>
+</table>
 
 <form method="post" action="?plugin=<?php echo $this->iname; ?>&table=<?php echo $table; ?>" id="listForm">
     <input type="hidden" id="postview" name="postview" value="" />
