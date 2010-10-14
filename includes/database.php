@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-05
+ * @version     2010-10-14
  * @author      Patrick Lehner
  * @copyright   Copyright (C) 2009-2010 Patrick Lehner
  * 
@@ -307,6 +307,21 @@ class MySQLConnection {
             return false;
         $a = array();
         while ($row = mysql_fetch_assoc($r))
+            $a[] = $row;
+        return $a;
+    }
+    
+	/**
+     * Read all returned rows from a given result into a numeric array.
+     * @param resource $r The MySQL result returned by query().
+     * @return mixed Returns a 2D array containing all rows. The first dimension
+     * is the row index, the second dimension column index. Returns boolean false on error.
+     */
+    public function getArrayN($r) {
+        if ($r === false)
+            return false;
+        $a = array();
+        while ($row = mysql_fetch_row($r))
             $a[] = $row;
         return $a;
     }
