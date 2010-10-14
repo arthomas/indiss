@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-10-13
+ * @version     2010-10-14
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -87,31 +87,4 @@ $buttonbarContent =
 pv = document.getElementById("postview");
 ai = document.getElementById("affectedIDs");
 form = document.getElementById("listForm");
-
-function doSubmitMultiple(postview, task) {
-    l = new Array();
-    a = document.getElementsByTagName('input');
-    for (i=0;i<a.length;i++) {
-        if (a[i].type=='checkbox' && a[i].checked && a[i].name!='') {
-            l = l.concat(a[i].name.substr(6));
-        }
-    }
-    if (l.length > 0) {
-        ai.value = l.join(",");
-        pv.value = postview;
-        if (task != '') {
-            form.action = form.action + '&task=' + task;
-        }
-        form.submit();
-    }
-}
-
-function doSubmitSingle(affected, postview, task) {
-    ai.value = affected;
-    pv.value = postview;
-    if (task != '') {
-        form.action = form.action + '&task=' + task;
-    }
-    form.submit();
-}
 </script>
