@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-10-13
+ * @version     2010-10-14
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -47,15 +47,15 @@ $buttonbarContent =
         <tr>
             <td>With selected:</td>
             <td><input class="likeLink" type="button" value="Invert selection" onclick="a=document.getElementsByTagName(\'input\');for(i=0;i<a.length;i++){if(a[i].type==\'checkbox\'&&a[i].name!=\'\')a[i].checked=!a[i].checked;}" /></td>
-            <td><input class="likeLink" type="button" value="Drop" onclick="doSubmitMultiple(\'\', \'tdrop\');" /></td>
-            <td><input class="likeLink" type="button" value="Empty" onclick="doSubmitMultiple(\'\', \'tempty\');" /></td>
+            <td><input class="likeLink" type="button" value="Edit" onclick="doSubmitMultiple(\'\', \'eedit\');" /></td>
+            <td><input class="likeLink" type="button" value="Drop" onclick="if (confirm(\'Are you sure you want to drop the selected entries?\\nThis cannot be undone!\')) {doSubmitMultiple(\'edrop\', \'elist\');}" /></td>
         </tr>
     </tbody>
 </table>';
 
 ?>
 
-<form method="post" action="?plugin=<?php echo $this->iname; ?>" id="listForm">
+<form method="post" action="?plugin=<?php echo $this->iname; ?>&table=<?php echo $table; ?>" id="listForm">
     <input type="hidden" id="postview" name="postview" value="" />
     <input type="hidden" id="affectedIDs" name="affectedIDs" value="" />
     <div class="buttonbar" id="buttonbarTop"><?php echo $buttonbarContent; ?></div>
@@ -71,12 +71,12 @@ $buttonbarContent =
             </tr>
 <?php  foreach ($entries as $entry) { ?>
             <tr>
-                <td class="check"><input type="checkbox" name="check_<?php echo $table["Name"]; ?>" value="Yes" title="Select table '<?php echo $table["Name"]; ?>'" /></td>
+                <td class="check"><input type="checkbox" name="check_<?php echo $entry["id"]; ?>" value="Yes" title="Select this entry" /></td>
 <?php     foreach ($entry as $col) { ?>
 				<td class="column"><?php echo $col;?></td>
 <?php     } ?>
-                <td class="edit"><a href="#" title="Edit this entry" onclick="doSubmitSingle('<?php echo $table["Name"]; ?>','tempty','');">E</a></td>
-                <td class="drop"><a href="#" title="Drop this entry" onclick="doSubmitSingle('<?php echo $table["Name"]; ?>','tdrop','');">D</a></td>
+                <td class="edit"><a href="#" title="Edit this entry" onclick="doSubmitSingle('<?php echo $entry["id"]; ?>','','eedit');">E</a></td>
+                <td class="drop"><a href="#" title="Drop this entry" onclick="if (confirm('Are you sure you want to drop the this entry?\nThis cannot be undone!')) {doSubmitSingle('<?php echo $entry["id"]; ?>','edrop','elist');}">D</a></td>
             </tr>
 <?php } ?>
         </tbody>
@@ -89,31 +89,4 @@ $buttonbarContent =
 pv = document.getElementById("postview");
 ai = document.getElementById("affectedIDs");
 form = document.getElementById("listForm");
-
-function doSubmitMultiple(postview, task) {
-    l = new Array();
-    a = document.getElementsByTagName('input');
-    for (i=0;i<a.length;i++) {
-        if (a[i].type=='checkbox' && a[i].checked && a[i].name!='') {
-            l = l.concat(a[i].name.substr(6));
-        }
-    }
-    if (l.length > 0) {
-        ai.value = l.join(",");
-        pv.value = postview;
-        if (task != '') {
-            form.action = form.action + '&task=' + task;
-        }
-        form.submit();
-    }
-}
-
-function doSubmitSingle(affected, postview, task) {
-    ai.value = affected;
-    pv.value = postview;
-    if (task != '') {
-        form.action = form.action + '&task=' + task;
-    }
-    form.submit();
-}
 </script>
