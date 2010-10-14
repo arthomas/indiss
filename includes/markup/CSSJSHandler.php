@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-08-13
+ * @version     2010-10-14
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -102,7 +102,7 @@ class CSSJSHandler {
         
         if (count(self::$scriptUrls) > 0) {
             foreach (self::$scriptUrls as $url) {
-                $s .= $indentStr . "<link rel=\"stylesheet\" type=\"text/css\" href=\"$url\" />\n";
+                $s .= $indentStr . "<script type=\"text/javascript\" src=\"$url\" />\n";
             }
             $s .= "\n";
         }
