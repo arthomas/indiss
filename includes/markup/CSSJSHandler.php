@@ -51,7 +51,7 @@ class CSSJSHandler {
     }
     
     public static function addScriptUrl($url) {
-        self::$scriptUrls = $url;
+        self::$scriptUrls[] = $url;
     }
     
     private static function outputStyles(&$indentStr) {
@@ -102,7 +102,7 @@ class CSSJSHandler {
         
         if (count(self::$scriptUrls) > 0) {
             foreach (self::$scriptUrls as $url) {
-                $s .= $indentStr . "<script type=\"text/javascript\" src=\"$url\" />\n";
+                $s .= $indentStr . "<script type=\"text/javascript\" src=\"$url\"></script>\n";
             }
             $s .= "\n";
         }
