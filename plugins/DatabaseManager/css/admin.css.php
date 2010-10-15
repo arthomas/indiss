@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-10-14
+ * @version     2010-10-15
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -59,4 +59,16 @@ div.PluginDatabaseManager div#task_tlist table#TableList td.updatedAt,
 div.PluginDatabaseManager div#task_tlist table#TableList td.engine {
 	text-align: center;
 	width: 150px;
+}
+
+div.PluginDatabaseManager div#task_eedit table#EntriesEditList tr.headingRow td {
+	border-bottom: 0 none;
+	padding-bottom: 0;
+}
+
+div.PluginDatabaseManager div#task_eedit table#EntriesEditList tr.typeRow td {
+	text-align: center;
+	font-style: italic;
+	font-size: 80%;
+	border-bottom: 1px solid black;
 }
