@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-10-14
+ * @version     2010-10-16
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -77,8 +77,12 @@ class PluginDatabaseManager extends Plugin {
     public function processInput($postview = null) {
         global $log, $db;
         if (!is_null($postview) && !empty($postview)) {
-            PluginMan::getInfoArrays($pluginInfo, $pluginInstanceInfo);
-            include($this->getFullPath() . "/postviews/$postview.php");
+            if (file_exists($this->getFullPath() . "/postviews/$postview.php")) {
+                PluginMan::getInfoArrays($pluginInfo, $pluginInstanceInfo);
+                include($this->getFullPath() . "/postviews/$postview.php");
+            } else {
+                $log->log("Plugin: DatabaseManager", LEL_ERROR, "The requested postview '$postview' was not found.");
+            }
         }
     }
     
@@ -96,7 +100,12 @@ class PluginDatabaseManager extends Plugin {
         CSSJSHandler::addScriptUrl($this->getWebPath() . "/js/FormSubmitFuncs.js");
         
         echo "<div class=\"pluginTask\" id=\"task_$task\">\n";
-        include($this->getFullPath() . "/tasks/$task.php");
+        if (file_exists($this->getFullPath() . "/tasks/$task.php")) {
+            include($this->getFullPath() . "/tasks/$task.php");
+        } else {
+            $log->log("Plugin: DatabaseManager", LEL_ERROR, "The requested task '$task' was not found.");
+            echo "Error: Task not found.";
+        }
         echo "</div>\n";
     }
     
