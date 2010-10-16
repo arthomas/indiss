@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-10-14
+ * @version     2010-10-16
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -26,7 +26,7 @@
 /* @var $log Logger */
  
 defined("__MAIN") or die("Restricted access.");
-class_exists("PluginDatabaseManager") or die("Class 'PluginPluginManager' is unknown [" . __FILE__ . "]");
+class_exists("PluginDatabaseManager") or die("Class 'PluginDatabaseManager' is unknown [" . __FILE__ . "]");
 
 if (empty($_GET["table"])) {
     echo "Error: No table was selected to display.";
