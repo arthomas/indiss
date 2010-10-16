@@ -58,7 +58,7 @@ $buttonbarContent =
     <tbody>
         <tr>
             <td><input class="likeLink" type="button" value="Cancel" onclick="window.location.href = ' . "'?plugin={$this->iname}&table=$table&task=elist'" . ';" /></td>
-            <td><input class="likeLink" type="button" value="Save changes" onclick="doSubmitMultiple(\'edrop\', \'elist\');" /></td>
+            <td><input class="likeLink" type="submit" value="Save changes" /></td>
         </tr>
     </tbody>
 </table>';
@@ -69,9 +69,10 @@ CSSJSHandler::addStyle(
 
 ?>
 
-<form method="post" action="?plugin=<?php echo $this->iname; ?>&table=<?php echo $table; ?>" id="listForm">
-    <input type="hidden" id="postview" name="postview" value="" />
+<form method="post" action="?plugin=<?php echo $this->iname; ?>&table=<?php echo $table; ?>&task=elist" id="listForm">
+    <input type="hidden" id="postview" name="postview" value="eedit" />
     <input type="hidden" id="affectedIDs" name="affectedIDs" value="<?php echo $_POST["affectedIDs"];?>" />
+    <input type="hidden" id="table" name="table" value="<?php echo $_GET["table"]; ?>" />
     <div class="buttonbar" id="buttonbarTop"><?php echo $buttonbarContent; ?></div>
     <table summary="" border="0" cellpadding="0" cellspacing="0" id="EntriesEditList" class="rright fwTable">
         <tbody>
