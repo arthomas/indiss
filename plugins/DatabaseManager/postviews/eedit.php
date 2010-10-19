@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-10-16
+ * @version     2010-10-19
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -49,6 +49,7 @@ if ($cols === false || count($cols) == 0) {
 
 $qt = "UPDATE `$table` SET %s WHERE `id`=%s";
 
+$s = $f = 0;
 foreach ($l as $id) {
     $c = array();
     foreach ($cols as $col) {
@@ -56,8 +57,16 @@ foreach ($l as $id) {
     }
     $c = implode(", ", $c);
     if ($db->q($q = sprintf($qt, $c, $id)) === false) {
+        $f++;
         $log->log("Plugin: DatabaseManager", LEL_ERROR, "Database error while updating entry '$id' in table '$table'. Database error: {$db->e()}; query: $q");
+    } else {
+        $s++;
     }
+}
+
+$log->log("Plugin: DatabaseManager", LEL_NOTICE, "Successfully updated $s entries in table '$table'.");
+if ($f > 0) {
+    $lof->log("Plugin: DatabaseManager", LEL_ERROR, "$f entries could not be updated.");
 }
 
 ?>
