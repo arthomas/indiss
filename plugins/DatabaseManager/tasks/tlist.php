@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-10-16
+ * @version     2010-10-19
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -71,7 +71,7 @@ $buttonbarContent =
                 <td class="createdAt"><?php echo $table["Create_time"]; ?></td>
                 <td class="updatedAt"><?php echo $table["Update_time"]; ?></td>
                 <td class="numEntries"><?php echo $table["Rows"]; ?></td>
-                <td class="insert"><a href="?plugin=<?php echo $this->iname; ?>&task=insert&table=<?php echo $table["Name"]; ?>" title="Insert values into table '<?php echo $table["Name"]; ?>'" >In</a></td>
+                <td class="insert"><a href="?plugin=<?php echo $this->iname; ?>&task=einsert&table=<?php echo $table["Name"]; ?>" title="Insert values into table '<?php echo $table["Name"]; ?>'" >In</a></td>
                 <td class="structure"><a href="?plugin=<?php echo $this->iname; ?>&task=tstructure&table=<?php echo $table["Name"]; ?>" title="Edit the structure of table '<?php echo $table["Name"]; ?>'">S</a></td>
                 <td class="empty"><a href="#" title="Empty table '<?php echo $table["Name"]; ?>'" onclick="doSubmitSingle('<?php echo $table["Name"]; ?>','tempty','');">E</a></td>
                 <td class="drop"><a href="#" title="Drop table '<?php echo $table["Name"]; ?>'" onclick="doSubmitSingle('<?php echo $table["Name"]; ?>','tdrop','');">D</a></td>
