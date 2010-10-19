@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-10-16
+ * @version     2010-10-19
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -63,10 +63,6 @@ $buttonbarContent =
     </tbody>
 </table>';
 
-CSSJSHandler::addStyle(
-""
-);
-
 ?>
 
 <form method="post" action="?plugin=<?php echo $this->iname; ?>&table=<?php echo $table; ?>&task=elist" id="listForm">
@@ -77,13 +73,8 @@ CSSJSHandler::addStyle(
     <table summary="" border="0" cellpadding="0" cellspacing="0" id="EntriesEditList" class="rright fwTable">
         <tbody>
             <tr class="headingRow">
-<?php foreach (array_keys($entries[0]) as $col) { ?>
-				<td class="column"><?php echo $col; ?></td>
-<?php } ?>
-            </tr>
-            <tr class="typeRow">
-<?php foreach ($cols as $col) {?>
-				<td class="column type"><?php echo $col["Type"]; ?></td>
+<?php foreach ($cols as $col) { ?>
+				<td class="column"><?php echo $col["Field"]; ?><div class="type"><?php echo $col["Type"];?></div></td>
 <?php } ?>
             </tr>
 <?php  foreach ($entries as $entry) { ?>
