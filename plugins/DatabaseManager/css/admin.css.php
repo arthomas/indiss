@@ -1,6 +1,6 @@
 <?php
 /**
- * @version     2010-10-15
+ * @version     2010-10-19
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
  * @copyright   Copyright (C) 2010 Patrick Lehner
  * @module      
@@ -71,4 +71,23 @@ div.PluginDatabaseManager div#task_eedit table#EntriesEditList tr.typeRow td {
 	font-style: italic;
 	font-size: 80%;
 	border-bottom: 1px solid black;
+}
+
+div.PluginDatabaseManager div#task_elist form#tableTaskButtons input {
+	padding: 4px 5px;
+}
+
+div.PluginDatabaseManager div#task_elist form#tableTaskButtons td {
+	border: 0 none;
+	padding: 0;
+	border-left: 1px solid gray;
+	-moz-border-radius: 0;
+	border-radius: 0;
+}
+
+div.PluginDatabaseManager div#task_elist form#tableTaskButtons td:last-child input {
+    -moz-border-radius-topright: 8px;           /*Firefox*/
+    border-top-right-radius: 8px;               /*Opera/CSS3*/
+    -moz-border-radius-bottomright: 8px;        /*Firefox*/
+    border-bottom-right-radius: 8px;            /*Opera/CSS3*/
 }
