@@ -61,16 +61,11 @@ div.PluginDatabaseManager div#task_tlist table#TableList td.engine {
 	width: 150px;
 }
 
-div.PluginDatabaseManager div#task_eedit table#EntriesEditList tr.headingRow td {
-	border-bottom: 0 none;
-	padding-bottom: 0;
-}
-
-div.PluginDatabaseManager div#task_eedit table#EntriesEditList tr.typeRow td {
+div.PluginDatabaseManager form#listForm table tr.headingRow td div.type {
 	text-align: center;
 	font-style: italic;
 	font-size: 80%;
-	border-bottom: 1px solid black;
+	font-weight: normal;
 }
 
 div.PluginDatabaseManager div#task_elist form#tableTaskButtons input {
@@ -90,4 +85,8 @@ div.PluginDatabaseManager div#task_elist form#tableTaskButtons td:last-child inp
     border-top-right-radius: 8px;               /*Opera/CSS3*/
     -moz-border-radius-bottomright: 8px;        /*Firefox*/
     border-bottom-right-radius: 8px;            /*Opera/CSS3*/
+}
+
+div.PluginDatabaseManager div#task_einsert table#InsertList td.priKey {
+	background: #FDD;
 }
