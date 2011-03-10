@@ -83,8 +83,12 @@ class PluginUserManager extends Plugin {
     public function outputAdmin($task = null) {
         if (is_null($task))
             $task = self::$defaultTask;
+            
+        CSSJSHandler::addStyleUrl($this->getWebPath() . "/css/admin.css.php");
         
+        echo "<div class=\"pluginTask\" id=\"task" . ucfirst($task) . "\">\n";
         include($this->getFullPath() . "/tasks/$task.php");
+        echo "</div>\n";
     }
     
 
