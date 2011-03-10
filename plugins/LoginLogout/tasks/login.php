@@ -1,8 +1,8 @@
 <?php
 /**
- * @version     2010-08-13
+ * @version     2011-03-10
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
- * @copyright   Copyright (C) 2010 Patrick Lehner
+ * @copyright   Copyright (C) 2010-2011 Patrick Lehner
  * @module      
  * 
  * @license     This program is free software: you can redistribute it and/or modify
@@ -66,6 +66,7 @@ function checkLoginFields() {
         </table>
         <input type="hidden" name="postview" value="login" />
         <input type="button" name="loginButton" value="Login" class="submit" onclick="if (checkLoginFields()) this.form.submit();" />
+        <input type="submit" name="submitLoginForm" value="Login" style="display: none" />
         <div class="floatCleaner">&nbsp;</div>
     </fieldset>
 </form>
