@@ -84,12 +84,12 @@ require_once("../includes/loaders/loader_admin.php");
             <div id="topBarLogout" class="topBarRight">
                 <form name="logoutform" id="logoutform" method="post" action="index.php?plugin=LoginLogout">
                     <input type="hidden" name="postview" value="logout" />
-                    <input class="likeLink" type="submit" name="submit" value="<?php lang_echo("genLogout"); ?>" />
+                    <input class="likeLink" type="submit" name="submit" value="<?php echo Lang::translate("genLogout"); ?>" />
                 </form>
             </div>
 <?php } ?> 
         	<div id="topBarVer" class="topBarRight">Version: <?php echo __version(); ?></div>
-            <div id="topBarTime" class="topBarRight">Page requested at: <?php echo date("d.m.Y H:i:s", $_SERVER["REQUEST_TIME"]); ?></div>
+            <div id="topBarTime" class="topBarRight">Page created at: <?php echo date("d.m.Y H:i:s", $_SERVER["REQUEST_TIME"]); ?></div>
             <div id="topBarLang" class="topBarRight">
                 <form action="<?php echo $_SERVER["REQUEST_URI"]; ?>" method="post">
                     <?php echo Lang::translate("genLanguage");?>:
