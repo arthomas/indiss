@@ -19,52 +19,52 @@
  *              along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
     
-$__startTime = microtime(true);
+$__startTime = microtime(true); //start page creation timer
 
 define("__MAIN", 1);
 
-session_name("INDISSAdmin");
-session_start();
+session_name("INDISSAdmin"); //init session
+session_start(); //start session
 
 //initialize it all
 require_once("../includes/loaders/loader_admin.php");
     
-    if (!empty($_SESSION["uid"])) {
-    	$activeUsr = User::getUser((int)$_SESSION["uid"]);
+    if (!empty($_SESSION["uid"])) { //if there is an active session (which we can tell because then there is a valid cookie with a user id in it)
+    	$activeUsr = User::getUser((int)$_SESSION["uid"]); //fetch that user's object
     }
     
-    $task = $_GET["task"];
+    $task = $_GET["task"];  //retrieve the requested task name, if any, from the parameters
     
-    if ($activeUsr) {
-        $activePlugin = false;
-        if (isset($_GET["pluginID"])) {
-            if (($activePlugin = PluginMan::getPlugin((int)$_GET["pluginID"], true)) === false)  {
-                $log->log("Global", LEL_ERROR, "A plugin with the ID " . $_GET["pluginID"] . " does not exist.");
+    if ($activeUsr) {  //if a user is logged in (active session)
+        $activePlugin = false; //initialize the active plugin variable
+        if (isset($_GET["pluginID"])) { //if a specific plugin was requested by ID
+            if (($activePlugin = PluginMan::getPlugin((int)$_GET["pluginID"], true)) === false)  { //try and fetch the requested plugin, and if it fails:
+                $log->log("Global", LEL_ERROR, "A plugin with the ID " . $_GET["pluginID"] . " does not exist."); //log an error
             }
         }
-        if (!$activePlugin && isset($_GET["plugin"])) {
-        if (($activePlugin = PluginMan::getPluginByIname($_GET["plugin"], true)) === false)  {
-                $log->log("Global", LEL_ERROR, "A plugin called '" . $_GET["plugin"] . "' does not exist.");
+        if (!$activePlugin && isset($_GET["plugin"])) {  //if no plugin was fetched yet and we have a request by plugin name (legacy; ID overrides name)
+            if (($activePlugin = PluginMan::getPluginByIname($_GET["plugin"], true)) === false)  { //try and fetch the requested plugin, and if it fails:
+                    $log->log("Global", LEL_ERROR, "A plugin called '" . $_GET["plugin"] . "' does not exist."); //log an error
             }
         } 
-        if (!$activePlugin) {
-            $activePlugin = PluginMan::getPluginByIname("Overview");
+        if (!$activePlugin) { //if we failed to get a plugin or none has been requested
+            $activePlugin = PluginMan::getPluginByIname("Overview"); //fall back to the plugin overview screen
         }
-    } else {
-        $activePlugin = PluginMan::getPluginByIname("LoginLogout");
-        $task = "login";
+    } else {  //if no user is logged in
+        $activePlugin = PluginMan::getPluginByIname("LoginLogout");    //change active plugin to the Login plugin
+        $task = "login";  //and change the requested task to display the login screen
     }
     
-    if (!empty($_POST)) {
-        $activePlugin->processInput($_POST["postview"]);
+    if (!empty($_POST)) { //if there is any POST data:
+        $activePlugin->processInput($_POST["postview"]); //let the active plugin process that data
     }
     
-    if (isset($instantRedirect)) {
+    if (isset($instantRedirect)) {  //huh, I kinda forgot if this had any use yet. as far as i can tell, it's just sitting there, chillaxing
         header("Location: $instantRedirect");
         exit();
     }
 
-    ob_start();
+    ob_start(); //start output buffering. we only want to insert timing information at the *very* end
     
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -144,20 +144,24 @@ $buf = ob_get_clean();  //retrieve all created (buffered) output
 $count = 0;
 //Inject the live log message output
 /* 
- * Note: This part gives components the chance to place the message output differently (i.e. in a more fitting place); if
- * a component does not place the message output by inluding the string "<!--%HANDLEROUTPUT-->" in the appropriate place,
- * the message output will be placed in the default location above the component output. 
+ * Note: This part gives plugins the chance to place the message output differently (i.e. in a more fitting place); if
+ * a plugin does not place the message output by inluding the string "<!--%HANDLEROUTPUT-->" in the appropriate place,
+ * the message output will be placed in the default location above the plugin output. 
  * */
 $buf = str_replace("<!--%HANDLEROUTPUT%-->", ($log->getMsgCount("live") > 0) ? $log->getFormatted("live") : "", $buf, $count);
 $buf = str_replace("<!--%HANDLEROUTPUT_COMMON%-->", ($count == 0 && $log->getMsgCount("live") > 0) ? $log->getFormatted("live") : "", $buf);
 
+//Inject style (CSS) and script (JS) links and embedded blocks, if any
 $buf = str_replace("<!--%CSSJSLINKS%-->", CSSJSHandler::outputAll(4), $buf);
 
+//Inject page timing information
 $buf = str_replace("<!--%TIMEROUTPUT%-->", sprintf("%6.4f",(microtime(true) - $__startTime)), $buf);
 
 unset ($count);
 
+//send all created output data to the client
 echo $buf;
 
+//close mysql connection, if any
 mysql_close(); 
 ?>
