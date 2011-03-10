@@ -22,40 +22,12 @@
 defined("__MAIN") or die("Restricted access.");
 class_exists("PluginLoginLogout") or die("Class 'PluginLoginLogout' is unknown [" . __FILE__ . "]");
 
-//the JS in this section should actually be inserted with the CSSJSHandler, but that isnt implemented yet
-CSSJSHandler::addStyleUrl($this->getFullPath() . "/js/LoginFieldsChecker.js");
+/* @var $this PluginLoginLogout */
+
+//the JS in this section is now included from an external file
+CSSJSHandler::addScriptUrl($this->getWebPath() . "/js/LoginFieldsChecker.js");
 
 ?>
-
-<script type="text/javascript">
-function checkLoginFields() {
-	u = document.getElementById("username");
-	p = document.getElementById("pw");
-	var r = true;
-
-	if (u.value.length == 0) {
-	    r = false;
-	    u.style.backgroundColor = "#FBB";
-	} else {
-	    u.style.backgroundColor = "transparent";
-	}
-
-	if (p.value.length == 0) {
-        r = false;
-        p.style.backgroundColor = "#FBB";
-    } else {
-        p.style.backgroundColor = "transparent";
-    }
-
-    if (!r) {
-        document.getElementById("errorrow").style.display = "table-row";
-    } else {
-        document.getElementById("errorrow").style.display = "none";
-    }
-
-    return r;
-}
-</script>
 
 <form id="loginForm" action="?" method="post">
     <fieldset><legend><?php /*echo Lang::translate("Plugin_LoginLogout_LoginHeader");*/ ?>Login</legend>
