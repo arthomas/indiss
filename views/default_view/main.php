@@ -1,8 +1,8 @@
 <?php
 /**
- * @version     2010-04-25
+ * @version     2011-03-10
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
- * @copyright   Copyright (C) 2009-2010 Patrick Lehner
+ * @copyright   Copyright (C) 2009-2011 Patrick Lehner
  * @module
  * 
  * @license     This program is free software: you can redistribute it and/or modify
@@ -33,7 +33,8 @@ if (empty($_GET["frame"])) {
     <link rel="stylesheet" type="text/css" href="css/main.css" />
     <link rel="stylesheet" type="text/css" href="views/<?php echo $view; ?>/style.css.php" />
     
-    <title><?php echo $sitename; ?></title>    
+    <title><?php echo $sitename; ?></title>
+    <!-- INDISS Copyright (c) 2009-2011 Patrick Lehner -->
 </head>
 <body>
     <iframe id="top" name="top" src="?frame=top"></iframe>

@@ -1,8 +1,8 @@
 <?php
 /**
- * @version     2010-08-25
+ * @version     2011-03-10
  * @author      Patrick Lehner
- * @copyright   Copyright (C) 2009-2010 Patrick Lehner
+ * @copyright   Copyright (C) 2009-2011 Patrick Lehner
  * @module      Backend main page
  * 
  * @license     This program is free software: you can redistribute it and/or modify
@@ -131,7 +131,7 @@ unset($n, $item);
     </div>
     <div id="footer">
         <div id="footerspan">
-        <?php echo Lang::translate("admLayoutAndRealization");?> &copy; 2009-2010 Patrick Lehner &nbsp; | &nbsp; <?php echo Lang::translate("admIndissIsFreeSoftware");?><br />
+        <?php echo Lang::translate("admLayoutAndRealization");?> &copy; 2009-2011 Patrick Lehner &nbsp; | &nbsp; <?php echo Lang::translate("admIndissIsFreeSoftware");?><br />
         <?php echo Lang::translate(array("admPageCreatedIn", "<!--%TIMEROUTPUT%-->")); ?>
         </div>
     </div>
