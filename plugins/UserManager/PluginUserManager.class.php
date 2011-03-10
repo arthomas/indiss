@@ -1,8 +1,8 @@
 <?php
 /**
- * @version     2010-08-10
+ * @version     2011-03-10
  * @author      Patrick Lehner <lehner.patrick@gmx.de>
- * @copyright   Copyright (C) 2010 Patrick Lehner
+ * @copyright   Copyright (C) 2010-2011 Patrick Lehner
  * @module      
  * 
  * @license     This program is free software: you can redistribute it and/or modify
@@ -67,26 +67,17 @@ class PluginUserManager extends Plugin {
         global $log, $db;
     }
     
-    public function install() {
-        global $log, $db;
-        
-        
-    }
+    // n/a because Plugin is a Core Plugin
+    public function install() {}
     
-    public function uninstall() {
-        global $log, $db;
-        
-        /*if (!$db->dropTable($this->itemTable)) {
-            
-        } else {
-            $log->dlog("Plugin: $this->pName", LEL_NOTICE, __METHOD__ . "(): Successfully dropped item table '$this->itemTable'");
-        }*/
-    }
+    // n/a because Plugin is a Core Plugin
+    public function uninstall() {}
     
     public function processInput($postview = null) {
         
     }
     
+    // n/a because Plugin is a Core Plugin
     public function outputFront() {}
     
     public function outputAdmin($task = null) {
