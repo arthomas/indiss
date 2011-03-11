@@ -2,7 +2,7 @@
 <!-- Insert DTD info here! -->
 <install type="plugin">
     <pName>ViewManager</pName>
-    <type>admin</type>
+    <type>core</type>
     <created>2011-03-11</created>
     <author>Patrick Lehner</author>
     <authorEmail>lehner.patrick@gmx.de</authorEmail>
